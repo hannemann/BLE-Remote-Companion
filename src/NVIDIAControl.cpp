@@ -219,9 +219,9 @@ void setup() {
     delay(1000);
   }
 
-  WiFiMulti.addAP(ssid, password);
+  wifi.addAP(ssid, password);
 
-  while (WiFiMulti.run() != WL_CONNECTED) {
+  while (wifi.run() != WL_CONNECTED) {
     delay(100);
   }
   Serial.println("Wifi Connected");

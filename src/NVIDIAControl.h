@@ -19,7 +19,7 @@ int FailedAttempts;
 time_t lastFailure;
 };
 
-WiFiMulti WiFiMulti;
+WiFiMulti wifi;
 WebSocketsServer webSocket = WebSocketsServer(webSocketPort);
 
 /* Try to block users who are trying to brute force a connection */
