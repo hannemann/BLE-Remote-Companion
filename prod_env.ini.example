@@ -2,3 +2,4 @@
 build_flags = 
   '-DWIFI_SSID="xx"'
   '-DWIFI_PASSWORD="xx"'
+  '-DWS_PORT=2339'
