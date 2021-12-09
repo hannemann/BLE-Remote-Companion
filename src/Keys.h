@@ -27,11 +27,15 @@ const JSONMethodToCecType JSONMethodToCec[] = {
   {"Input.ExecuteAction",           "mute",             0, 0, 0xE2},
   {"Input.ExecuteAction",           "appswitch",        0, 0, 0xBB},
   {"Input.ExecuteAction",           "play",             0, 0, 0xCD},
-  {"Input.ExecuteAction",           "stop",             0, 0, 0xB7},
-  {"Input.ExecuteAction",           "stepback",         0, 0, 0xB4},
+  {"Input.ExecuteAction",           "ffwd",             0, 1, 0xB3},
+  {"Input.ExecuteAction",           "rew",              0, 1, 0xB4},
 
-  {"Input.ExecuteAction",           "stepforward",      0, 0, 0xB3},
-  {"Input.ExecuteAction",           "skipprevious",     0, 0, 0xB7},
-  {"Input.ExecuteAction",           "skipnext",         0, 0, 0xB5}
+  {"Input.ExecuteAction",           "skipnext",         0, 0, 0xB5},
+  {"Input.ExecuteAction",           "skipprevious",     0, 0, 0xB6},
+  {"Input.ExecuteAction",           "stop",             0, 0, 0xB7},
+  {"Input.ExecuteAction",           "sleep",            0, 0, 0x34},
+  {"Input.ExecuteAction",           "menu",             0, 0, 0x40},
+  {"Input.ExecuteAction",           "menulongpress",    0, 1, 0x40}
 };
-int JSONMethodToCecLength = 23;
+
+int JSONMethodToCecLength = 26;

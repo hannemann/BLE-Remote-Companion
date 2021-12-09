@@ -22,13 +22,20 @@ void keyboard_control(uint8_t Key, const char* JSONMethod, bool longpress) {
   delay(10);
 }
 
-void media_control(uint8_t Key) {
+void media_control(uint8_t Key, bool longpress) {
   Serial.print("Sending media code :");
   Serial.println(Key);
   inputConsumer_t keyboard{};
   keyboard.ConsumerControl = Key;
   inputMedia->setValue((uint8_t*)&keyboard, sizeof(keyboard));
   inputMedia->notify();
+  if (longpress) {
+    for(int i = 0; i < 50; i++) {
+      delay(10);
+      inputMedia->setValue((uint8_t*)&keyboard, sizeof(keyboard));
+      inputMedia->notify();
+    }
+  }
   inputMedia->setValue((uint8_t*)(&keyboard_report), sizeof(keyboard_report));
   inputMedia->notify();
   delay(10);
@@ -44,7 +51,7 @@ void processUSBHID(JSONVar JSONMethod, const char* JSONAction) {
       if (JSONMethodToCec[i].KeyboardAction == 1) {
         keyboard_control(JSONMethodToCec[i].USBHID, (const char *)JSONMethod, JSONMethodToCec[i].LongPress);
       } else {
-        media_control(JSONMethodToCec[i].USBHID);
+        media_control(JSONMethodToCec[i].USBHID, JSONMethodToCec[i].LongPress);
       }
       return;
     }
