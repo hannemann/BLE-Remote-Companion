@@ -11,7 +11,7 @@ void keyboard_control(uint8_t Key, const char* JSONMethod, bool longpress) {
   input->setValue((uint8_t*)&keyboard, sizeof(keyboard));
   input->notify();
   if (longpress) {
-    for(int i = 0; i < 30; i++) {
+    for(int i = 0; i < 50; i++) {
       delay(10);
       input->setValue((uint8_t*)&keyboard, sizeof(keyboard));
       input->notify();
