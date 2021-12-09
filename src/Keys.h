@@ -34,3 +34,4 @@ const JSONMethodToCecType JSONMethodToCec[] = {
   {"Input.ExecuteAction",           "skipprevious",     0, 0, 0xB7},
   {"Input.ExecuteAction",           "skipnext",         0, 0, 0xB5}
 };
+int JSONMethodToCecLength = 23;

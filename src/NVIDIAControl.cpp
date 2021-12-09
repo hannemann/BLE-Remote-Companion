@@ -35,7 +35,6 @@ void media_control(uint8_t Key) {
 }
 
 void processUSBHID(JSONVar JSONMethod, const char* JSONAction) {
-  int JSONMethodToCecLength = 23;
   Serial.printf("Incoming JSON Request: %s / %s\n", (const char *)JSONMethod, (const char *)JSONAction);
   // Serial.printf("Found %d possible candidates\n", (int)JSONMethodToCecLength);
   for (int i = 0; i < JSONMethodToCecLength; i++) {
