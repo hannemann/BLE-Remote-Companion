@@ -1,16 +1,17 @@
 #include <NVIDIAControl.h>
 
-void keyboard_control(uint8_t Key, const char* JSONMethod, bool longpress) {
+void keyboard_control(JSONMethodToCecType key) {
   Serial.print("Sending key code :");
-  Serial.println(Key);
+  Serial.println(key.USBHID);
   inputKeyboard_t keyboard{};
-  if (strcmp(JSONMethod, "KEYCODE_HOME") == 0) {
+  if (key.LeftCTRL) {
     keyboard.KB_KeyboardKeyboardLeftControl = 1;
   }
-  keyboard.Key = Key;
+  keyboard.Key = key.USBHID;
   input->setValue((uint8_t*)&keyboard, sizeof(keyboard));
   input->notify();
-  if (longpress) {
+  if (key.LongPress) {
+    Serial.println("Longpress");
     for(int i = 0; i < 50; i++) {
       delay(10);
       input->setValue((uint8_t*)&keyboard, sizeof(keyboard));
@@ -22,14 +23,15 @@ void keyboard_control(uint8_t Key, const char* JSONMethod, bool longpress) {
   delay(10);
 }
 
-void media_control(uint8_t Key, bool longpress) {
+void media_control(JSONMethodToCecType key) {
   Serial.print("Sending media code :");
-  Serial.println(Key);
+  Serial.println(key.USBHID);
   inputConsumer_t keyboard{};
-  keyboard.ConsumerControl = Key;
+  keyboard.ConsumerControl = key.USBHID;
   inputMedia->setValue((uint8_t*)&keyboard, sizeof(keyboard));
   inputMedia->notify();
-  if (longpress) {
+  if (key.LongPress) {
+    Serial.println("Longpress");
     for(int i = 0; i < 50; i++) {
       delay(10);
       inputMedia->setValue((uint8_t*)&keyboard, sizeof(keyboard));
@@ -41,17 +43,17 @@ void media_control(uint8_t Key, bool longpress) {
   delay(10);
 }
 
-void processUSBHID(JSONVar JSONMethod, const char* JSONAction) {
-  Serial.printf("Incoming JSON Request: %s / %s\n", (const char *)JSONMethod, (const char *)JSONAction);
+void processUSBHID(JSONVar jsonBody) {
+  Serial.printf("Incoming JSON Request: %s\n", (const char *)jsonBody["method"]);
   // Serial.printf("Found %d possible candidates\n", (int)JSONMethodToCecLength);
   for (int i = 0; i < JSONMethodToCecLength; i++) {
     // Serial.printf("Candidate: %s / %s\n", JSONMethodToCec[i].JSONMethod, JSONMethodToCec[i].JSONAction);
-    if ((strcmp(JSONMethodToCec[i].JSONMethod, (const char *)JSONMethod) == 0)) {
+    if ((strcmp(JSONMethodToCec[i].JSONMethod, (const char *)jsonBody["method"]) == 0)) {
       Serial.println("JSON valid");
       if (JSONMethodToCec[i].KeyboardAction == 1) {
-        keyboard_control(JSONMethodToCec[i].USBHID, (const char *)JSONMethod, JSONMethodToCec[i].LongPress);
+        keyboard_control(JSONMethodToCec[i]);
       } else {
-        media_control(JSONMethodToCec[i].USBHID, JSONMethodToCec[i].LongPress);
+        media_control(JSONMethodToCec[i]);
       }
       return;
     }
@@ -165,16 +167,16 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length
         if (counter==10000) {
           counter=1;
         }
-        JSONVar myObject = JSON.parse((const char *)payload);
+        JSONVar jsonBody = JSON.parse((const char *)payload);
 
-        if (strcmp(myObject["method"], "Player.GetActivePlayers") == 0) {
+        if (strcmp(jsonBody["method"], "Player.GetActivePlayers") == 0) {
           webSocket.sendTXT(num, "{\"id\": 1, \"jsonrpc\": \"2.0\", \"result\": [ { \"playerid\": 1, \"type\": \"video\" } ]}");
           return;
         } else {
           webSocket.sendTXT(num, "{\"id\":1,\"jsonrpc\":\"2.0\",\"result\":\"OK\"}");
         }
 
-        if (JSON.typeof(myObject) == "undefined") {
+        if (JSON.typeof(jsonBody) == "undefined") {
           Serial.println("Parsing input failed!");
           return;
         }
@@ -182,12 +184,12 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length
           Serial.println("Bluetooth not connected");
           return;
         }
-        if (!myObject.hasOwnProperty("method")) {
+        if (!jsonBody.hasOwnProperty("method")) {
           Serial.println("JSON parse cannot find method");
           return;
         }
         Serial.println("Correctly parsed JSON");
-        processUSBHID(myObject["method"], "");
+        processUSBHID(jsonBody);
         Serial.printf("Function time was %d\n", (int)(millis() - startTime));
         break;
       }
