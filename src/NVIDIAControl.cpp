@@ -4,7 +4,7 @@ void keyboard_control(uint8_t Key, const char* JSONMethod, bool longpress) {
   Serial.print("Sending key code :");
   Serial.println(Key);
   inputKeyboard_t keyboard{};
-  if (strcmp(JSONMethod, "Input.Home") == 0) {
+  if (strcmp(JSONMethod, "KEYCODE_HOME") == 0) {
     keyboard.KB_KeyboardKeyboardLeftControl = 1;
   }
   keyboard.Key = Key;
@@ -46,7 +46,7 @@ void processUSBHID(JSONVar JSONMethod, const char* JSONAction) {
   // Serial.printf("Found %d possible candidates\n", (int)JSONMethodToCecLength);
   for (int i = 0; i < JSONMethodToCecLength; i++) {
     // Serial.printf("Candidate: %s / %s\n", JSONMethodToCec[i].JSONMethod, JSONMethodToCec[i].JSONAction);
-    if ((strcmp(JSONMethodToCec[i].JSONMethod, (const char *)JSONMethod) == 0) && (strcmp(JSONMethodToCec[i].JSONAction, JSONAction) == 0)) {
+    if ((strcmp(JSONMethodToCec[i].JSONMethod, (const char *)JSONMethod) == 0)) {
       Serial.println("JSON valid");
       if (JSONMethodToCec[i].KeyboardAction == 1) {
         keyboard_control(JSONMethodToCec[i].USBHID, (const char *)JSONMethod, JSONMethodToCec[i].LongPress);
@@ -187,15 +187,7 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length
           return;
         }
         Serial.println("Correctly parsed JSON");
-        if (strcmp(myObject["method"], "Input.ExecuteAction") == 0) {
-          if (!((myObject.hasOwnProperty("params")) && (myObject["params"].hasOwnProperty("action")))) {
-            Serial.println("JSON parse cannot find params or action and is required for Input.ExecuteAction");
-            return;
-          }
-          processUSBHID(myObject["method"], myObject["params"]["action"]);
-        } else {
-          processUSBHID(myObject["method"], "");
-        }
+        processUSBHID(myObject["method"], "");
         Serial.printf("Function time was %d\n", (int)(millis() - startTime));
         break;
       }

@@ -1,6 +1,6 @@
 
 struct JSONMethodToCecType {
-  char JSONMethod[24];
+  char JSONMethod[30];
   char JSONAction[14];
   bool KeyboardAction;
   bool LongPress;
@@ -8,34 +8,29 @@ struct JSONMethodToCecType {
 };
 
 const JSONMethodToCecType JSONMethodToCec[] = {
-  {"Input.Select",                  "",                 1, 0, 0x28},
+  {"KEYCODE_ENTER",                 "",                 1, 0, 0x28},
   {"Input.SelectLongpress",         "",                 1, 1, 0x28},
-  {"Input.Left",                    "",                 1, 0, 0x50},
-  {"Input.Right",                   "",                 1, 0, 0x4F},
-  {"Input.Up",                      "",                 1, 0, 0x52},
-  {"Input.Down",                    "",                 1, 0, 0x51},
-  {"Input.ShowOSD",                 "",                 1, 0, 0x10},
-  {"Input.Info",                    "",                 0, 0, 0},
-  {"Input.Back",                    "",                 1, 0, 0x29},
-  {"Input.Home",                    "",                 1, 0, 0x29},
+  {"KEYCODE_DPAD_RIGHT",            "",                 1, 0, 0x4F},
+  {"KEYCODE_DPAD_LEFT",             "",                 1, 0, 0x50},
+  {"KEYCODE_DPAD_DOWN",             "",                 1, 0, 0x51},
+  {"KEYCODE_DPAD_UP",               "",                 1, 0, 0x52},
+  {"KEYCODE_ESCAPE",                "",                 1, 0, 0x29},
+  {"KEYCODE_HOME",                  "",                 1, 0, 0x29},
+  {"KEYCODE_MENU",                  "",                 1, 0, 0x65},
+  {"KEYCODE_VOLUME_UP",             "",                 0, 0, 0xE9},
 
-  {"Input.SendText",                "",                 0, 0, 0},
-  {"VideoLibrary.Scan",             "",                 0, 0, 0},
-  {"Input.ContextMenu",             "",                 1, 0, 0x65},
-  {"Input.ExecuteAction",           "volumeup",         0, 0, 0xE9},
-  {"Input.ExecuteAction",           "volumedown",       0, 0, 0xEA},
-  {"Input.ExecuteAction",           "mute",             0, 0, 0xE2},
-  {"Input.ExecuteAction",           "appswitch",        0, 0, 0xBB},
-  {"Input.ExecuteAction",           "play",             0, 0, 0xCD},
-  {"Input.ExecuteAction",           "ffwd",             0, 1, 0xB3},
-  {"Input.ExecuteAction",           "rew",              0, 1, 0xB4},
+  {"KEYCODE_VOLUME_DOWN",           "",                 0, 0, 0xEA},
+  {"KEYCODE_VOLUME_MUTE",           "",                 0, 0, 0xE2},
+  {"KEYCODE_MEDIA_PLAY_PAUSE",      "",                 0, 0, 0xCD},
+  {"KEYCODE_MEDIA_FAST_FORWARD",    "",                 0, 1, 0xB3},
+  {"KEYCODE_MEDIA_REWIND",          "",                 0, 1, 0xB4},
+  {"KEYCODE_MEDIA_NEXT",            "",                 0, 0, 0xB5},
+  {"KEYCODE_MEDIA_PREVIOUS",        "",                 0, 0, 0xB6},
+  {"KEYCODE_MEDIA_STOP",            "",                 0, 0, 0xB7},
+  {"KEYCODE_POWER",                 "",                 0, 0, 0x34},
+  {"KEYCODE_MENU",                  "",                 0, 0, 0x40},
 
-  {"Input.ExecuteAction",           "skipnext",         0, 0, 0xB5},
-  {"Input.ExecuteAction",           "skipprevious",     0, 0, 0xB6},
-  {"Input.ExecuteAction",           "stop",             0, 0, 0xB7},
-  {"Input.ExecuteAction",           "sleep",            0, 0, 0x34},
-  {"Input.ExecuteAction",           "menu",             0, 0, 0x40},
   {"Input.ExecuteAction",           "menulongpress",    0, 1, 0x40}
 };
 
-int JSONMethodToCecLength = 26;
+int JSONMethodToCecLength = 21;
