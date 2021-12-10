@@ -1,60 +1,39 @@
 #include <NVIDIAControl.h>
 
-void keyboard_control(JSONMethodToCecType key) {
-  Serial.print("Sending key code :");
-  Serial.println(key.USBHID);
+inputKeyboard_t getKeyboard(JSONMethodToCecType key) {
   inputKeyboard_t keyboard{};
   if (key.LeftCTRL) {
     keyboard.KB_KeyboardKeyboardLeftControl = 1;
   }
   keyboard.Key = key.USBHID;
-  input->setValue((uint8_t*)&keyboard, sizeof(keyboard));
-  input->notify();
+  return keyboard;
+}
+
+void sendKey(JSONMethodToCecType key) {
+  BLECharacteristic* bc = key.KeyboardAction == 1 ? input : inputMedia;
+  Serial.printf("Sending %s code : %d\n", key.KeyboardAction == 1 ? "key" : "media", key.USBHID);
+  inputKeyboard_t keyboard = getKeyboard(key);
+  bc->setValue((uint8_t*)&keyboard, sizeof(keyboard));
+  bc->notify();
   if (key.LongPress) {
     Serial.println("Longpress");
     for(int i = 0; i < 50; i++) {
       delay(10);
-      input->setValue((uint8_t*)&keyboard, sizeof(keyboard));
-      input->notify();
+      bc->setValue((uint8_t*)&keyboard, sizeof(keyboard));
+      bc->notify();
     }
   }
-  input->setValue((uint8_t*)(&keyboard_report), sizeof(keyboard_report));
-  input->notify();
+  bc->setValue((uint8_t*)(&keyboard_report), sizeof(keyboard_report));
+  bc->notify();
   delay(10);
 }
 
-void media_control(JSONMethodToCecType key) {
-  Serial.print("Sending media code :");
-  Serial.println(key.USBHID);
-  inputConsumer_t keyboard{};
-  keyboard.ConsumerControl = key.USBHID;
-  inputMedia->setValue((uint8_t*)&keyboard, sizeof(keyboard));
-  inputMedia->notify();
-  if (key.LongPress) {
-    Serial.println("Longpress");
-    for(int i = 0; i < 50; i++) {
-      delay(10);
-      inputMedia->setValue((uint8_t*)&keyboard, sizeof(keyboard));
-      inputMedia->notify();
-    }
-  }
-  inputMedia->setValue((uint8_t*)(&keyboard_report), sizeof(keyboard_report));
-  inputMedia->notify();
-  delay(10);
-}
-
-void processUSBHID(JSONVar jsonBody) {
+void processRequest(JSONVar jsonBody) {
   Serial.printf("Incoming JSON Request: %s\n", (const char *)jsonBody["method"]);
-  // Serial.printf("Found %d possible candidates\n", (int)JSONMethodToCecLength);
   for (int i = 0; i < JSONMethodToCecLength; i++) {
-    // Serial.printf("Candidate: %s / %s\n", JSONMethodToCec[i].JSONMethod, JSONMethodToCec[i].JSONAction);
     if ((strcmp(JSONMethodToCec[i].JSONMethod, (const char *)jsonBody["method"]) == 0)) {
       Serial.println("JSON valid");
-      if (JSONMethodToCec[i].KeyboardAction == 1) {
-        keyboard_control(JSONMethodToCec[i]);
-      } else {
-        media_control(JSONMethodToCec[i]);
-      }
+      sendKey(JSONMethodToCec[i]);
       return;
     }
   }
@@ -189,7 +168,7 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length
           return;
         }
         Serial.println("Correctly parsed JSON");
-        processUSBHID(jsonBody);
+        processRequest(jsonBody);
         Serial.printf("Function time was %d\n", (int)(millis() - startTime));
         break;
       }
