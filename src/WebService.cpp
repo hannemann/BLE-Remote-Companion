@@ -12,17 +12,16 @@ void WebService::init() {
     }
     Serial.printf("\nConnected! IP address: ");
     Serial.println(WiFi.localIP());
-    WSEvent::initIPAddressFailures();
+    WSEvent::instance().init();
     HTTPEvent::instance().init();
 }
 
 void WebService::run() {
-    WSEvent::webSocket.begin();
-    WSEvent::webSocket.onEvent(WSEvent::webSocketEvent);
+    WSEvent::instance().run();
     HTTPEvent::instance().run();
 }
 
 void WebService::loop() {
-    WSEvent::webSocket.loop();
+    WSEvent::instance().loop();
     HTTPEvent::instance().loop();
 }

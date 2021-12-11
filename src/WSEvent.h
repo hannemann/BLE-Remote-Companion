@@ -14,13 +14,20 @@ struct IPAddressFail {
 class WSEvent
 {
     public:
-    WSEvent();
+    WSEvent() {};
+    static WSEvent& instance()
+    {
+        static WSEvent instance;
+        return instance;
+    }
+    void init();
+    void run();
+    void loop();
     static WebSocketsServer webSocket;
     static void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length);
     static void initIPAddressFailures();
     private:
     static IPAddressFail IPAddressFailures[254];
-    static uint16_t counter;
 };
 
 #endif // WSEVENT_H

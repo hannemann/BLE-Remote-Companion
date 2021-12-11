@@ -1,11 +1,24 @@
 #include "WSEvent.h"
 #include "Bluetooth.h"
 
-uint16_t WSEvent::counter = 1;
-
 WebSocketsServer WSEvent::webSocket = WebSocketsServer(webSocketPort);
 
 IPAddressFail WSEvent::IPAddressFailures[254];
+
+void WSEvent::init() {
+    Serial.println("Init Websocket server...");
+    initIPAddressFailures();
+    webSocket.onEvent(webSocketEvent);
+}
+
+void WSEvent::run() {
+    webSocket.begin();
+    Serial.printf("Websocket started listening on port %d\n", WS_PORT);
+}
+
+void WSEvent::loop() {
+    webSocket.loop();
+}
 
 /**
  * Populate the list of struct array with IP addresses
