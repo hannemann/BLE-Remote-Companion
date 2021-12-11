@@ -4,7 +4,7 @@ struct JSONMethodToCecType {
   bool KeyboardAction; // HID Keyboard and Keypad Page (0x07) otherwise HID Consumer Page (0x0c)
   bool LongPress;
   bool LeftCTRL;
-  uint8_t USBHID;
+  uint16_t USBHID;
 };
 
   // Keyname, Keyboard Page, Longpress, Left CTRL, Keycode

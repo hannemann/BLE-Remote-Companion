@@ -9,32 +9,48 @@ BLECharacteristic* Bluetooth::output;
 BLECharacteristic* Bluetooth::inputMedia;
 BLECharacteristic* Bluetooth::outputMedia;
 
-inputKeyboard_t Bluetooth::getKeyboard(JSONMethodToCecType key) {
+void Bluetooth::sendKey(JSONMethodToCecType key) {
+  Serial.print("Sending key code :");
+  Serial.println(key.USBHID);
+  Serial.printf("Sending media code: %d\n", key.USBHID);
   inputKeyboard_t keyboard{};
   if (key.LeftCTRL) {
     keyboard.KB_KeyboardKeyboardLeftControl = 1;
   }
   keyboard.Key = key.USBHID;
-  return keyboard;
-}
-
-void Bluetooth::sendKey(JSONMethodToCecType key) {
-  BLECharacteristic* bc = key.KeyboardAction == 1 ? input : inputMedia;
-  Serial.printf("Sending %s code : %d\n", key.KeyboardAction == 1 ? "key" : "media", key.USBHID);
-  inputKeyboard_t keyboard = getKeyboard(key);
-  bc->setValue((uint8_t*)&keyboard, sizeof(keyboard));
-  bc->notify();
+  input->setValue((uint8_t*)&keyboard, sizeof(keyboard));
+  input->notify();
   if (key.LongPress) {
     Serial.println("Longpress");
     for(int i = 0; i < 50; i++) {
       delay(10);
-      bc->setValue((uint8_t*)&keyboard, sizeof(keyboard));
-      bc->notify();
+      input->setValue((uint8_t*)&keyboard, sizeof(keyboard));
+      input->notify();
     }
   }
-  bc->setValue((uint8_t*)(&keyboard_report), sizeof(keyboard_report));
-  bc->notify();
+  input->setValue((uint8_t*)(&keyboard_report), sizeof(keyboard_report));
+  input->notify();
   delay(10);
+}
+
+void Bluetooth::sendMedia(JSONMethodToCecType key) {
+    Serial.printf("Sending media code: %d\n", key.USBHID);    
+    uint8_t value[2];
+    value[0] = key.USBHID;
+    value[1] = key.USBHID >> 8;
+    inputMedia->setValue(value, 2);
+    inputMedia->notify();
+    if (key.LongPress) {
+        Serial.println("Longpress");
+            for(int i = 0; i < 50; i++) {
+            delay(10);
+            inputMedia->setValue(value, 2);
+            inputMedia->notify();
+        }
+    }
+    inputMedia->setValue((uint8_t*)(&keyboard_report), sizeof(keyboard_report));
+    inputMedia->notify();
+    delay(10);
 }
 
 void Bluetooth::send(JSONVar jsonBody) {
@@ -42,7 +58,8 @@ void Bluetooth::send(JSONVar jsonBody) {
   for (int i = 0; i < JSONMethodToCecLength; i++) {
     if ((strcmp(JSONMethodToCec[i].JSONMethod, (const char *)jsonBody["method"]) == 0)) {
       Serial.println("JSON valid");
-      sendKey(JSONMethodToCec[i]);
+      JSONMethodToCecType key = JSONMethodToCec[i];
+      key.KeyboardAction == 1 ? sendKey(key) : sendMedia(key);
       return;
     }
   }

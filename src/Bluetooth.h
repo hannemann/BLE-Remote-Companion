@@ -22,8 +22,8 @@ class Bluetooth
     static BLECharacteristic* inputMedia;
     static BLECharacteristic* outputMedia;
     private:
-    inputKeyboard_t getKeyboard(JSONMethodToCecType key);
     void sendKey(JSONMethodToCecType key);
+    void sendMedia(JSONMethodToCecType key);
     inputKeyboard_t keyboard_report{};
 };
 
