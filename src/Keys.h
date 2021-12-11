@@ -34,7 +34,9 @@ const JSONMethodToCecType JSONMethodToCec[] = {
   {"KEYCODE_MENU_LONGPRESS",        0, 1, 0, 0x40},
   {"KEYCODE_SEARCH",                0, 0, 0, 0x0221},
   {"KEYCODE_SELECT_TASK",           0, 0, 0, 0x01a2},
-  {"KEYCODE_INFO",                  0, 0, 0, 0x01bd}   // App Switcher :) Yay!
+  {"KEYCODE_INFO",                  0, 0, 0, 0x01bd},   // App Switcher :) Yay!
+  {"KEYCODE_PAGE_UP",               1, 0, 0, 0x004b},
+  {"KEYCODE_PAGE_DOWN",             1, 0, 0, 0x004e},
 };
 
-const int JSONMethodToCecLength = 24;
+const int JSONMethodToCecLength = 26;
