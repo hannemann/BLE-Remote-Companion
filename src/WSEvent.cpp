@@ -28,30 +28,30 @@ void WSEvent::webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size
         IPAddress ip = webSocket.remoteIP(num);
         Serial.printf("WEBSOCKET: [%u] Connected from %d.%d.%d.%d url: %s\n", num, ip[0], ip[1], ip[2], ip[3], payload);
         /* A simple system to block IP Addresses that fail connecting 5 times for a 5 minute period */
-        // int IPAddressPosition = ip[3]-1;
-        // if ((IPAddressPosition>=0) && (IPAddressPosition<253)) {
-        //   int FailedAttempts = IPAddressFailures[IPAddressPosition].FailedAttempts;
-        //   if (FailedAttempts<5) {
-        //     if (strcmp((const char *)payload, "/jsonrpc") != 0) {
-        //       Serial.println("WEBSOCKET: Client has not connected to the correct path, disconnecting...");
-        //       Serial.printf("IP Address %d.%d.%d.%d has failed connecting\n",ip[0], ip[1], ip[2], ip[3]);
+        int IPAddressPosition = ip[3]-1;
+        if ((IPAddressPosition>=0) && (IPAddressPosition<253)) {
+          int FailedAttempts = IPAddressFailures[IPAddressPosition].FailedAttempts;
+          if (FailedAttempts<5) {
+            if (strcmp((const char *)payload, "/jsonrpc") != 0) {
+              Serial.println("WEBSOCKET: Client has not connected to the correct path, disconnecting...");
+              Serial.printf("IP Address %d.%d.%d.%d has failed connecting\n",ip[0], ip[1], ip[2], ip[3]);
   
-        //       IPAddressFailures[IPAddressPosition].lastFailure = time(nullptr);
-        //       IPAddressFailures[IPAddressPosition].FailedAttempts=FailedAttempts+1;
-        //       if ((FailedAttempts+1)==5) {
-        //         Serial.printf("IP Address %d.%d.%d.%d has failed connecting 5 times, it will now be blocked for 300 seconds\n",ip[0], ip[1], ip[2], ip[3]);
-        //       } 
-        //       webSocket.disconnect(num);
-        //     }        
-        //   } else {
-        //     Serial.println("Disconnecting client due to being banned");
-        //     if ((IPAddressFailures[IPAddressPosition].lastFailure+300)<time(nullptr)) {
-        //       Serial.println("It has now been over five minutes, disabling client block...");
-        //       IPAddressFailures[IPAddressPosition].FailedAttempts = 0;
-        //     }
-        //     webSocket.disconnect(num);
-        //   }
-        // }
+              IPAddressFailures[IPAddressPosition].lastFailure = time(nullptr);
+              IPAddressFailures[IPAddressPosition].FailedAttempts=FailedAttempts+1;
+              if ((FailedAttempts+1)==5) {
+                Serial.printf("IP Address %d.%d.%d.%d has failed connecting 5 times, it will now be blocked for 300 seconds\n",ip[0], ip[1], ip[2], ip[3]);
+              } 
+              webSocket.disconnect(num);
+            }        
+          } else {
+            Serial.println("Disconnecting client due to being banned");
+            if ((IPAddressFailures[IPAddressPosition].lastFailure+300)<time(nullptr)) {
+              Serial.println("It has now been over five minutes, disabling client block...");
+              IPAddressFailures[IPAddressPosition].FailedAttempts = 0;
+            }
+            webSocket.disconnect(num);
+          }
+        }
       }
       break;
     case WStype_TEXT:
@@ -60,21 +60,7 @@ void WSEvent::webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size
         startTime = millis();
 
         Serial.printf("WEBSOCKET: [%u] Payload: %s\n", num, payload);
-        Serial.printf("Counter: %d\n", counter);
-        
-        counter = counter + 1;
-        /*  I want to avoid filling up stack space, and this is only needed to test latency */
-        if (counter==10000) {
-          counter=1;
-        }
         JSONVar jsonBody = JSON.parse((const char *)payload);
-
-        if (strcmp(jsonBody["method"], "Player.GetActivePlayers") == 0) {
-          webSocket.sendTXT(num, "{\"id\": 1, \"jsonrpc\": \"2.0\", \"result\": [ { \"playerid\": 1, \"type\": \"video\" } ]}");
-          return;
-        } else {
-          webSocket.sendTXT(num, "{\"id\":1,\"jsonrpc\":\"2.0\",\"result\":\"OK\"}");
-        }
 
         if (JSON.typeof(jsonBody) == "undefined") {
           Serial.println("Parsing input failed!");
@@ -91,6 +77,7 @@ void WSEvent::webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size
         Serial.println("Correctly parsed JSON");
         bluetooth.send(jsonBody);
         Serial.printf("Function time was %d\n", (int)(millis() - startTime));
+        webSocket.sendTXT(num, "{\"id\":1,\"jsonrpc\":\"2.0\",\"result\":\"OK\"}");
         break;
       }
     case WStype_BIN:
