@@ -34,4 +34,4 @@ const JSONMethodToCecType JSONMethodToCec[] = {
   {"KEYCODE_MENU_LONGPRESS",        0, 1, 0, 0x40}
 };
 
-int JSONMethodToCecLength = 21;
+const int JSONMethodToCecLength = 21;

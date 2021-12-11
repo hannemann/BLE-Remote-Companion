@@ -2,7 +2,8 @@
 #include "HIDTypes.h"
 #include "HIDKeyboardTypes.h"
 
-//Keyboard Initialize
+#ifndef KEYBOARD_H
+#define KEYBOARD_H
 
 struct inputConsumer_t
 {
@@ -130,5 +131,4 @@ const uint8_t keyboardHidDescriptor[] = {
 
 #endif
 
-// static inputConsumer_t consumer_Report{};
-static inputKeyboard_t keyboard_report{}; // sent to PC
+#endif // KEYBOARD_H
