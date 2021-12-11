@@ -1,5 +1,5 @@
 #include "KeyServer.h"
-#include "Bluetooth.h"
+#include "NVC.h"
 
 void keyTaskServer(void*) {
   BLEDevice::init("NVIDIA Control Device");
