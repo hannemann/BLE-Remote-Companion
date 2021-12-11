@@ -1,18 +1,16 @@
 #include <WiFi.h>
-#include <WiFiMulti.h>
-#include <WiFiClientSecure.h>
 #include "WSEvent.h"
 #include "HTTPEvent.h"
 
 #ifndef WIFI_H
 #define WIFI_H
 
-class WebServer {
+class WebService {
     public:
-        WebServer();
-        static WebServer& instance()
+        WebService();
+        static WebService& instance()
         {
-            static WebServer instance;
+            static WebService instance;
             return instance;
         }
         void init();

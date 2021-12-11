@@ -1,31 +1,28 @@
 #include "NVC.h"
-#include "WebServer.h"
+#include "WebService.h"
 
-WebServer::WebServer() {}
+WebService::WebService() {}
 
-void WebServer::init() {
-    WiFiMulti wifi;
+void WebService::init() {
     Serial.print("Connecting to WIFI");
-    wifi.addAP(NVC::instance().getSSID(), NVC::instance().getPSK());
-    while (wifi.run() != WL_CONNECTED) {
-        Serial.write(".");
-        Serial.flush();
+    WiFi.begin(NVC::instance().getSSID(), NVC::instance().getPSK());
+    while (WiFi.status() != WL_CONNECTED) {
+        Serial.print(".");
         delay(1000);
     }
-    Serial.printf("\nConnected\n");
-    Serial.println("IP address: ");
+    Serial.printf("\nConnected! IP address: ");
     Serial.println(WiFi.localIP());
     WSEvent::initIPAddressFailures();
     HTTPEvent::instance().init();
 }
 
-void WebServer::run() {
+void WebService::run() {
     WSEvent::webSocket.begin();
     WSEvent::webSocket.onEvent(WSEvent::webSocketEvent);
     HTTPEvent::instance().run();
 }
 
-void WebServer::loop() {
+void WebService::loop() {
     WSEvent::webSocket.loop();
     HTTPEvent::instance().loop();
 }

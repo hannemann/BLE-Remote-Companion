@@ -1,4 +1,5 @@
 #include <WiFi.h>
+#include <WebServer.h>
 
 #ifndef HTTPEVENT_H
 #define HTTPEVENT_H
@@ -16,8 +17,8 @@ class HTTPEvent {
         void loop();
     private:
         uint16_t port = HTTP_PORT;
-        WiFiServer server;
-        WiFiClient client;
+        static void home();
+        static void fourOFour();
 
 };
 

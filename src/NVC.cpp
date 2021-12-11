@@ -12,13 +12,13 @@ void NVC::setup() {
       delay(1000);
   }
   Serial.println("");
-  WebServer::instance().init();
+  WebService::instance().init();
   xTaskCreate(keyTaskServer, "server", 20000, NULL, 5, NULL);
-  WebServer::instance().run();
+  WebService::instance().run();
 }
 
 void NVC::loop() {
-  WebServer::instance().loop();
+  WebService::instance().loop();
 }
 
 const char* NVC::getSSID() {
