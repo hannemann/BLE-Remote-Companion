@@ -2,6 +2,7 @@
 #include <WiFiMulti.h>
 #include <WiFiClientSecure.h>
 #include "WSEvent.h"
+#include "HTTPEvent.h"
 
 #ifndef WIFI_H
 #define WIFI_H
