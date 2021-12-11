@@ -5,16 +5,16 @@
 #include "Bluetooth.h"
 #include "KeyServer.h"
 
-#ifndef NVC_H
-#define NVC_H
+#ifndef BLIRC_H
+#define BLIRC_H
 
-class NVC
+class BLIRC
 {
     public:
-        NVC();
-        static NVC& instance()
+        BLIRC();
+        static BLIRC& instance()
         {
-            static NVC instance;
+            static BLIRC instance;
             return instance;
         }
         void setup();
@@ -26,4 +26,4 @@ class NVC
         const char* psk = WIFI_PASSWORD;
 };
 
-#endif // NVC_H
+#endif // BLIRC_H

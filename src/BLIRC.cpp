@@ -1,8 +1,8 @@
-#include <NVC.h>
+#include <BLIRC.h>
 
-NVC::NVC() {};
+BLIRC::BLIRC() {};
 
-void NVC::setup() {
+void BLIRC::setup() {
   Serial.begin(115200);
   delay(500);
   Serial.print("[SETUP] BOOT WAIT");
@@ -17,14 +17,14 @@ void NVC::setup() {
   WebService::instance().run();
 }
 
-void NVC::loop() {
+void BLIRC::loop() {
   WebService::instance().loop();
 }
 
-const char* NVC::getSSID() {
+const char* BLIRC::getSSID() {
   return ssid;
 }
 
-const char* NVC::getPSK() {
+const char* BLIRC::getPSK() {
   return psk;
 }

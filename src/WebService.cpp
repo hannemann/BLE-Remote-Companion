@@ -1,11 +1,11 @@
-#include "NVC.h"
+#include "BLIRC.h"
 #include "WebService.h"
 
 WebService::WebService() {}
 
 void WebService::init() {
     Serial.print("Connecting to WIFI");
-    WiFi.begin(NVC::instance().getSSID(), NVC::instance().getPSK());
+    WiFi.begin(BLIRC::instance().getSSID(), BLIRC::instance().getPSK());
     while (WiFi.status() != WL_CONNECTED) {
         Serial.print(".");
         delay(1000);

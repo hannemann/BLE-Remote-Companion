@@ -1,8 +1,8 @@
 #include "KeyServer.h"
-#include "NVC.h"
+#include "BLIRC.h"
 
 void keyTaskServer(void*) {
-  BLEDevice::init("NVIDIA Control Device");
+  BLEDevice::init("BLIRC Keyboard Emulator");
   BLEServer *pServer = BLEDevice::createServer();
   pServer->setCallbacks(new BLECallback());
 
@@ -13,7 +13,7 @@ void keyTaskServer(void*) {
   Bluetooth::input = Bluetooth::hid->inputReport(2); // <-- input REPORTID from report map
   Bluetooth::output = Bluetooth::hid->outputReport(2); // <-- output REPORTID from report map
 
-  std::string name = "ElectronicCats";
+  std::string name = "Hannemann";
   Bluetooth::hid->manufacturer()->setValue(name);
 
   Bluetooth::hid->pnp(0x02, 0xe502, 0xa111, 0x0210);

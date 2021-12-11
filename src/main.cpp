@@ -1,9 +1,9 @@
-#include "NVC.h"
+#include "BLIRC.h"
 
 void setup() {
-    NVC::instance().setup();
+    BLIRC::instance().setup();
 }
 
 void loop() {
-    NVC::instance().loop();
+    BLIRC::instance().loop();
 }
