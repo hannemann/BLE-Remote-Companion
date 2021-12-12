@@ -9,8 +9,8 @@ BLECharacteristic* Bluetooth::output;
 BLECharacteristic* Bluetooth::inputMedia;
 BLECharacteristic* Bluetooth::outputMedia;
 
-void Bluetooth::keydown(JSONMethodToCecType key) {
-  Serial.printf("Sending key code: %d\n", key.USBHID);
+void Bluetooth::keydown(JSONMethodToCecType key, bool longpress) {
+  Serial.printf("Sending key code: %d %s\n", key.USBHID, longpress ? "longpress" : "");
   inputKeyboard_t keyboard{};
   if (key.LeftCTRL) {
     keyboard.KB_KeyboardKeyboardLeftControl = 1;
@@ -18,11 +18,9 @@ void Bluetooth::keydown(JSONMethodToCecType key) {
   keyboard.Key = key.USBHID;
   input->setValue((uint8_t*)&keyboard, sizeof(keyboard));
   input->notify();
-  if (key.LongPress) {
-    Serial.println("Longpress");
+  if (longpress || key.LongPress) {
     for(int i = 0; i < 50; i++) {
       delay(10);
-      input->setValue((uint8_t*)&keyboard, sizeof(keyboard));
       input->notify();
     }
   }
@@ -34,18 +32,16 @@ void Bluetooth::keyup(JSONMethodToCecType key) {
     delay(10);
 }
 
-void Bluetooth::mediadown(JSONMethodToCecType key) {
-    Serial.printf("Sending media code: %d\n", key.USBHID);    
+void Bluetooth::mediadown(JSONMethodToCecType key, bool longpress) {
+    Serial.printf("Sending key code: %d %s\n", key.USBHID, longpress ? "longpress" : "");
     uint8_t value[2];
     value[0] = key.USBHID;
     value[1] = key.USBHID >> 8;
     inputMedia->setValue(value, 2);
     inputMedia->notify();
-    if (key.LongPress) {
-        Serial.println("Longpress");
-            for(int i = 0; i < 50; i++) {
+    if (longpress || key.LongPress) {
+        for(int i = 0; i < 50; i++) {
             delay(10);
-            inputMedia->setValue(value, 2);
             inputMedia->notify();
         }
     }
@@ -61,7 +57,8 @@ void Bluetooth::press(JSONVar jsonBody) {
   int16_t idx = getKeyIndex(jsonBody);
   if (idx > -1) {
     JSONMethodToCecType key = JSONMethodToCec[idx];
-    key.KeyboardAction == 1 ? keydown(key) : mediadown(key);
+    bool longpress = jsonBody["params"].hasOwnProperty("longpress");
+    key.KeyboardAction == 1 ? keydown(key, longpress) : mediadown(key, longpress);
     key.KeyboardAction == 1 ? keyup(key) : mediaup(key);
   }
 }
@@ -70,7 +67,7 @@ void Bluetooth::down(JSONVar jsonBody) {
   int16_t idx = getKeyIndex(jsonBody);
   if (idx > -1) {
     JSONMethodToCecType key = JSONMethodToCec[idx];
-    key.KeyboardAction == 1 ? keydown(key) : mediadown(key);
+    key.KeyboardAction == 1 ? keydown(key, false) : mediadown(key, false);
   }
 }
 
@@ -83,7 +80,7 @@ void Bluetooth::up(JSONVar jsonBody) {
 }
 
 int16_t Bluetooth::getKeyIndex(JSONVar jsonBody) {
-  Serial.printf("Incoming JSON Request: %s %s\n", (const char *)jsonBody["method"], (const char *)jsonBody["params"]["key"]);
+  Serial.printf("Key Request: %s %s\n", (const char *)jsonBody["method"], (const char *)jsonBody["params"]["key"]);
   for (int i = 0; i < JSONMethodToCecLength; i++) {
     if ((strcmp(JSONMethodToCec[i].JSONMethod, (const char *)jsonBody["params"]["key"]) == 0)) {
         return i;

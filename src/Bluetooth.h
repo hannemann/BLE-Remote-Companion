@@ -25,9 +25,9 @@ class Bluetooth
     static BLECharacteristic* outputMedia;
     private:
     int16_t getKeyIndex(JSONVar jsonBody);
-    void keydown(JSONMethodToCecType key);
+    void keydown(JSONMethodToCecType key, bool longpress);
     void keyup(JSONMethodToCecType key);
-    void mediadown(JSONMethodToCecType key);
+    void mediadown(JSONMethodToCecType key, bool longpress);
     void mediaup(JSONMethodToCecType key);
     inputKeyboard_t keyboard_report{};
 };
