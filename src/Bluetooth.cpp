@@ -80,9 +80,14 @@ void Bluetooth::up(JSONVar jsonBody) {
 }
 
 int16_t Bluetooth::getKeyIndex(JSONVar jsonBody) {
-  Serial.printf("Key Request: %s %s\n", (const char *)jsonBody["method"], (const char *)jsonBody["params"]["key"]);
+  Serial.printf("Key Request: %s ", (const char *)jsonBody["method"]);
+  return getKeyIndex((const char *)jsonBody["params"]["key"]);
+}
+
+int16_t Bluetooth::getKeyIndex(const char* keyCode) {
+  Serial.println(keyCode);
   for (int i = 0; i < JSONMethodToCecLength; i++) {
-    if ((strcmp(JSONMethodToCec[i].JSONMethod, (const char *)jsonBody["params"]["key"]) == 0)) {
+    if ((strcmp(JSONMethodToCec[i].JSONMethod, keyCode) == 0)) {
         return i;
     }
   }

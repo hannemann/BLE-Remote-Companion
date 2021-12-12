@@ -14,11 +14,13 @@ void BLIRC::setup() {
   Serial.println("");
   WebService::instance().init();
   xTaskCreate(keyTaskServer, "server", 20000, NULL, 5, NULL);
+  IRService::instance().init().run();
   WebService::instance().run();
 }
 
 void BLIRC::loop() {
   WebService::instance().loop();
+  IRService::instance().loop();
 }
 
 const char* BLIRC::getSSID() {

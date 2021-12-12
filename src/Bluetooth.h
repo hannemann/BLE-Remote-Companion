@@ -23,12 +23,13 @@ class Bluetooth
     static BLECharacteristic* output;
     static BLECharacteristic* inputMedia;
     static BLECharacteristic* outputMedia;
-    private:
-    int16_t getKeyIndex(JSONVar jsonBody);
     void keydown(JSONMethodToCecType key, bool longpress);
     void keyup(JSONMethodToCecType key);
     void mediadown(JSONMethodToCecType key, bool longpress);
     void mediaup(JSONMethodToCecType key);
+    int16_t getKeyIndex(JSONVar jsonBody);
+    int16_t getKeyIndex(const char* keyCode);
+    private:
     inputKeyboard_t keyboard_report{};
 };
 

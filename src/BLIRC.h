@@ -4,9 +4,22 @@
 #include "WebService.h"
 #include "Bluetooth.h"
 #include "KeyServer.h"
+#include "IRService.h"
 
 #ifndef BLIRC_H
 #define BLIRC_H
+
+#ifndef IR_PIN
+#define IR_PIN 23
+#endif
+
+#ifndef WS_PORT
+#define WS_PORT 2339
+#endif
+
+#ifndef HTTP_PORT
+#define HTTP_PORT 80
+#endif
 
 class BLIRC
 {
