@@ -35,7 +35,7 @@ void HTTPEvent::home() {
     response += "<div class=\"buttons\">";
     response += "<button data-key=\"KEYCODE_POWER\">Power</button>";
     response += "<span></span>";
-    response += "<button data-key=\"KEYCODE_MENU\">Home</button>";
+    response += "<button data-key=\"KEYCODE_MENU\">Menu</button>";
     response += "<button data-key=\"KEYCODE_ESCAPE\">Back</button>";
     response += "<button data-key=\"KEYCODE_DPAD_UP\">Up</button>";
     response += "<button data-key=\"KEYCODE_HOME\">Home</button>";
@@ -51,7 +51,16 @@ void HTTPEvent::home() {
     response += "ws.onopen = e => document.body.classList.remove('ws-off');";
     response += "ws.onerror = e => document.body.classList.add('ws-off');";
     response += "ws.onclose = e => document.body.classList.add('ws-off');";
-    response += "document.querySelectorAll('button').forEach(b => b.addEventListener('click', e => ws.send(JSON.stringify({method:e.target.dataset.key}))));";
+    response += "document.querySelectorAll('button').forEach(b => {;";
+    response += "    b.addEventListener('pointerdown', e => {";
+    response += "        ws.send(JSON.stringify({method:\"keydown\",params:{key:e.target.dataset.key}}))";
+    response += "    });";
+    response += "});";
+    response += "document.querySelectorAll('button').forEach(b => {;";
+    response += "    b.addEventListener('pointerup', e => {";
+    response += "        ws.send(JSON.stringify({method:\"keyup\",params:{key:e.target.dataset.key}}))";
+    response += "    });";
+    response += "});";
     response += "</script></body></html>";
     server.send(200, "text/html", response);
 }

@@ -9,10 +9,8 @@ BLECharacteristic* Bluetooth::output;
 BLECharacteristic* Bluetooth::inputMedia;
 BLECharacteristic* Bluetooth::outputMedia;
 
-void Bluetooth::sendKey(JSONMethodToCecType key) {
-  Serial.print("Sending key code :");
-  Serial.println(key.USBHID);
-  Serial.printf("Sending media code: %d\n", key.USBHID);
+void Bluetooth::keydown(JSONMethodToCecType key) {
+  Serial.printf("Sending key code: %d\n", key.USBHID);
   inputKeyboard_t keyboard{};
   if (key.LeftCTRL) {
     keyboard.KB_KeyboardKeyboardLeftControl = 1;
@@ -28,12 +26,15 @@ void Bluetooth::sendKey(JSONMethodToCecType key) {
       input->notify();
     }
   }
-  input->setValue((uint8_t*)(&keyboard_report), sizeof(keyboard_report));
-  input->notify();
-  delay(10);
 }
 
-void Bluetooth::sendMedia(JSONMethodToCecType key) {
+void Bluetooth::keyup(JSONMethodToCecType key) {
+    input->setValue((uint8_t*)(&keyboard_report), sizeof(keyboard_report));
+    input->notify();
+    delay(10);
+}
+
+void Bluetooth::mediadown(JSONMethodToCecType key) {
     Serial.printf("Sending media code: %d\n", key.USBHID);    
     uint8_t value[2];
     value[0] = key.USBHID;
@@ -48,24 +49,49 @@ void Bluetooth::sendMedia(JSONMethodToCecType key) {
             inputMedia->notify();
         }
     }
+}
+
+void Bluetooth::mediaup(JSONMethodToCecType key) {
     inputMedia->setValue((uint8_t*)(&keyboard_report), sizeof(keyboard_report));
     inputMedia->notify();
     delay(10);
 }
 
-void Bluetooth::send(JSONVar jsonBody) {
-  Serial.printf("Incoming JSON Request: %s\n", (const char *)jsonBody["method"]);
-  for (int i = 0; i < JSONMethodToCecLength; i++) {
-    if ((strcmp(JSONMethodToCec[i].JSONMethod, (const char *)jsonBody["method"]) == 0)) {
-      Serial.println("JSON valid");
-      JSONMethodToCecType key = JSONMethodToCec[i];
-      key.KeyboardAction == 1 ? sendKey(key) : sendMedia(key);
-      return;
-    }
+void Bluetooth::press(JSONVar jsonBody) {
+  int16_t idx = getKeyIndex(jsonBody);
+  if (idx > -1) {
+    JSONMethodToCecType key = JSONMethodToCec[idx];
+    key.KeyboardAction == 1 ? keydown(key) : mediadown(key);
+    key.KeyboardAction == 1 ? keyup(key) : mediaup(key);
   }
-  Serial.println("JSON invalid");
 }
 
+void Bluetooth::down(JSONVar jsonBody) {
+  int16_t idx = getKeyIndex(jsonBody);
+  if (idx > -1) {
+    JSONMethodToCecType key = JSONMethodToCec[idx];
+    key.KeyboardAction == 1 ? keydown(key) : mediadown(key);
+  }
+}
+
+void Bluetooth::up(JSONVar jsonBody) {
+  int16_t idx = getKeyIndex(jsonBody);
+  if (idx > -1) {
+    JSONMethodToCecType key = JSONMethodToCec[idx];
+    key.KeyboardAction == 1 ? keyup(key) : mediaup(key);
+  }
+}
+
+int16_t Bluetooth::getKeyIndex(JSONVar jsonBody) {
+  Serial.printf("Incoming JSON Request: %s %s\n", (const char *)jsonBody["method"], (const char *)jsonBody["params"]["key"]);
+  for (int i = 0; i < JSONMethodToCecLength; i++) {
+    if ((strcmp(JSONMethodToCec[i].JSONMethod, (const char *)jsonBody["params"]["key"]) == 0)) {
+        return i;
+    }
+  }
+  Serial.println("key invalid");
+  return -1;
+}
 
 void BLECallback::onConnect(BLEServer* pServer) {
     Bluetooth::BLEconnected = true;

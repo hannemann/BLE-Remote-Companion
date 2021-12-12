@@ -16,7 +16,7 @@ const JSONMethodToCecType JSONMethodToCec[] = {
   {"KEYCODE_DPAD_DOWN",             1, 0, 0, 0x51},
   {"KEYCODE_DPAD_UP",               1, 0, 0, 0x52},
   {"KEYCODE_ESCAPE",                1, 0, 0, 0x29},
-  {"KEYCODE_HOME",                  1, 0, 1, 0x29},
+  {"KEYCODE_HOME",                  0, 0, 0, 0x0223},
   {"KEYCODE_MENU",                  1, 0, 0, 0x65},
   {"KEYCODE_VOLUME_UP",             0, 0, 0, 0xE9},
 

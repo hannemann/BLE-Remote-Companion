@@ -14,7 +14,9 @@ class Bluetooth
 {
     public:
     Bluetooth();
-    void send(JSONVar jsonBody);
+    void press(JSONVar jsonBody);
+    void down(JSONVar jsonBody);
+    void up(JSONVar jsonBody);
     static bool BLEconnected;
     static BLEHIDDevice* hid;
     static BLECharacteristic* input;
@@ -22,8 +24,11 @@ class Bluetooth
     static BLECharacteristic* inputMedia;
     static BLECharacteristic* outputMedia;
     private:
-    void sendKey(JSONMethodToCecType key);
-    void sendMedia(JSONMethodToCecType key);
+    int16_t getKeyIndex(JSONVar jsonBody);
+    void keydown(JSONMethodToCecType key);
+    void keyup(JSONMethodToCecType key);
+    void mediadown(JSONMethodToCecType key);
+    void mediaup(JSONMethodToCecType key);
     inputKeyboard_t keyboard_report{};
 };
 

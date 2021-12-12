@@ -87,8 +87,20 @@ void WSEvent::webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size
           Serial.println("JSON parse cannot find method");
           return;
         }
+        if (!jsonBody.hasOwnProperty("params") || !jsonBody["params"].hasOwnProperty("key")) {
+          Serial.println("JSON parse cannot find key");
+          return;
+        }
         Serial.println("Correctly parsed JSON");
-        bluetooth.send(jsonBody);
+        if (strcmp(jsonBody["method"], "press") == 0) {
+          bluetooth.press(jsonBody);
+        }
+        if (strcmp(jsonBody["method"], "keydown") == 0) {
+          bluetooth.down(jsonBody);
+        }
+        if (strcmp(jsonBody["method"], "keyup") == 0) {
+          bluetooth.up(jsonBody);
+        }
         Serial.printf("Function time was %d\n", (int)(millis() - startTime));
         webSocket.sendTXT(num, "{\"id\":1,\"jsonrpc\":\"2.0\",\"result\":\"OK\"}");
         break;
