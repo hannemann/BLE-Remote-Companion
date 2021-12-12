@@ -1,4 +1,5 @@
 #include <IRrecv.h>
+#include <Preferences.h>
 
 #ifndef IR_H
 #define IR_H
@@ -14,9 +15,12 @@ class IRService {
         IRService& init();
         void run();
         void loop();
+        void learn(const char* keyCode) {learning = keyCode;};
+        std::string learning = "-";
     private:
         decode_results results;
         static IRrecv irrecv;
+        static Preferences preferences;
         uint8_t debounce = 150;
         uint64_t lastSteady = 0;
         uint64_t lastFlicker = 0;

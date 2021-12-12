@@ -1,5 +1,6 @@
 #include "WSEvent.h"
 #include "Bluetooth.h"
+#include "IRService.h"
 
 WebSocketsServer WSEvent::webSocket = WebSocketsServer(webSocketPort);
 
@@ -100,6 +101,9 @@ void WSEvent::webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size
         }
         if (strcmp(jsonBody["method"], "keyup") == 0) {
           bluetooth.up(jsonBody);
+        }
+        if (strcmp(jsonBody["method"], "learn") == 0) {
+          IRService::instance().learn(jsonBody["params"]["key"]);
         }
         Serial.printf("Function time was %d\n", (int)(millis() - startTime));
         webSocket.sendTXT(num, "{\"id\":1,\"jsonrpc\":\"2.0\",\"result\":\"OK\"}");

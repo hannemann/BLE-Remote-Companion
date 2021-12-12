@@ -2,6 +2,7 @@
 #include "BLIRC.h"
 
 IRrecv IRService::irrecv = IRrecv(IR_PIN);
+Preferences IRService::preferences = Preferences();
 
 IRService& IRService::init() {
     Serial.println("Init IR Service...");
@@ -9,6 +10,7 @@ IRService& IRService::init() {
 }
 
 void IRService::run() {
+    preferences.begin("ir", false);
     irrecv.enableIRIn();
     Serial.printf("IRService running on pin %d\n", IR_PIN);
 }
@@ -33,7 +35,11 @@ void IRService::loop() {
                 Serial.printf("IR Protocol: %d, Button: ", results.decode_type);
                 Serial.print(current);
                 Serial.println(" pressed");
-                press(current);
+                if (learning == "-") {
+                    press(current);
+                } else {
+                    Serial.printf("Learning %s\n", learning.c_str());
+                }
             }
             lastDebounceTime = millis();
         }
@@ -41,7 +47,17 @@ void IRService::loop() {
     } else {
         if ((millis() - lastDebounceTime) > debounce && current > 0) {
             Serial.println("Button released");
-            release(current);
+            if (learning == "-") {
+                release(current);
+            } else {
+                char buffer[20];
+                itoa(current, buffer, 10);
+                const char* key = buffer;
+                preferences.putString(key, learning.c_str());
+                Serial.printf("Learned %s - ", key);
+                Serial.println(preferences.getString(key, "-"));
+                learning = "-";
+            }
             current = 0;
             lastSteady = current;
         }
@@ -65,26 +81,12 @@ void IRService::release(uint64_t code) {
 }
 
 int16_t IRService::getKeyIndex(uint64_t code) {
-    int16_t idx = -1;
-    switch (code) {
-        case 1357:
-            idx = bluetooth.getKeyIndex("KEYCODE_DPAD_UP");
-            break;
-        case 1361:
-            idx = bluetooth.getKeyIndex("KEYCODE_DPAD_DOWN");
-            break;
-        case 1358:
-            idx = bluetooth.getKeyIndex("KEYCODE_DPAD_LEFT");
-            break;
-        case 1360:
-            idx = bluetooth.getKeyIndex("KEYCODE_DPAD_RIGHT");
-            break;
-        case 1359:
-            idx = bluetooth.getKeyIndex("KEYCODE_ENTER");
-            break;
-        case 1363:
-            idx = bluetooth.getKeyIndex("KEYCODE_ESCAPE");
-            break;
+    char buffer[20];
+    itoa(code, buffer, 10);
+    const char* key = buffer;
+    const char* keyCode = (preferences.getString(key, "-")).c_str();
+    if (strcmp(keyCode, "-") == 0) {
+        return -1;
     }
-    return idx;
+    return bluetooth.getKeyIndex(keyCode);
 }
