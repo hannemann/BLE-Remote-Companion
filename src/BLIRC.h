@@ -5,6 +5,7 @@
 #include "Bluetooth.h"
 #include "KeyServer.h"
 #include "IRService.h"
+#include "Files.h"
 
 #ifndef BLIRC_H
 #define BLIRC_H

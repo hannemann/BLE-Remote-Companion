@@ -1,0 +1,6 @@
+body {
+    background: lightblue;
+}
+.ws-off button {opacity: .5; pointer-event: none;}
+.buttons {display: inline-grid; gap: 1em; place-items: center; grid-template-columns: repeat(3, 1fr);}
+button[data-key] {width: 50px; aspect-ratio: 1;}
