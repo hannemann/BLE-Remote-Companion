@@ -6,13 +6,20 @@ Preferences IRService::preferences = Preferences();
 
 IRService& IRService::init() {
     Serial.println("Init IR Service...");
+    preferences.begin("ir", true);
+    Serial.println("Read IR configuration from flash...");
+    long start = millis();
+    String configJSON = preferences.getString("config", "{}");
+    config = JSON.parse(configJSON);
+    preferences.end();
+    Serial.printf("%d Configuration bytes parsed in ", config.length());
+    Serial.println((millis() - start));
     return *this;
 }
 
 void IRService::run() {
-    preferences.begin("ir", false);
     irrecv.enableIRIn();
-    Serial.printf("IRService running on pin %d\n", IR_PIN);
+    Serial.printf("IRService waiting for input from pin %d\n", IR_PIN);
 }
 
 void IRService::loop() {
@@ -53,7 +60,10 @@ void IRService::loop() {
                 char buffer[20];
                 itoa(current, buffer, 10);
                 const char* key = buffer;
-                preferences.putString(key, learning.c_str());
+                config[key] = bluetooth.getKeyIndex(learning.c_str());
+                preferences.begin("ir", false);
+                preferences.putString("config", JSON.stringify(config));
+                preferences.end();
                 Serial.printf("Learned %s - ", key);
                 Serial.println(preferences.getString(key, "-"));
                 learning = "-";
@@ -84,9 +94,17 @@ int16_t IRService::getKeyIndex(uint64_t code) {
     char buffer[20];
     itoa(code, buffer, 10);
     const char* key = buffer;
-    const char* keyCode = (preferences.getString(key, "-")).c_str();
-    if (strcmp(keyCode, "-") == 0) {
-        return -1;
+    if (config.hasOwnProperty(key)) {
+        long idx = config[key];
+        return (int16_t)idx;
     }
-    return bluetooth.getKeyIndex(keyCode);
+    return -1;
+}
+
+void IRService::clearConfig() {
+    preferences.begin("ir", false);
+    preferences.clear();
+    preferences.end();
+    config = JSON.parse("{}");
+    Serial.println("Configuration cleared...");
 }

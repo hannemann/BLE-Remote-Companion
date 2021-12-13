@@ -88,6 +88,10 @@ void WSEvent::webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size
           Serial.println("JSON parse cannot find method");
           return;
         }
+        if (strcmp(jsonBody["method"], "clear") == 0) {
+          IRService::instance().clearConfig();
+          return;
+        }
         if (!jsonBody.hasOwnProperty("params") || !jsonBody["params"].hasOwnProperty("key")) {
           Serial.println("JSON parse cannot find key");
           return;

@@ -1,5 +1,6 @@
 #include <IRrecv.h>
 #include <Preferences.h>
+#include <Arduino_JSON.h>
 
 #ifndef IR_H
 #define IR_H
@@ -17,6 +18,8 @@ class IRService {
         void loop();
         void learn(const char* keyCode) {learning = keyCode;};
         std::string learning = "-";
+        JSONVar getConfig();
+        void clearConfig();
     private:
         decode_results results;
         static IRrecv irrecv;
@@ -29,6 +32,7 @@ class IRService {
         void press(uint64_t code);
         void release(uint64_t code);
         int16_t getKeyIndex(uint64_t code);
+        JSONVar config;
 
 };
 

@@ -28,7 +28,7 @@ void HTTPEvent::home() {
     response += "<style>\n";
     response += ".ws-off button {opacity: .5; pointer-event: none;}\n";
     response += ".buttons {display: inline-grid; gap: 1em; place-items: center; grid-template-columns: repeat(3, 1fr);}\n";
-    response += "button {width: 50px; aspect-ratio: 1;}\n";
+    response += "button[data-key] {width: 50px; aspect-ratio: 1;}\n";
     response += "</style>\n";
     response += "<link rel=\"icon\" href=\"data:,\"></head><body class=\"ws-off\">\n";
     response += "<h1>BLE-LIRC</h1>\n";
@@ -45,14 +45,17 @@ void HTTPEvent::home() {
     response += "<button data-key=\"KEYCODE_MEDIA_PLAY_PAUSE\">Play</button>\n";
     response += "<button data-key=\"KEYCODE_DPAD_DOWN\">Down</button>\n";
     response += "<button data-key=\"KEYCODE_MEDIA_STOP\">Stop</button>\n";
+    response += "</div>\n";
+    response += "<div class=\"config\">\n";
     response += "<label>Learn <input name=\"learn\" type=\"checkbox\"/></label>\n";
+    response += "<button name=\"clear\">Clear Configuration</button>\n";
     response += "</div>\n";
     response += "<script>\n";
     response += "var ws = new WebSocket('ws://192.168.178.218:2339/jsonrpc');\n";
     response += "ws.onopen = e => document.body.classList.remove('ws-off');\n";
     response += "ws.onerror = e => document.body.classList.add('ws-off');\n";
     response += "ws.onclose = e => document.body.classList.add('ws-off');\n";
-    response += "document.querySelectorAll('button').forEach(b => {;\n";
+    response += "document.querySelectorAll('button[data-key]').forEach(b => {;\n";
     response += "    b.addEventListener('pointerdown', e => {\n";
     response += "        if (document.querySelector('[name=\"learn\"]:checked')) return;\n";
     response += "        ws.send(JSON.stringify({method:\"keydown\",params:{key:e.target.dataset.key}}))\n";
@@ -66,6 +69,9 @@ void HTTPEvent::home() {
     response += "           ws.send(JSON.stringify({method:\"keyup\",params:{key:e.target.dataset.key}}))\n";
     response += "        }\n";
     response += "    });\n";
+    response += "});\n";
+    response += "document.querySelector('button[name=\"clear\"]').addEventListener('pointerup', e => {\n";
+    response += "       ws.send(JSON.stringify({method:\"clear\"}))\n";
     response += "});\n";
     response += "</script></body></html>";
     server.send(200, "text/html", response);
