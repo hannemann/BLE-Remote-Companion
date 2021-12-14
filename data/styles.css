@@ -1,6 +1,45 @@
-body {
-    background: lightblue;
+:root {
+    --hue-bg: 225;
+    --sat-bg: 14%;
+    --lit-bg: 20%;
+    --hue-fg: 0;
+    --sat-fg: 0%;
+    --lit-fg: 80%;
+    --clr-bg: hsl(var(--hue-bg), var(--sat-bg), var(--lit-bg));
+    --clr-fg: hsl(var(--hue-fg), var(--sat-fg), var(--lit-fg));
+    --clr-btn-bg: hsl(var(--hue-bg), var(--sat-bg), calc(var(--lit-bg) + 10%));
+    --clr-btn-border: hsl(var(--hue-bg), var(--sat-bg), calc(var(--lit-bg) + 50%));
+    --gap: 1em;
+    --gap-small: .5em;
+    --gap-big: 1.25em;
+    --button-width: 80px;
+    --remote-columns: 3;
 }
-.ws-off button {opacity: .5; pointer-event: none;}
-.buttons {display: inline-grid; gap: 1em; place-items: center; grid-template-columns: repeat(3, 1fr);}
-button[data-key] {width: 50px; aspect-ratio: 1;}
+body {
+    background: var(--clr-bg);
+    color: var(--clr-fg);
+}
+button {
+    background: hsl(var(--hue-bg), var(--sat-bg), calc(var(--lit-bg) + 10%));
+    border: 2px solid var(--clr-btn-border);
+    padding: var(--gap-small);
+    color: var(--clr-fg);
+}
+button:active {
+    --lit-bg: 10%;
+}
+.ws-off button {
+    opacity: .5;
+    pointer-event: none;
+}
+.buttons {
+    display: inline-grid;
+    gap: var(--gap);
+    place-items: center;
+    grid-template-columns: repeat(var(--remote-columns), 1fr);
+    margin-bottom: var(--gap);
+}
+button[data-key] {
+    width: var(--button-width);
+    aspect-ratio: 1;
+}
