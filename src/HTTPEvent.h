@@ -18,7 +18,12 @@ class HTTPEvent {
     private:
         uint16_t port = HTTP_PORT;
         static void home();
+        static void learn();
         static void fourOFour();
+        static String header();
+        static String footer();
+        static String nav();
+        static String buttons();
 
 };
 
