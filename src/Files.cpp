@@ -1,15 +1,17 @@
 #include "Files.h"
 
-void Files::init() {
-    initSpiffs();
-}
+String Files::scripts = String();
+String Files::css = String();
 
-void Files::initSpiffs() {
+void Files::init() {
   SPIFFS.begin(true);
   Serial.print(SPIFFS.usedBytes());
   Serial.print("/");
   Serial.print(SPIFFS.totalBytes());
   Serial.println(" SPIFFS Bytes used");
+  css = readFile("/styles.css");
+  scripts = readFile("/scripts.js");
+  SPIFFS.end();
 }
 
 FS Files::getFs() {

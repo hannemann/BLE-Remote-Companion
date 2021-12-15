@@ -1,6 +1,5 @@
 #include "HTTPEvent.h"
 #include "BLIRC.h"
-#include <vector>
 
 WebServer server;
 
@@ -54,7 +53,7 @@ String HTTPEvent::header() {
     header += "<meta name=\"color-scheme\" content=\"dark light\">\n";
     header += "<title>BLE-LIRC</title>\n";
     header += "<style>\n";
-    header += Files::instance().readFile("/styles.css");
+    header += Files::css;
     header += "</style>\n";
     header += "<link rel=\"icon\" href=\"data:,\"></head>\n";
     header += "<body class=\"ws-off\">\n";
@@ -63,7 +62,7 @@ String HTTPEvent::header() {
 
 String HTTPEvent::footer() {
     String footer = "<script>\n";
-    footer += Files::instance().readFile("/scripts.js");
+    footer += Files::scripts;
     footer += "</script></body></html>";
     return footer;
 }

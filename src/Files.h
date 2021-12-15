@@ -11,10 +11,11 @@ class Files {
             return instance;
         }
         void init();
-        String readFile(const char* path);
         FS getFs();
+        static String scripts;
+        static String css;
     private:
-        void initSpiffs();
+        String readFile(const char* path);
 };
 
 #endif // FILES_H
