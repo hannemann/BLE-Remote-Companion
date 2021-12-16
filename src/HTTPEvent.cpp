@@ -1,11 +1,9 @@
 #include "HTTPEvent.h"
 #include "BLIRC.h"
 
-WebServer server;
-
 void HTTPEvent::init() {
     Serial.println("Init HTTP server...");
-    WiFiServer server(port);
+    WebServer server(port);
 }
 
 void HTTPEvent::run() {
@@ -26,7 +24,7 @@ void HTTPEvent::home() {
     response += "<h1>BLE-LIRC</h1>\n";
     response += buttons();
     response += footer();
-    server.send(200, "text/html", response);
+    instance().server.send(200, "text/html", response);
 }
 
 void HTTPEvent::learn() {
@@ -39,11 +37,11 @@ void HTTPEvent::learn() {
     response += "<button name=\"clear\">Clear Configuration</button>\n";
     response += "</div>\n";
     response += footer();
-    server.send(200, "text/html", response);
+    instance().server.send(200, "text/html", response);
 }
 
 void HTTPEvent::fourOFour(){
-  server.send(404, "text/plain", "404 Not found");
+  instance().server.send(404, "text/plain", "404 Not found");
 }
 
 String HTTPEvent::header() {

@@ -15,6 +15,7 @@ class HTTPEvent {
         void init();
         void run();
         void loop();
+        WebServer server;
     private:
         uint16_t port = HTTP_PORT;
         static void home();
