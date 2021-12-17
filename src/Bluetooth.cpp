@@ -86,7 +86,7 @@ int16_t Bluetooth::getKeyIndex(JSONVar jsonBody) {
 
 int16_t Bluetooth::getKeyIndex(const char* keyCode) {
   Serial.println(keyCode);
-  for (int i = 0; i < JSONMethodToCecLength; i++) {
+  for (int16_t i=0; i < sizeof JSONMethodToCec/sizeof JSONMethodToCec[0]; i++) {
     if ((strcmp(JSONMethodToCec[i].JSONMethod, keyCode) == 0)) {
         return i;
     }
