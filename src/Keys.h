@@ -21,7 +21,7 @@ struct inputKeyboard_t
   uint8_t  Key;                                        // Value = 0 to 101
 };
 
-enum {
+enum USBHIDType {
   TYPE_NONE,
   TYPE_KEYBOARD,
   TYPE_CONSUMER,
@@ -37,7 +37,7 @@ struct HID_USAGE {
 struct HID_USAGE_KEY {
   uint8_t type;
   int16_t index;
-  char label[16];
+  char label[20];
   uint8_t longpress : 1;
 };
 
@@ -89,11 +89,19 @@ class HIDUsageKeys {
   private:
     static const HID_USAGE_KEY layoutEmpty[];
     static const HID_USAGE_KEY layoutRemoteMinimal[];
+    static const HID_USAGE_KEY layoutRemoteDPad[];
+    static const HID_USAGE_KEY layoutRemoteNumbers[];
+    static const HID_USAGE_KEY layoutRemoteMedia[];
+    static const HID_USAGE_KEY layoutRemoteColors[];
 };
 
-enum {
+enum LAYOUTS {
     LAYOUT_EMPTY,
-    LAYOUT_REMOTE_MINIMAL
+    LAYOUT_REMOTE_MINIMAL,
+    LAYOUT_REMOTE_DPAD,
+    LAYOUT_REMOTE_NUMBERS,
+    LAYOUT_REMOTE_MEDIA,
+    LAYOUT_REMOTE_COLORS
 };
 
 const HID_USAGE HIDKeyboard[] = {

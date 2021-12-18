@@ -23,6 +23,50 @@ const HID_USAGE_KEY HIDUsageKeys::layoutRemoteMinimal[] {
     {TYPE_APP_LAUNCHER, HIDUsageKeys::getKeyIndex(TYPE_APP_LAUNCHER, "AL Select Task / Application"), "Switcher", 0}
 };
 
+const HID_USAGE_KEY HIDUsageKeys::layoutRemoteNumbers[] {
+    {TYPE_KEYBOARD, HIDUsageKeys::getKeyIndex(TYPE_KEYBOARD, "KEYCODE_1"), "1", 0},
+    {TYPE_KEYBOARD, HIDUsageKeys::getKeyIndex(TYPE_KEYBOARD, "KEYCODE_2"), "2", 0},
+    {TYPE_KEYBOARD, HIDUsageKeys::getKeyIndex(TYPE_KEYBOARD, "KEYCODE_3"), "3", 0},
+    {TYPE_KEYBOARD, HIDUsageKeys::getKeyIndex(TYPE_KEYBOARD, "KEYCODE_4"), "4", 0},
+    {TYPE_KEYBOARD, HIDUsageKeys::getKeyIndex(TYPE_KEYBOARD, "KEYCODE_5"), "5", 0},
+    {TYPE_KEYBOARD, HIDUsageKeys::getKeyIndex(TYPE_KEYBOARD, "KEYCODE_6"), "6", 0},
+    {TYPE_KEYBOARD, HIDUsageKeys::getKeyIndex(TYPE_KEYBOARD, "KEYCODE_7"), "7", 0},
+    {TYPE_KEYBOARD, HIDUsageKeys::getKeyIndex(TYPE_KEYBOARD, "KEYCODE_8"), "8", 0},
+    {TYPE_KEYBOARD, HIDUsageKeys::getKeyIndex(TYPE_KEYBOARD, "KEYCODE_9"), "9", 0},
+    {TYPE_NONE, -1, "", 0},
+    {TYPE_KEYBOARD, HIDUsageKeys::getKeyIndex(TYPE_KEYBOARD, "KEYCODE_0"), "0", 0},
+    {TYPE_NONE, -1, "", 0}
+};
+
+const HID_USAGE_KEY HIDUsageKeys::layoutRemoteDPad[] {
+    {TYPE_NONE, -1, "", 0},
+    {TYPE_KEYBOARD, HIDUsageKeys::getKeyIndex(TYPE_KEYBOARD, "KEYCODE_DPAD_UP"), "&#58132;", 0},
+    {TYPE_NONE, -1, "", 0},
+    {TYPE_KEYBOARD, HIDUsageKeys::getKeyIndex(TYPE_KEYBOARD, "KEYCODE_DPAD_LEFT"), "&#58130;", 0},
+    {TYPE_KEYBOARD, HIDUsageKeys::getKeyIndex(TYPE_KEYBOARD, "KEYCODE_ENTER"), "OK", 0},
+    {TYPE_KEYBOARD, HIDUsageKeys::getKeyIndex(TYPE_KEYBOARD, "KEYCODE_DPAD_RIGHT"), "&#58131;", 0},
+    {TYPE_NONE, -1, "", 0},
+    {TYPE_KEYBOARD, HIDUsageKeys::getKeyIndex(TYPE_KEYBOARD, "KEYCODE_DPAD_DOWN"), "&#58133;", 0},
+    {TYPE_NONE, -1, "", 0}
+};
+
+const HID_USAGE_KEY HIDUsageKeys::layoutRemoteColors[] {
+    {TYPE_CONSUMER, HIDUsageKeys::getKeyIndex(TYPE_CONSUMER, "KEYCODE_PROG_RED"), "&#128997;", 0},
+    {TYPE_CONSUMER, HIDUsageKeys::getKeyIndex(TYPE_CONSUMER, "KEYCODE_PROG_GREEN"), "&#129001;", 0},
+    {TYPE_CONSUMER, HIDUsageKeys::getKeyIndex(TYPE_CONSUMER, "KEYCODE_PROG_YELLOW"), "&#129000;", 0},
+    {TYPE_CONSUMER, HIDUsageKeys::getKeyIndex(TYPE_CONSUMER, "KEYCODE_PROG_BLUE"), "&#128998;", 0}
+};
+
+const HID_USAGE_KEY HIDUsageKeys::layoutRemoteMedia[] {
+    {TYPE_CONSUMER, HIDUsageKeys::getKeyIndex(TYPE_CONSUMER, "KEYCODE_MEDIA_PREVIOUS"), "&#58136;", 0},
+    {TYPE_CONSUMER, HIDUsageKeys::getKeyIndex(TYPE_CONSUMER, "KEYCODE_MEDIA_REWIND"), "&#58134;", 0},
+    {TYPE_CONSUMER, HIDUsageKeys::getKeyIndex(TYPE_CONSUMER, "KEYCODE_MEDIA_FAST_FORWARD"), "&#58135;", 0},
+    {TYPE_CONSUMER, HIDUsageKeys::getKeyIndex(TYPE_CONSUMER, "KEYCODE_MEDIA_NEXT"), "&#58137;", 0},
+    {TYPE_CONSUMER, HIDUsageKeys::getKeyIndex(TYPE_CONSUMER, "KEYCODE_MEDIA_RECORD"), "&#58140;", 0},
+    {TYPE_CONSUMER, HIDUsageKeys::getKeyIndex(TYPE_CONSUMER, "KEYCODE_MEDIA_STOP"), "&#58139;", 0},
+    {TYPE_CONSUMER, HIDUsageKeys::getKeyIndex(TYPE_CONSUMER, "KEYCODE_MEDIA_PLAY_PAUSE"), "&#58131;&#58138;", 0}
+};
+
 int16_t HIDUsageKeys::hidKeyboard(uint16_t id) {
     if (id < sizeof HIDKeyboard) {
         return HIDKeyboard[id].USBHID;
@@ -172,17 +216,57 @@ void HIDUsageKeys::getLayout(uint8_t id, HID_USAGE_KEY *buffer) {
                 buffer[i] = layoutRemoteMinimal[i];
             }
             break;
+        case LAYOUT_REMOTE_DPAD:
+            for (uint8_t i = 0; i < getLayoutSize(id); i++) {
+                buffer[i] = layoutRemoteDPad[i];
+            }
+            break;
+        case LAYOUT_REMOTE_NUMBERS:
+            for (uint8_t i = 0; i < getLayoutSize(id); i++) {
+                buffer[i] = layoutRemoteNumbers[i];
+            }
+            break;
+        case LAYOUT_REMOTE_COLORS:
+            for (uint8_t i = 0; i < getLayoutSize(id); i++) {
+                buffer[i] = layoutRemoteColors  [i];
+            }
+            break;
+        case LAYOUT_REMOTE_MEDIA:
+            for (uint8_t i = 0; i < getLayoutSize(id); i++) {
+                buffer[i] = layoutRemoteMedia  [i];
+            }
+            break;
     }
 }
 
 const uint8_t HIDUsageKeys::getLayoutSize(uint8_t id) {
+    uint8_t size = 0;
     switch (id) {
         case LAYOUT_REMOTE_MINIMAL:
-            uint8_t size = 0;
             for (uint8_t i = 0; i < sizeof layoutRemoteMinimal / sizeof layoutRemoteMinimal[0]; i++) {
                 size++;
             }
-            return size;
+            break;
+        case LAYOUT_REMOTE_DPAD:
+            for (uint8_t i = 0; i < sizeof layoutRemoteDPad / sizeof layoutRemoteDPad[0]; i++) {
+                size++;
+            }
+            break;
+        case LAYOUT_REMOTE_NUMBERS:
+            for (uint8_t i = 0; i < sizeof layoutRemoteNumbers / sizeof layoutRemoteNumbers[0]; i++) {
+                size++;
+            }
+            break;
+        case LAYOUT_REMOTE_COLORS:
+            for (uint8_t i = 0; i < sizeof layoutRemoteColors / sizeof layoutRemoteColors[0]; i++) {
+                size++;
+            }
+            break;
+        case LAYOUT_REMOTE_MEDIA:
+            for (uint8_t i = 0; i < sizeof layoutRemoteMedia / sizeof layoutRemoteMedia[0]; i++) {
+                size++;
+            }
+            break;
     }
-    return 0;
+    return size;
 }

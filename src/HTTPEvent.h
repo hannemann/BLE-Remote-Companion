@@ -23,7 +23,11 @@ class HTTPEvent {
         static String header();
         static String footer();
         static String nav();
-        static String buttons();
+        static String numbers();
+        static String dpad();
+        static String media();
+        static String colors();
+        static String button(HID_USAGE_KEY key);
 
 };
 
