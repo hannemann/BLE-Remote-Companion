@@ -14,7 +14,7 @@ void BLIRC::setup() {
   Serial.println("");
   WebService::instance().init();
   Files::instance().init();
-  xTaskCreate(keyTaskServer, "server", 20000, NULL, 5, NULL);
+  xTaskCreate(keyTaskServer, "server", 4096, NULL, 5, NULL);
   IRService::instance().init().run();
   WebService::instance().run();
 }
