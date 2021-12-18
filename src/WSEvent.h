@@ -1,8 +1,7 @@
-#include <Arduino.h>
-#include <WebSocketsServer.h>
-
 #ifndef WSEVENT_H
 #define WSEVENT_H
+
+#include "BLIRC.h"
 
 const int webSocketPort = WS_PORT;
 

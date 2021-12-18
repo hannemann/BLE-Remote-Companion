@@ -1,9 +1,7 @@
-#include <IRrecv.h>
-#include <Preferences.h>
-#include <Arduino_JSON.h>
-
 #ifndef IR_H
 #define IR_H
+
+#include "BLIRC.h"
 
 class IRService {
     public:
@@ -16,8 +14,8 @@ class IRService {
         IRService& init();
         void run();
         void loop();
-        void learn(const char* keyCode) {learning = keyCode;};
-        std::string learning = "-";
+        void learn(JSONVar params) {learning = params;};
+        JSONVar learning = JSON.parse("{}");
         JSONVar getConfig();
         void clearConfig();
     private:
@@ -28,10 +26,14 @@ class IRService {
         uint64_t lastSteady = 0;
         uint64_t lastFlicker = 0;
         uint64_t current = 0;
+        uint8_t protocol = 0;
         unsigned long lastDebounceTime = 0;
-        void press(uint64_t code);
-        void release(uint64_t code);
-        int16_t getKeyIndex(uint64_t code);
+        void press();
+        void release();
+        void storeLearned();
+        String getConfigKeyFromIr();
+        HID_USAGE_KEY getHidUsageFromIr();
+        String getConfigValue();
         JSONVar config;
 
 };

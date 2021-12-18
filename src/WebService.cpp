@@ -1,11 +1,10 @@
-#include "BLIRC.h"
 #include "WebService.h"
 
 WebService::WebService() {}
 
 void WebService::init() {
     Serial.print("Connecting to WIFI");
-    WiFi.begin(BLIRC::instance().getSSID(), BLIRC::instance().getPSK());
+    WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
     while (WiFi.status() != WL_CONNECTED) {
         Serial.print(".");
         delay(1000);

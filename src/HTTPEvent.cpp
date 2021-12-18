@@ -1,5 +1,4 @@
 #include "HTTPEvent.h"
-#include "BLIRC.h"
 
 void HTTPEvent::init() {
     Serial.println("Init HTTP server...");
@@ -74,17 +73,25 @@ String HTTPEvent::nav() {
 }
 
 String HTTPEvent::buttons() {
-    int16_t layout[] = {17, -1, 18, 6, 5, 7, 3, 0, 2, 11, 4, 16};
     String buttons = "<div class=\"buttons\">\n";
+    const uint8_t size = HIDUsageKeys::getLayoutSize(LAYOUT_REMOTE_MINIMAL);
+    HID_USAGE_KEY layout[size];
+    Serial.println(size);
+    HIDUsageKeys::getLayout(LAYOUT_REMOTE_MINIMAL, layout);
     for (int16_t i=0; i < sizeof layout/sizeof layout[0]; i++) {
-        if (layout[i] < 0) {
+        if (layout[i].type == TYPE_NONE) {
             buttons += "<span></span>\n";
         } else {
-            JSONMethodToCecType button = JSONMethodToCec[layout[i]];
             buttons += "<button data-key=\"";
-            buttons += button.JSONMethod;
+            char bufIdx[3];
+            itoa(i, bufIdx, 10);
+            buttons += bufIdx;
+            buttons += "\" data-layout=\"";
+            char bufLayout[3];
+            itoa(LAYOUT_REMOTE_MINIMAL, bufLayout, 10);
+            buttons += bufLayout;
             buttons += "\">";
-            buttons += button.label;
+            buttons += layout[i].label;
             buttons += "</button>\n";
         }
     }

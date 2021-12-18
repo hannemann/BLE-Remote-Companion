@@ -1,7 +1,7 @@
-#include "SPIFFS.h"
-
 #ifndef FILES_H
 #define FILES_H
+
+#include "SPIFFS.h"
 
 class Files {
     public:

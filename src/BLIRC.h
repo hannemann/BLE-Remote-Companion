@@ -1,14 +1,32 @@
-#include <Arduino.h>
-#include <Arduino_JSON.h>
-
-#include "WebService.h"
-#include "Bluetooth.h"
-#include "KeyServer.h"
-#include "IRService.h"
-#include "Files.h"
-
 #ifndef BLIRC_H
 #define BLIRC_H
+
+#include <Arduino.h>
+#include <Arduino_JSON.h>
+#include <WebServer.h>
+#include <WebSocketsServer.h>
+#include <WiFi.h>
+#include <iterator>
+
+#include <BLEDevice.h>
+#include <BLEUtils.h>
+#include <BLEServer.h>
+#include "BLE2902.h"
+#include "BLEHIDDevice.h"
+#include "HIDTypes.h"
+#include "HIDKeyboardTypes.h"
+
+#include <IRrecv.h>
+#include <Preferences.h>
+
+#include "Files.h"
+#include "Keys.h"
+
+#include "WebService.h"
+#include "WSEvent.h"
+#include "HTTPEvent.h"
+#include "IRService.h"
+#include "Bluetooth.h"
 
 #ifndef IR_PIN
 #define IR_PIN 23

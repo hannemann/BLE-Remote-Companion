@@ -1,9 +1,7 @@
-#include <WiFi.h>
-#include "WSEvent.h"
-#include "HTTPEvent.h"
-
 #ifndef WIFI_H
 #define WIFI_H
+
+#include "BLIRC.h"
 
 class WebService {
     public:

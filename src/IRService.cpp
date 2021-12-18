@@ -1,5 +1,4 @@
 #include "IRService.h"
-#include "BLIRC.h"
 
 IRrecv IRService::irrecv = IRrecv(IR_PIN);
 Preferences IRService::preferences = Preferences();
@@ -37,15 +36,14 @@ void IRService::loop() {
             if (results.decode_type == RC6) {
                 current &= 0xfeffff;
             }
+            protocol = results.decode_type;
             if (current != lastSteady) {
                 lastSteady = current;
                 Serial.printf("IR Protocol: %d, Button: ", results.decode_type);
                 Serial.print(current);
                 Serial.println(" pressed");
-                if (learning == "-") {
-                    press(current);
-                } else {
-                    Serial.printf("Learning %s\n", learning.c_str());
+                if (!learning.hasOwnProperty("key")) {
+                    press();
                 }
             }
             lastDebounceTime = millis();
@@ -54,19 +52,10 @@ void IRService::loop() {
     } else {
         if ((millis() - lastDebounceTime) > debounce && current > 0) {
             Serial.println("Button released");
-            if (learning == "-") {
-                release(current);
+            if (learning.hasOwnProperty("key")) {
+                storeLearned();
             } else {
-                char buffer[20];
-                itoa(current, buffer, 10);
-                const char* key = buffer;
-                config[key] = bluetooth.getKeyIndex(learning.c_str());
-                preferences.begin("ir", false);
-                preferences.putString("config", JSON.stringify(config));
-                preferences.end();
-                Serial.printf("Learned %s - ", key);
-                Serial.println(preferences.getString(key, "-"));
-                learning = "-";
+                release();
             }
             current = 0;
             lastSteady = current;
@@ -74,31 +63,60 @@ void IRService::loop() {
     }
 }
 
-void IRService::press(uint64_t code) {
-    int16_t idx = getKeyIndex(code);
-    if (idx > -1) {
-        JSONMethodToCecType key = JSONMethodToCec[idx];
-        key.KeyboardAction == 1 ? bluetooth.keydown(key, false) : bluetooth.mediadown(key, false);
-    }
+void IRService::storeLearned() {
+    Serial.printf("Learning %s\n", JSON.stringify(learning).c_str());
+    String key = getConfigKeyFromIr();
+    String value = getConfigValue();
+    config[key] = value;
+
+    Serial.printf("Config %s\n", JSON.stringify(config).c_str());
+    preferences.begin("ir", false);
+    preferences.putString("config", JSON.stringify(config));
+    preferences.end();
+
+    Serial.printf("Learned %s - %s", key.c_str(), value.c_str());
+    Serial.println(preferences.getString(key.c_str()));
+    learning = JSON.parse("{}");
 }
 
-void IRService::release(uint64_t code) {
-    int16_t idx = getKeyIndex(code);
-    if (idx > -1) {
-        JSONMethodToCecType key = JSONMethodToCec[idx];
-        key.KeyboardAction == 1 ? bluetooth.keyup(key) : bluetooth.mediaup(key);
-    }
-}
-
-int16_t IRService::getKeyIndex(uint64_t code) {
+String IRService::getConfigKeyFromIr() {
+    char pBuffer[3];
+    itoa(protocol, pBuffer, 10);
     char buffer[20];
-    itoa(code, buffer, 10);
-    const char* key = buffer;
-    if (config.hasOwnProperty(key)) {
-        long idx = config[key];
-        return (int16_t)idx;
-    }
-    return -1;
+    itoa(current, buffer, 10);
+
+    return (String)pBuffer + "-" + (String)buffer;
+}
+
+String IRService::getConfigValue() {
+    Serial.printf("Obtain config from %s\n", JSON.stringify(learning).c_str());
+    
+    String layout = (const char*)learning["layout"];
+    String key = (const char*)learning["key"];
+
+    return layout + "-" + key;
+}
+
+void IRService::press() {
+    const HID_USAGE_KEY key = getHidUsageFromIr();
+    key.type == TYPE_KEYBOARD ? bluetooth.keydown(key, false) : bluetooth.mediadown(key, false);
+}
+
+void IRService::release() {
+    const HID_USAGE_KEY key = getHidUsageFromIr();
+    key.type == TYPE_KEYBOARD ? bluetooth.keyup(key) : bluetooth.mediaup(key);
+}
+
+HID_USAGE_KEY IRService::getHidUsageFromIr() {
+    String configKey = (const char*)config[getConfigKeyFromIr()];
+    String delimiter = "-";
+    int8_t layoutId = atoi(configKey.substring(0, configKey.indexOf("-")).c_str());
+    int8_t keyId = atoi(configKey.substring(configKey.indexOf("-") + 1).c_str());
+
+    const uint8_t size = HIDUsageKeys::getLayoutSize(layoutId);
+    HID_USAGE_KEY layout[size];
+    HIDUsageKeys::getLayout(layoutId, layout);
+    return layout[keyId];
 }
 
 void IRService::clearConfig() {

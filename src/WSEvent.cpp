@@ -1,6 +1,4 @@
 #include "WSEvent.h"
-#include "Bluetooth.h"
-#include "IRService.h"
 
 WebSocketsServer WSEvent::webSocket = WebSocketsServer(webSocketPort);
 
@@ -80,10 +78,6 @@ void WSEvent::webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size
           Serial.println("Parsing input failed!");
           return;
         }
-        if (Bluetooth::BLEconnected == false) {
-          Serial.println("Bluetooth not connected");
-          return;
-        }
         if (!jsonBody.hasOwnProperty("method")) {
           Serial.println("JSON parse cannot find method");
           return;
@@ -96,6 +90,10 @@ void WSEvent::webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size
           Serial.println("JSON parse cannot find key");
           return;
         }
+        // if (Bluetooth::BLEconnected == false && strcmp(jsonBody["method"], "learn") != 0) {
+        //   Serial.println("Bluetooth not connected");
+        //   return;
+        // }
         Serial.println("Correctly parsed JSON");
         if (strcmp(jsonBody["method"], "press") == 0) {
           bluetooth.press(jsonBody);
@@ -107,7 +105,7 @@ void WSEvent::webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size
           bluetooth.up(jsonBody);
         }
         if (strcmp(jsonBody["method"], "learn") == 0) {
-          IRService::instance().learn(jsonBody["params"]["key"]);
+          IRService::instance().learn(jsonBody["params"]);
         }
         Serial.printf("Function time was %d\n", (int)(millis() - startTime));
         webSocket.sendTXT(num, "{\"id\":1,\"jsonrpc\":\"2.0\",\"result\":\"OK\"}");

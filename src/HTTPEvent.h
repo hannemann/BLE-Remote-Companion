@@ -1,8 +1,7 @@
-#include <WiFi.h>
-#include <WebServer.h>
-
 #ifndef HTTPEVENT_H
 #define HTTPEVENT_H
+
+#include "BLIRC.h"
 
 class HTTPEvent {
     public:

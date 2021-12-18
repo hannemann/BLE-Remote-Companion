@@ -14,7 +14,7 @@ setTimeout(() => {
         ws.send(
           JSON.stringify({
             method: "keydown",
-            params: { key: e.target.dataset.key },
+            params: e.target.dataset,
           })
         );
       });
@@ -28,14 +28,14 @@ setTimeout(() => {
           ws.send(
             JSON.stringify({
               method: "learn",
-              params: { key: e.target.dataset.key },
+              params: e.target.dataset,
             })
           );
         } else {
           ws.send(
             JSON.stringify({
               method: "keyup",
-              params: { key: e.target.dataset.key },
+              params: e.target.dataset,
             })
           );
         }

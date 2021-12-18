@@ -1,7 +1,65 @@
-#include <Arduino.h>
-
 #ifndef KEYS_H
 #define KEYS_H
+
+#include <Arduino.h>
+
+struct inputConsumer_t
+{
+  uint16_t ConsumerControl;                          // Value = 0 to 572
+};
+
+struct inputKeyboard_t
+{
+  uint8_t  KB_KeyboardKeyboardLeftControl   : 1;       // Usage 0x000700E0: Keyboard Left Control, Value = 0 to 1
+  uint8_t  KB_KeyboardKeyboardLeftShift     : 1;       // Usage 0x000700E1: Keyboard Left Shift, Value = 0 to 1
+  uint8_t  KB_KeyboardKeyboardLeftAlt       : 1;       // Usage 0x000700E2: Keyboard Left Alt, Value = 0 to 1
+  uint8_t  KB_KeyboardKeyboardLeftGui       : 1;       // Usage 0x000700E3: Keyboard Left GUI, Value = 0 to 1
+  uint8_t  KB_KeyboardKeyboardRightControl  : 1;       // Usage 0x000700E4: Keyboard Right Control, Value = 0 to 1
+  uint8_t  KB_KeyboardKeyboardRightShift    : 1;       // Usage 0x000700E5: Keyboard Right Shift, Value = 0 to 1
+  uint8_t  KB_KeyboardKeyboardRightAlt      : 1;       // Usage 0x000700E6: Keyboard Right Alt, Value = 0 to 1
+  uint8_t  KB_KeyboardKeyboardRightGui      : 1;       // Usage 0x000700E7: Keyboard Right GUI, Value = 0 to 1
+  uint8_t  Key;                                        // Value = 0 to 101
+};
+
+enum {
+  TYPE_NONE,
+  TYPE_KEYBOARD,
+  TYPE_CONSUMER,
+  TYPE_APP_LAUNCHER,
+  TYPE_APP_CONTROL
+};
+
+struct HID_USAGE {
+  char name[45];
+  uint16_t USBHID;
+};
+
+struct HID_USAGE_KEY {
+  uint8_t type;
+  int16_t USBHID;
+  char label[16];
+  uint8_t longpress : 1;
+};
+
+struct HID_USAGE_KEYBOARD {
+  uint8_t type = TYPE_KEYBOARD;
+  char name[45];
+};
+
+struct HID_USAGE_CONSUMER {
+  uint8_t type = TYPE_CONSUMER;
+  char name[45];
+};
+
+struct HID_USAGE_APP_AUNCHER {
+  uint8_t type = TYPE_APP_LAUNCHER;
+  char name[45];
+};
+
+struct HID_USAGE_APP_CONTROL {
+  uint8_t type = TYPE_APP_CONTROL;
+  char name[45];
+};
 
 class HIDUsageKeys {
   public:
@@ -11,56 +69,26 @@ class HIDUsageKeys {
         static HIDUsageKeys instance;
         return instance;
     }
-    int16_t hidKeyBoard(uint16_t id);
-    int16_t hidKeyBoard(const char* code);
+    int16_t hidKeyboard(uint16_t id);
+    int16_t hidKeyboard(const char* code);
     int16_t hidAppLauncher(uint16_t id);
     int16_t hidAppLauncher(const char* code);
     int16_t hidConsumer(uint16_t id);
     int16_t hidConsumer(const char* code);
-};
-struct JSONMethodToCecType {
-  char JSONMethod[30];
-  char label[16];
-  bool KeyboardAction; // HID Keyboard and Keypad Page (0x07) otherwise HID Consumer Page (0x0c)
-  bool LongPress;
-  bool LeftCTRL;
-  uint16_t USBHID;
-};
-
-  // Keyname, Label, Keyboard, Longpress, Left CTRL, Keycode
-const JSONMethodToCecType JSONMethodToCec[] = {
-  {"KEYCODE_ENTER",                 "Enter", 1, 0, 0, 0x28},    // 0
-  {"KEYCODE_ENTER_LONGPRESS",       "", 1, 1, 0, 0x28},
-  {"KEYCODE_DPAD_RIGHT",            "Right", 1, 0, 0, 0x4F},
-  {"KEYCODE_DPAD_LEFT",             "Left", 1, 0, 0, 0x50},
-  {"KEYCODE_DPAD_DOWN",             "Down", 1, 0, 0, 0x51},
-  {"KEYCODE_DPAD_UP",               "Up", 1, 0, 0, 0x52},     // 5
-  {"KEYCODE_ESCAPE",                "Escape", 1, 0, 0, 0x29},
-  {"KEYCODE_HOME",                  "Home", 0, 0, 0, 0x0223},
-  {"KEYCODE_VOLUME_UP",             "", 0, 0, 0, 0xE9},
-  {"KEYCODE_VOLUME_DOWN",           "", 0, 0, 0, 0xEA},
-
-  {"KEYCODE_VOLUME_MUTE",           "", 0, 0, 0, 0xE2},         // 10
-  {"KEYCODE_MEDIA_PLAY_PAUSE",      "Play", 0, 0, 0, 0xCD},
-  {"KEYCODE_MEDIA_FAST_FORWARD",    "", 0, 1, 0, 0xB3},
-  {"KEYCODE_MEDIA_REWIND",          "", 0, 1, 0, 0xB4},
-  {"KEYCODE_MEDIA_NEXT",            "", 0, 0, 0, 0xB5},
-  {"KEYCODE_MEDIA_PREVIOUS",        "", 0, 0, 0, 0xB6},         // 15
-  {"KEYCODE_MEDIA_STOP",            "Stop", 0, 0, 0, 0xB7},
-  {"KEYCODE_POWER",                 "Power", 0, 0, 0, 0x34},
-  {"KEYCODE_MENU",                  "Menu", 0, 0, 0, 0x40},
-  {"KEYCODE_MENU_LONGPRESS",        "", 0, 1, 0, 0x40},
-
-  {"KEYCODE_SEARCH",                "", 0, 0, 0, 0x0221},         // 20
-  {"KEYCODE_SELECT_TASK",           "", 0, 0, 0, 0x01a2},   // App Switcher :) Yay!
-  {"KEYCODE_INFO",                  "", 0, 0, 0, 0x01bd},
-  {"KEYCODE_PAGE_UP",               "", 1, 0, 0, 0x004b},
-  {"KEYCODE_PAGE_DOWN",             "", 1, 0, 0, 0x004e},
+    int16_t hidAppControl(uint16_t id);
+    int16_t hidAppControl(const char* code);
+    static int16_t getKey(uint8_t type, uint16_t id);
+    static int16_t getKey(uint8_t type, const char* code);
+    static void getLayout(uint8_t id, HID_USAGE_KEY *buffer);
+    static const uint8_t getLayoutSize(uint8_t id);
+  private:
+    static const HID_USAGE_KEY layoutEmpty[];
+    static const HID_USAGE_KEY layoutRemoteMinimal[];
 };
 
-struct HID_USAGE {
-  char name[45];
-  uint16_t USBHID;
+enum {
+    LAYOUT_EMPTY,
+    LAYOUT_REMOTE_MINIMAL
 };
 
 const HID_USAGE HIDKeyboard[] = {
