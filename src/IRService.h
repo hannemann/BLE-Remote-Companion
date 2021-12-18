@@ -32,7 +32,9 @@ class IRService {
         void release();
         void storeLearned();
         String getConfigKeyFromIr();
-        HID_USAGE_KEY getHidUsageFromIr();
+        int16_t getHidUsageFromIr();
+        uint8_t getTypeId();
+        uint16_t getKeyId();
         String getConfigValue();
         JSONVar config;
 

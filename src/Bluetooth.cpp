@@ -9,16 +9,16 @@ BLECharacteristic* Bluetooth::output;
 BLECharacteristic* Bluetooth::inputMedia;
 BLECharacteristic* Bluetooth::outputMedia;
 
-void Bluetooth::keydown(HID_USAGE_KEY key, bool longpress) {
-  Serial.printf("Sending key code: %d %s\n", key.USBHID, key.longpress ? "longpress" : "");
+void Bluetooth::keydown(int16_t key, bool longpress) {
+  Serial.printf("Sending key code: %d %s\n", key, longpress ? "longpress" : "");
   inputKeyboard_t keyboard{};
   // if (key.LeftCTRL) {
   //   keyboard.KB_KeyboardKeyboardLeftControl = 1;
   // }
-  keyboard.Key = key.USBHID;
+  keyboard.Key = key;
   input->setValue((uint8_t*)&keyboard, sizeof(keyboard));
   input->notify();
-  if (key.longpress) {
+  if (longpress) {
     for(int i = 0; i < 50; i++) {
       delay(10);
       input->notify();
@@ -26,20 +26,20 @@ void Bluetooth::keydown(HID_USAGE_KEY key, bool longpress) {
   }
 }
 
-void Bluetooth::keyup(HID_USAGE_KEY key) {
+void Bluetooth::keyup() {
     input->setValue((uint8_t*)(&keyboard_report), sizeof(keyboard_report));
     input->notify();
     delay(10);
 }
 
-void Bluetooth::mediadown(HID_USAGE_KEY key, bool longpress) {
-    Serial.printf("Sending media code: %d %s\n", key.USBHID, key.longpress ? "longpress" : "");
+void Bluetooth::mediadown(int16_t key, bool longpress) {
+    Serial.printf("Sending media code: %d %s\n", key, longpress ? "longpress" : "");
     uint8_t value[2];
-    value[0] = key.USBHID;
-    value[1] = key.USBHID >> 8;
+    value[0] = key;
+    value[1] = key >> 8;
     inputMedia->setValue(value, 2);
     inputMedia->notify();
-    if (key.longpress) {
+    if (longpress) {
         for(int i = 0; i < 50; i++) {
             delay(10);
             inputMedia->notify();
@@ -47,47 +47,38 @@ void Bluetooth::mediadown(HID_USAGE_KEY key, bool longpress) {
     }
 }
 
-void Bluetooth::mediaup(HID_USAGE_KEY key) {
+void Bluetooth::mediaup() {
     inputMedia->setValue((uint8_t*)(&keyboard_report), sizeof(keyboard_report));
     inputMedia->notify();
     delay(10);
 }
 
 void Bluetooth::press(JSONVar jsonBody) {
-  int8_t layoutId = atoi(jsonBody["params"]["layout"]);
+  int8_t typeId = atoi(jsonBody["params"]["type"]);
   int8_t idx = atoi(jsonBody["params"]["key"]);
-  if (layoutId > 0) {
-    const uint8_t size = HIDUsageKeys::getLayoutSize(layoutId);
-    HID_USAGE_KEY layout[size];
-    HIDUsageKeys::getLayout(layoutId, layout);
-    const HID_USAGE_KEY key = layout[idx];
+  int16_t key = HIDUsageKeys::getKey(typeId, idx);
+  if (key > 0) {
     bool longpress = jsonBody["params"].hasOwnProperty("longpress");
-    key.type == TYPE_KEYBOARD ? keydown(key, longpress) : mediadown(key, longpress);
-    key.type == TYPE_KEYBOARD ? keyup(key) : mediaup(key);
+    typeId == TYPE_KEYBOARD ? keydown(key, longpress) : mediadown(key, longpress);
+    typeId == TYPE_KEYBOARD ? keyup() : mediaup();
   }
 }
 
 void Bluetooth::down(JSONVar jsonBody) {
-  int8_t layoutId = atoi(jsonBody["params"]["layout"]);
+  int8_t typeId = atoi(jsonBody["params"]["type"]);
   int8_t idx = atoi(jsonBody["params"]["key"]);
-  if (layoutId > 0) {
-    const uint8_t size = HIDUsageKeys::getLayoutSize(layoutId);
-    HID_USAGE_KEY layout[size];
-    HIDUsageKeys::getLayout(layoutId, layout);
-    const HID_USAGE_KEY key = layout[idx];
-    key.type == TYPE_KEYBOARD ? keydown(key, false) : mediadown(key, false);
+  int16_t key = HIDUsageKeys::getKey(typeId, idx);
+  if (key > 0) {
+    typeId == TYPE_KEYBOARD ? keydown(key, false) : mediadown(key, false);
   }
 }
 
 void Bluetooth::up(JSONVar jsonBody) {
-  int8_t layoutId = atoi(jsonBody["params"]["layout"]);
+  int8_t typeId = atoi(jsonBody["params"]["type"]);
   int8_t idx = atoi(jsonBody["params"]["key"]);
-  if (layoutId > 0) {
-    const uint8_t size = HIDUsageKeys::getLayoutSize(layoutId);
-    HID_USAGE_KEY layout[size];
-    HIDUsageKeys::getLayout(layoutId, layout);
-    const HID_USAGE_KEY key = layout[idx];
-    key.type == TYPE_KEYBOARD ? keyup(key) : mediaup(key);
+  int16_t key = HIDUsageKeys::getKey(typeId, idx);
+  if (key > 0) {
+    typeId == TYPE_KEYBOARD ? keyup() : mediaup();
   }
 }
 

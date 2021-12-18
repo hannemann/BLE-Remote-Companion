@@ -91,32 +91,37 @@ String IRService::getConfigKeyFromIr() {
 String IRService::getConfigValue() {
     Serial.printf("Obtain config from %s\n", JSON.stringify(learning).c_str());
     
-    String layout = (const char*)learning["layout"];
+    String type = (const char*)learning["type"];
     String key = (const char*)learning["key"];
 
-    return layout + "-" + key;
+    return type + "-" + key;
 }
 
 void IRService::press() {
-    const HID_USAGE_KEY key = getHidUsageFromIr();
-    key.type == TYPE_KEYBOARD ? bluetooth.keydown(key, false) : bluetooth.mediadown(key, false);
+    const int16_t key = getHidUsageFromIr();
+    getTypeId() == TYPE_KEYBOARD ? bluetooth.keydown(key, false) : bluetooth.mediadown(key, false);
 }
 
 void IRService::release() {
-    const HID_USAGE_KEY key = getHidUsageFromIr();
-    key.type == TYPE_KEYBOARD ? bluetooth.keyup(key) : bluetooth.mediaup(key);
+    getTypeId() == TYPE_KEYBOARD ? bluetooth.keyup() : bluetooth.mediaup();
 }
 
-HID_USAGE_KEY IRService::getHidUsageFromIr() {
+int16_t IRService::getHidUsageFromIr() {
+    return HIDUsageKeys::getKey(getTypeId(), getKeyId());
+}
+
+uint8_t IRService::getTypeId() {
     String configKey = (const char*)config[getConfigKeyFromIr()];
     String delimiter = "-";
-    int8_t layoutId = atoi(configKey.substring(0, configKey.indexOf("-")).c_str());
-    int8_t keyId = atoi(configKey.substring(configKey.indexOf("-") + 1).c_str());
+    uint8_t type = atoi(configKey.substring(0, configKey.indexOf("-")).c_str());
+    return type;
+}
 
-    const uint8_t size = HIDUsageKeys::getLayoutSize(layoutId);
-    HID_USAGE_KEY layout[size];
-    HIDUsageKeys::getLayout(layoutId, layout);
-    return layout[keyId];
+uint16_t IRService::getKeyId() {
+    String configKey = (const char*)config[getConfigKeyFromIr()];
+    String delimiter = "-";
+    uint16_t key = atoi(configKey.substring(configKey.indexOf("-") + 1).c_str());
+    return key;
 }
 
 void IRService::clearConfig() {

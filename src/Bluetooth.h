@@ -50,12 +50,10 @@ class Bluetooth
     static BLECharacteristic* output;
     static BLECharacteristic* inputMedia;
     static BLECharacteristic* outputMedia;
-    void keydown(HID_USAGE_KEY key, bool longpress);
-    void keyup(HID_USAGE_KEY key);
-    void mediadown(HID_USAGE_KEY key, bool longpress);
-    void mediaup(HID_USAGE_KEY key);
-    int16_t getKeyIndex(JSONVar jsonBody);
-    int16_t getKeyIndex(const char* keyCode);
+    void keydown(int16_t key, bool longpress);
+    void keyup();
+    void mediadown(int16_t key, bool longpress);
+    void mediaup();
     private:
     inputKeyboard_t keyboard_report{};
 };

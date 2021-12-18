@@ -36,7 +36,7 @@ struct HID_USAGE {
 
 struct HID_USAGE_KEY {
   uint8_t type;
-  int16_t USBHID;
+  int16_t index;
   char label[16];
   uint8_t longpress : 1;
 };
@@ -71,14 +71,19 @@ class HIDUsageKeys {
     }
     int16_t hidKeyboard(uint16_t id);
     int16_t hidKeyboard(const char* code);
+    int16_t hidKeyboardIndex(const char* code);
     int16_t hidAppLauncher(uint16_t id);
     int16_t hidAppLauncher(const char* code);
+    int16_t hidAppLauncherIndex(const char* code);
     int16_t hidConsumer(uint16_t id);
     int16_t hidConsumer(const char* code);
+    int16_t hidConsumerIndex(const char* code);
     int16_t hidAppControl(uint16_t id);
     int16_t hidAppControl(const char* code);
+    int16_t hidAppControlIndex(const char* code);
     static int16_t getKey(uint8_t type, uint16_t id);
     static int16_t getKey(uint8_t type, const char* code);
+    static int16_t getKeyIndex(uint8_t type, const char* code);
     static void getLayout(uint8_t id, HID_USAGE_KEY *buffer);
     static const uint8_t getLayoutSize(uint8_t id);
   private:

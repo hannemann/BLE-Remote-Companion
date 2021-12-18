@@ -84,12 +84,12 @@ String HTTPEvent::buttons() {
         } else {
             buttons += "<button data-key=\"";
             char bufIdx[3];
-            itoa(i, bufIdx, 10);
+            itoa(layout[i].index, bufIdx, 10);
             buttons += bufIdx;
-            buttons += "\" data-layout=\"";
-            char bufLayout[3];
-            itoa(LAYOUT_REMOTE_MINIMAL, bufLayout, 10);
-            buttons += bufLayout;
+            buttons += "\" data-type=\"";
+            char bufL[3];
+            itoa(layout[i].type, bufL, 10);
+            buttons += bufL;
             buttons += "\">";
             buttons += layout[i].label;
             buttons += "</button>\n";
