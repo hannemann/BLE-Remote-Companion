@@ -19,6 +19,7 @@ void HTTPEvent::loop() {
 }
 
 void HTTPEvent::home() {
+    Serial.printf("GET /\n");
     String response = header();
     response += nav();
     response += "<main><section class=\"remote\">\n";
@@ -34,6 +35,7 @@ void HTTPEvent::home() {
 }
 
 void HTTPEvent::learn() {
+    Serial.printf("GET /learn\n");
     String response = header();
     response += nav();
     response += "<main><section class=\"remote\">\n";
@@ -52,6 +54,7 @@ void HTTPEvent::learn() {
 }
 
 void HTTPEvent::keyboard() {
+    Serial.printf("GET /keyboard\n");
     String response = header();
     response += nav();
     response += "<main><section class=\"remote\">\n";
