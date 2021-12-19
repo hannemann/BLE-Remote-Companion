@@ -34,6 +34,7 @@ void WSEvent::webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size
   switch (type) {
     case WStype_DISCONNECTED:
       Serial.printf("WEBSOCKET: [%u] Disconnected!\n", num);
+      // Serial.printf("Connected Clients: %d\n", webSocket.connectedClients());
       break;
     case WStype_CONNECTED:
       {

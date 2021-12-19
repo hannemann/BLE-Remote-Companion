@@ -30,6 +30,7 @@ void HTTPEvent::home() {
     response += "</section></main>\n";
     response += footer();
     instance().server.send(200, "text/html", response);
+    // Serial.println(ESP.getFreeHeap());
 }
 
 void HTTPEvent::learn() {
@@ -66,6 +67,7 @@ void HTTPEvent::keyboard() {
     response += "</section></main>\n";
     response += footer();
     instance().server.send(200, "text/html", response);
+    // Serial.println(ESP.getFreeHeap());
 }
 
 void HTTPEvent::fourOFour() {
@@ -105,7 +107,6 @@ String HTTPEvent::nav() {
 String HTTPEvent::numbers() {
     const uint8_t size = HIDUsageKeys::getLayoutSize(LAYOUT_REMOTE_NUMBERS);
     HID_USAGE_KEY layout[size];
-    Serial.println(size);
     HIDUsageKeys::getLayout(LAYOUT_REMOTE_NUMBERS, layout);
     String buttons = "<div class=\"buttons col-3\">\n";
     for (int16_t i=0; i < sizeof layout/sizeof layout[0]; i++) {
@@ -118,7 +119,6 @@ String HTTPEvent::numbers() {
 String HTTPEvent::dpad() {
     const uint8_t size = HIDUsageKeys::getLayoutSize(LAYOUT_REMOTE_DPAD);
     HID_USAGE_KEY layout[size];
-    Serial.println(size);
     HIDUsageKeys::getLayout(LAYOUT_REMOTE_DPAD, layout);
     String buttons = "<div class=\"buttons col-5 p-block\">\n";
     for (int16_t i=0; i < sizeof layout/sizeof layout[0]; i++) {
@@ -131,7 +131,6 @@ String HTTPEvent::dpad() {
 String HTTPEvent::functional() {
     const uint8_t size = HIDUsageKeys::getLayoutSize(LAYOUT_REMOTE_FUNCTIONAL);
     HID_USAGE_KEY layout[size];
-    Serial.println(size);
     HIDUsageKeys::getLayout(LAYOUT_REMOTE_FUNCTIONAL, layout);
     String buttons = "<div class=\"buttons col-3\">\n";
     for (int16_t i=0; i < sizeof layout/sizeof layout[0]; i++) {
@@ -144,7 +143,6 @@ String HTTPEvent::functional() {
 String HTTPEvent::keyboardRow(uint8_t layoutId) {
     const uint8_t size = HIDUsageKeys::getLayoutSize(layoutId);
     HID_USAGE_KEY layout[size];
-    Serial.println(size);
     HIDUsageKeys::getLayout(layoutId, layout);
     String buttons = "<div>\n";
     for (int16_t i=0; i < sizeof layout/sizeof layout[0]; i++) {
@@ -157,7 +155,6 @@ String HTTPEvent::keyboardRow(uint8_t layoutId) {
 String HTTPEvent::media() {
     const uint8_t size = HIDUsageKeys::getLayoutSize(LAYOUT_REMOTE_MEDIA);
     HID_USAGE_KEY layout[size];
-    Serial.println(size);
     HIDUsageKeys::getLayout(LAYOUT_REMOTE_MEDIA, layout);
     String buttons = "<div class=\"buttons col-4\">\n";
     for (int16_t i=0; i < sizeof layout/sizeof layout[0]; i++) {
@@ -170,7 +167,6 @@ String HTTPEvent::media() {
 String HTTPEvent::colors() {
     const uint8_t size = HIDUsageKeys::getLayoutSize(LAYOUT_REMOTE_COLORS);
     HID_USAGE_KEY layout[size];
-    Serial.println(size);
     HIDUsageKeys::getLayout(LAYOUT_REMOTE_COLORS, layout);
     String buttons = "<div class=\"buttons col-4\">\n";
     for (int16_t i=0; i < sizeof layout/sizeof layout[0]; i++) {
