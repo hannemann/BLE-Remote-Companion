@@ -7,6 +7,7 @@ void HTTPEvent::init() {
 
 void HTTPEvent::run() {
     server.on("/", home);
+    server.on("/keyboard", keyboard);
     server.on("/learn", learn);
     server.onNotFound(fourOFour);
     server.begin();
@@ -20,11 +21,13 @@ void HTTPEvent::loop() {
 void HTTPEvent::home() {
     String response = header();
     response += nav();
-    response += "<h1>BLE-LIRC</h1>\n";
+    response += "<main><section class=\"remote\">\n";
     response += numbers();
+    response += functional();
     response += dpad();
     response += media();
     response += colors();
+    response += "</section></main>\n";
     response += footer();
     instance().server.send(200, "text/html", response);
 }
@@ -32,12 +35,35 @@ void HTTPEvent::home() {
 void HTTPEvent::learn() {
     String response = header();
     response += nav();
-    response += "<h1>BLE-LIRC</h1>\n";
+    response += "<main><section class=\"remote\">\n";
     response += numbers();
+    response += functional();
+    response += dpad();
+    response += media();
+    response += colors();
+    response += "</section></main>\n";
     response += "<div class=\"config\">\n";
     response += "<label>Learn <input name=\"learn\" type=\"checkbox\"/></label>\n";
     response += "<button name=\"clear\">Clear Configuration</button>\n";
     response += "</div>\n";
+    response += footer();
+    instance().server.send(200, "text/html", response);
+}
+
+void HTTPEvent::keyboard() {
+    String response = header();
+    response += nav();
+    response += "<main><section class=\"remote\">\n";
+    response += functional();
+    response += dpad();
+    response += "</section>\n";
+    response += "<section class=\"keyboard\">\n";
+    response += keyboardRow(LAYOUT_KEYBOARD_NUMBERS);
+    response += keyboardRow(LAYOUT_KEYBOARD_ROW1);
+    response += keyboardRow(LAYOUT_KEYBOARD_ROW2);
+    response += keyboardRow(LAYOUT_KEYBOARD_ROW3);
+    response += keyboardRow(LAYOUT_KEYBOARD_ROW4);
+    response += "</section></main>\n";
     response += footer();
     instance().server.send(200, "text/html", response);
 }
@@ -69,8 +95,9 @@ String HTTPEvent::footer() {
 
 String HTTPEvent::nav() {
     String nav = "<nav>\n";
-    nav += "<a href=\"/\">Home</a>\n";
-    nav += "<a href=\"/learn\">Learn</a>\n";
+    nav += "<a href=\"/\">&#x2302;</a>\n";
+    nav += "<a href=\"/keyboard\">&#x2328;</a>\n";
+    nav += "<a href=\"/learn\">&#x2699;</a>\n";
     nav += "</nav>\n";
     return nav;
 }
@@ -80,7 +107,7 @@ String HTTPEvent::numbers() {
     HID_USAGE_KEY layout[size];
     Serial.println(size);
     HIDUsageKeys::getLayout(LAYOUT_REMOTE_NUMBERS, layout);
-    String buttons = "<div class=\"buttons numbers\">\n";
+    String buttons = "<div class=\"buttons col-3\">\n";
     for (int16_t i=0; i < sizeof layout/sizeof layout[0]; i++) {
         buttons += button(layout[i]);
     }
@@ -93,7 +120,33 @@ String HTTPEvent::dpad() {
     HID_USAGE_KEY layout[size];
     Serial.println(size);
     HIDUsageKeys::getLayout(LAYOUT_REMOTE_DPAD, layout);
-    String buttons = "<div class=\"buttons dpad\">\n";
+    String buttons = "<div class=\"buttons col-5 p-block\">\n";
+    for (int16_t i=0; i < sizeof layout/sizeof layout[0]; i++) {
+        buttons += button(layout[i]);
+    }
+    buttons += "</div>\n";
+    return buttons;
+}
+
+String HTTPEvent::functional() {
+    const uint8_t size = HIDUsageKeys::getLayoutSize(LAYOUT_REMOTE_FUNCTIONAL);
+    HID_USAGE_KEY layout[size];
+    Serial.println(size);
+    HIDUsageKeys::getLayout(LAYOUT_REMOTE_FUNCTIONAL, layout);
+    String buttons = "<div class=\"buttons col-3\">\n";
+    for (int16_t i=0; i < sizeof layout/sizeof layout[0]; i++) {
+        buttons += button(layout[i]);
+    }
+    buttons += "</div>\n";
+    return buttons;
+}
+
+String HTTPEvent::keyboardRow(uint8_t layoutId) {
+    const uint8_t size = HIDUsageKeys::getLayoutSize(layoutId);
+    HID_USAGE_KEY layout[size];
+    Serial.println(size);
+    HIDUsageKeys::getLayout(layoutId, layout);
+    String buttons = "<div>\n";
     for (int16_t i=0; i < sizeof layout/sizeof layout[0]; i++) {
         buttons += button(layout[i]);
     }
@@ -106,7 +159,7 @@ String HTTPEvent::media() {
     HID_USAGE_KEY layout[size];
     Serial.println(size);
     HIDUsageKeys::getLayout(LAYOUT_REMOTE_MEDIA, layout);
-    String buttons = "<div class=\"buttons media\">\n";
+    String buttons = "<div class=\"buttons col-4\">\n";
     for (int16_t i=0; i < sizeof layout/sizeof layout[0]; i++) {
         buttons += button(layout[i]);
     }
@@ -119,7 +172,7 @@ String HTTPEvent::colors() {
     HID_USAGE_KEY layout[size];
     Serial.println(size);
     HIDUsageKeys::getLayout(LAYOUT_REMOTE_COLORS, layout);
-    String buttons = "<div class=\"buttons colors\">\n";
+    String buttons = "<div class=\"buttons col-4\">\n";
     for (int16_t i=0; i < sizeof layout/sizeof layout[0]; i++) {
         buttons += button(layout[i]);
     }
@@ -130,7 +183,9 @@ String HTTPEvent::colors() {
 String HTTPEvent::button(HID_USAGE_KEY key) {
     String button = "";
     if (key.type == TYPE_NONE) {
-        button += "<span></span>\n";
+        button += "<span>\n";
+        button += key.label;
+        button += "</span>\n";
     } else {
         button += "<button data-key=\"";
         char bufIdx[3];

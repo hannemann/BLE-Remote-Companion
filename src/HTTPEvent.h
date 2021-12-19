@@ -19,6 +19,7 @@ class HTTPEvent {
         uint16_t port = HTTP_PORT;
         static void home();
         static void learn();
+        static void keyboard();
         static void fourOFour();
         static String header();
         static String footer();
@@ -27,6 +28,8 @@ class HTTPEvent {
         static String dpad();
         static String media();
         static String colors();
+        static String functional();
+        static String keyboardRow(uint8_t layoutId);
         static String button(HID_USAGE_KEY key);
 
 };

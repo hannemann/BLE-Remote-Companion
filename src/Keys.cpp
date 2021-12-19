@@ -39,15 +39,29 @@ const HID_USAGE_KEY HIDUsageKeys::layoutRemoteNumbers[] {
 };
 
 const HID_USAGE_KEY HIDUsageKeys::layoutRemoteDPad[] {
+    {TYPE_CONSUMER, HIDUsageKeys::getKeyIndex(TYPE_CONSUMER, "KEYCODE_VOLUME_UP"), "&plus;", 0},
     {TYPE_NONE, -1, "", 0},
-    {TYPE_KEYBOARD, HIDUsageKeys::getKeyIndex(TYPE_KEYBOARD, "KEYCODE_DPAD_UP"), "&#58132;", 0},
+    {TYPE_KEYBOARD, HIDUsageKeys::getKeyIndex(TYPE_KEYBOARD, "KEYCODE_DPAD_UP"), "&utrif;", 0},
     {TYPE_NONE, -1, "", 0},
-    {TYPE_KEYBOARD, HIDUsageKeys::getKeyIndex(TYPE_KEYBOARD, "KEYCODE_DPAD_LEFT"), "&#58130;", 0},
-    {TYPE_KEYBOARD, HIDUsageKeys::getKeyIndex(TYPE_KEYBOARD, "KEYCODE_ENTER"), "OK", 0},
-    {TYPE_KEYBOARD, HIDUsageKeys::getKeyIndex(TYPE_KEYBOARD, "KEYCODE_DPAD_RIGHT"), "&#58131;", 0},
+    {TYPE_KEYBOARD, HIDUsageKeys::getKeyIndex(TYPE_KEYBOARD, "KEYCODE_PAGE_UP"), "&plus;", 0},
+
+    {TYPE_NONE, -1, "Vol", 0},
+    {TYPE_KEYBOARD, HIDUsageKeys::getKeyIndex(TYPE_KEYBOARD, "KEYCODE_DPAD_LEFT"), "&ltrif;", 0},
+    {TYPE_KEYBOARD, HIDUsageKeys::getKeyIndex(TYPE_KEYBOARD, "KEYCODE_ENTER"), "&#x1f197", 0},
+    {TYPE_KEYBOARD, HIDUsageKeys::getKeyIndex(TYPE_KEYBOARD, "KEYCODE_DPAD_RIGHT"), "&rtrif;", 0},
+    {TYPE_NONE, -1, "CH", 0},
+
+    {TYPE_CONSUMER, HIDUsageKeys::getKeyIndex(TYPE_CONSUMER, "KEYCODE_VOLUME_DOWN"), "&minus;", 0},
     {TYPE_NONE, -1, "", 0},
-    {TYPE_KEYBOARD, HIDUsageKeys::getKeyIndex(TYPE_KEYBOARD, "KEYCODE_DPAD_DOWN"), "&#58133;", 0},
-    {TYPE_NONE, -1, "", 0}
+    {TYPE_KEYBOARD, HIDUsageKeys::getKeyIndex(TYPE_KEYBOARD, "KEYCODE_DPAD_DOWN"), "&dtrif;", 0},
+    {TYPE_NONE, -1, "", 0},
+    {TYPE_KEYBOARD, HIDUsageKeys::getKeyIndex(TYPE_KEYBOARD, "KEYCODE_PAGE_DOWN"), "&minus;", 0},
+
+    {TYPE_NONE, -1, "", 0},
+    {TYPE_CONSUMER, HIDUsageKeys::getKeyIndex(TYPE_CONSUMER, "KEYCODE_VOLUME_MUTE"), "&#x1f507;", 0},
+    {TYPE_NONE, -1, "", 0},
+    {TYPE_CONSUMER, HIDUsageKeys::getKeyIndex(TYPE_CONSUMER, "KEYCODE_LAST_CHANNEL"), "&#x1f504;", 0},
+    {TYPE_NONE, -1, "", 0},
 };
 
 const HID_USAGE_KEY HIDUsageKeys::layoutRemoteColors[] {
@@ -58,13 +72,69 @@ const HID_USAGE_KEY HIDUsageKeys::layoutRemoteColors[] {
 };
 
 const HID_USAGE_KEY HIDUsageKeys::layoutRemoteMedia[] {
-    {TYPE_CONSUMER, HIDUsageKeys::getKeyIndex(TYPE_CONSUMER, "KEYCODE_MEDIA_PREVIOUS"), "&#58136;", 0},
-    {TYPE_CONSUMER, HIDUsageKeys::getKeyIndex(TYPE_CONSUMER, "KEYCODE_MEDIA_REWIND"), "&#58134;", 0},
-    {TYPE_CONSUMER, HIDUsageKeys::getKeyIndex(TYPE_CONSUMER, "KEYCODE_MEDIA_FAST_FORWARD"), "&#58135;", 0},
-    {TYPE_CONSUMER, HIDUsageKeys::getKeyIndex(TYPE_CONSUMER, "KEYCODE_MEDIA_NEXT"), "&#58137;", 0},
-    {TYPE_CONSUMER, HIDUsageKeys::getKeyIndex(TYPE_CONSUMER, "KEYCODE_MEDIA_RECORD"), "&#58140;", 0},
-    {TYPE_CONSUMER, HIDUsageKeys::getKeyIndex(TYPE_CONSUMER, "KEYCODE_MEDIA_STOP"), "&#58139;", 0},
-    {TYPE_CONSUMER, HIDUsageKeys::getKeyIndex(TYPE_CONSUMER, "KEYCODE_MEDIA_PLAY_PAUSE"), "&#58131;&#58138;", 0}
+    {TYPE_CONSUMER, HIDUsageKeys::getKeyIndex(TYPE_CONSUMER, "KEYCODE_MEDIA_PREVIOUS"), "&#x23EE;", 0},
+    {TYPE_CONSUMER, HIDUsageKeys::getKeyIndex(TYPE_CONSUMER, "KEYCODE_MEDIA_REWIND"), "&#x23EA;", 0},
+    {TYPE_CONSUMER, HIDUsageKeys::getKeyIndex(TYPE_CONSUMER, "KEYCODE_MEDIA_FAST_FORWARD"), "&#x23E9;", 0},
+    {TYPE_CONSUMER, HIDUsageKeys::getKeyIndex(TYPE_CONSUMER, "KEYCODE_MEDIA_NEXT"), "&#x23ED;", 0},
+    {TYPE_CONSUMER, HIDUsageKeys::getKeyIndex(TYPE_CONSUMER, "KEYCODE_MEDIA_RECORD"), "&#x23FA;", 0},
+    {TYPE_CONSUMER, HIDUsageKeys::getKeyIndex(TYPE_CONSUMER, "KEYCODE_MEDIA_STOP"), "&#x23f9;", 0},
+    {TYPE_CONSUMER, HIDUsageKeys::getKeyIndex(TYPE_CONSUMER, "KEYCODE_MEDIA_PLAY_PAUSE"), "&#x23EF;", 0}
+};
+
+const HID_USAGE_KEY HIDUsageKeys::layoutRemoteFunctional[] {
+    {TYPE_KEYBOARD, HIDUsageKeys::getKeyIndex(TYPE_KEYBOARD, "KEYCODE_ESCAPE"), "&#x21b0;", 0},
+};
+
+const HID_USAGE_KEY HIDUsageKeys::layoutKeyboardNumbers[] {
+    {TYPE_KEYBOARD, HIDUsageKeys::getKeyIndex(TYPE_KEYBOARD, "KEYCODE_1"), "1", 0},
+    {TYPE_KEYBOARD, HIDUsageKeys::getKeyIndex(TYPE_KEYBOARD, "KEYCODE_2"), "2", 0},
+    {TYPE_KEYBOARD, HIDUsageKeys::getKeyIndex(TYPE_KEYBOARD, "KEYCODE_3"), "3", 0},
+    {TYPE_KEYBOARD, HIDUsageKeys::getKeyIndex(TYPE_KEYBOARD, "KEYCODE_4"), "4", 0},
+    {TYPE_KEYBOARD, HIDUsageKeys::getKeyIndex(TYPE_KEYBOARD, "KEYCODE_5"), "5", 0},
+    {TYPE_KEYBOARD, HIDUsageKeys::getKeyIndex(TYPE_KEYBOARD, "KEYCODE_6"), "6", 0},
+    {TYPE_KEYBOARD, HIDUsageKeys::getKeyIndex(TYPE_KEYBOARD, "KEYCODE_7"), "7", 0},
+    {TYPE_KEYBOARD, HIDUsageKeys::getKeyIndex(TYPE_KEYBOARD, "KEYCODE_8"), "8", 0},
+    {TYPE_KEYBOARD, HIDUsageKeys::getKeyIndex(TYPE_KEYBOARD, "KEYCODE_9"), "9", 0},
+    {TYPE_KEYBOARD, HIDUsageKeys::getKeyIndex(TYPE_KEYBOARD, "KEYCODE_0"), "0", 0},
+};
+const HID_USAGE_KEY HIDUsageKeys::layoutKeyboardRow1[] {
+    {TYPE_KEYBOARD, HIDUsageKeys::getKeyIndex(TYPE_KEYBOARD, "KEYCODE_Q"), "Q", 0},
+    {TYPE_KEYBOARD, HIDUsageKeys::getKeyIndex(TYPE_KEYBOARD, "KEYCODE_W"), "W", 0},
+    {TYPE_KEYBOARD, HIDUsageKeys::getKeyIndex(TYPE_KEYBOARD, "KEYCODE_E"), "E", 0},
+    {TYPE_KEYBOARD, HIDUsageKeys::getKeyIndex(TYPE_KEYBOARD, "KEYCODE_R"), "R", 0},
+    {TYPE_KEYBOARD, HIDUsageKeys::getKeyIndex(TYPE_KEYBOARD, "KEYCODE_T"), "T", 0},
+    {TYPE_KEYBOARD, HIDUsageKeys::getKeyIndex(TYPE_KEYBOARD, "KEYCODE_Z"), "Z", 0},
+    {TYPE_KEYBOARD, HIDUsageKeys::getKeyIndex(TYPE_KEYBOARD, "KEYCODE_U"), "U", 0},
+    {TYPE_KEYBOARD, HIDUsageKeys::getKeyIndex(TYPE_KEYBOARD, "KEYCODE_I"), "I", 0},
+    {TYPE_KEYBOARD, HIDUsageKeys::getKeyIndex(TYPE_KEYBOARD, "KEYCODE_O"), "O", 0},
+    {TYPE_KEYBOARD, HIDUsageKeys::getKeyIndex(TYPE_KEYBOARD, "KEYCODE_P"), "P", 0},
+};
+const HID_USAGE_KEY HIDUsageKeys::layoutKeyboardRow2[] {
+    {TYPE_KEYBOARD, HIDUsageKeys::getKeyIndex(TYPE_KEYBOARD, "KEYCODE_A"), "A", 0},
+    {TYPE_KEYBOARD, HIDUsageKeys::getKeyIndex(TYPE_KEYBOARD, "KEYCODE_S"), "S", 0},
+    {TYPE_KEYBOARD, HIDUsageKeys::getKeyIndex(TYPE_KEYBOARD, "KEYCODE_D"), "D", 0},
+    {TYPE_KEYBOARD, HIDUsageKeys::getKeyIndex(TYPE_KEYBOARD, "KEYCODE_F"), "F", 0},
+    {TYPE_KEYBOARD, HIDUsageKeys::getKeyIndex(TYPE_KEYBOARD, "KEYCODE_G"), "G", 0},
+    {TYPE_KEYBOARD, HIDUsageKeys::getKeyIndex(TYPE_KEYBOARD, "KEYCODE_H"), "H", 0},
+    {TYPE_KEYBOARD, HIDUsageKeys::getKeyIndex(TYPE_KEYBOARD, "KEYCODE_J"), "J", 0},
+    {TYPE_KEYBOARD, HIDUsageKeys::getKeyIndex(TYPE_KEYBOARD, "KEYCODE_K"), "K", 0},
+    {TYPE_KEYBOARD, HIDUsageKeys::getKeyIndex(TYPE_KEYBOARD, "KEYCODE_L"), "L", 0},
+};
+const HID_USAGE_KEY HIDUsageKeys::layoutKeyboardRow3[] {
+    {TYPE_NONE, -1, "", 0},
+    {TYPE_KEYBOARD, HIDUsageKeys::getKeyIndex(TYPE_KEYBOARD, "KEYCODE_Y"), "Y", 0},
+    {TYPE_KEYBOARD, HIDUsageKeys::getKeyIndex(TYPE_KEYBOARD, "KEYCODE_X"), "X", 0},
+    {TYPE_KEYBOARD, HIDUsageKeys::getKeyIndex(TYPE_KEYBOARD, "KEYCODE_C"), "C", 0},
+    {TYPE_KEYBOARD, HIDUsageKeys::getKeyIndex(TYPE_KEYBOARD, "KEYCODE_V"), "V", 0},
+    {TYPE_KEYBOARD, HIDUsageKeys::getKeyIndex(TYPE_KEYBOARD, "KEYCODE_B"), "B", 0},
+    {TYPE_KEYBOARD, HIDUsageKeys::getKeyIndex(TYPE_KEYBOARD, "KEYCODE_N"), "N", 0},
+    {TYPE_KEYBOARD, HIDUsageKeys::getKeyIndex(TYPE_KEYBOARD, "KEYCODE_M"), "M", 0},
+    {TYPE_KEYBOARD, HIDUsageKeys::getKeyIndex(TYPE_KEYBOARD, "KEYCODE_DEL"), "&#x232b", 0},
+};
+const HID_USAGE_KEY HIDUsageKeys::layoutKeyboardRow4[] {
+    {TYPE_NONE, -1, "&nbsp;", 0},
+    {TYPE_KEYBOARD, HIDUsageKeys::getKeyIndex(TYPE_KEYBOARD, "KEYCODE_SPACE"), "&nbsp", 0},
+    {TYPE_KEYBOARD, HIDUsageKeys::getKeyIndex(TYPE_KEYBOARD, "KEYCODE_ENTER"), "&#x21b2", 0},
 };
 
 int16_t HIDUsageKeys::hidKeyboard(uint16_t id) {
@@ -228,12 +298,42 @@ void HIDUsageKeys::getLayout(uint8_t id, HID_USAGE_KEY *buffer) {
             break;
         case LAYOUT_REMOTE_COLORS:
             for (uint8_t i = 0; i < getLayoutSize(id); i++) {
-                buffer[i] = layoutRemoteColors  [i];
+                buffer[i] = layoutRemoteColors[i];
             }
             break;
         case LAYOUT_REMOTE_MEDIA:
             for (uint8_t i = 0; i < getLayoutSize(id); i++) {
-                buffer[i] = layoutRemoteMedia  [i];
+                buffer[i] = layoutRemoteMedia[i];
+            }
+            break;
+        case LAYOUT_REMOTE_FUNCTIONAL:
+            for (uint8_t i = 0; i < getLayoutSize(id); i++) {
+                buffer[i] = layoutRemoteFunctional[i];
+            }
+            break;
+        case LAYOUT_KEYBOARD_NUMBERS:
+            for (uint8_t i = 0; i < getLayoutSize(id); i++) {
+                buffer[i] = layoutKeyboardNumbers[i];
+            }
+            break;
+        case LAYOUT_KEYBOARD_ROW1:
+            for (uint8_t i = 0; i < getLayoutSize(id); i++) {
+                buffer[i] = layoutKeyboardRow1[i];
+            }
+            break;
+        case LAYOUT_KEYBOARD_ROW2:
+            for (uint8_t i = 0; i < getLayoutSize(id); i++) {
+                buffer[i] = layoutKeyboardRow2[i];
+            }
+            break;
+        case LAYOUT_KEYBOARD_ROW3:
+            for (uint8_t i = 0; i < getLayoutSize(id); i++) {
+                buffer[i] = layoutKeyboardRow3[i];
+            }
+            break;
+        case LAYOUT_KEYBOARD_ROW4:
+            for (uint8_t i = 0; i < getLayoutSize(id); i++) {
+                buffer[i] = layoutKeyboardRow4[i];
             }
             break;
     }
@@ -264,6 +364,36 @@ const uint8_t HIDUsageKeys::getLayoutSize(uint8_t id) {
             break;
         case LAYOUT_REMOTE_MEDIA:
             for (uint8_t i = 0; i < sizeof layoutRemoteMedia / sizeof layoutRemoteMedia[0]; i++) {
+                size++;
+            }
+            break;
+        case LAYOUT_REMOTE_FUNCTIONAL:
+            for (uint8_t i = 0; i < sizeof layoutRemoteFunctional / sizeof layoutRemoteFunctional[0]; i++) {
+                size++;
+            }
+            break;
+        case LAYOUT_KEYBOARD_NUMBERS:
+            for (uint8_t i = 0; i < sizeof layoutKeyboardNumbers / sizeof layoutKeyboardNumbers[0]; i++) {
+                size++;
+            }
+            break;
+        case LAYOUT_KEYBOARD_ROW1:
+            for (uint8_t i = 0; i < sizeof layoutKeyboardRow1 / sizeof layoutKeyboardRow1[0]; i++) {
+                size++;
+            }
+            break;
+        case LAYOUT_KEYBOARD_ROW2:
+            for (uint8_t i = 0; i < sizeof layoutKeyboardRow2 / sizeof layoutKeyboardRow2[0]; i++) {
+                size++;
+            }
+            break;
+        case LAYOUT_KEYBOARD_ROW3:
+            for (uint8_t i = 0; i < sizeof layoutKeyboardRow3 / sizeof layoutKeyboardRow3[0]; i++) {
+                size++;
+            }
+            break;
+        case LAYOUT_KEYBOARD_ROW4:
+            for (uint8_t i = 0; i < sizeof layoutKeyboardRow4 / sizeof layoutKeyboardRow4[0]; i++) {
                 size++;
             }
             break;

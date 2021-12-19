@@ -12,17 +12,32 @@
     --gap: 1em;
     --gap-small: .5em;
     --gap-big: 1.25em;
+    --gap-minimal: .25em;
     --button-width: 80px;
     --remote-columns: 3;
 }
 body {
     background: var(--clr-bg);
     color: var(--clr-fg);
+    margin: 0;
+}
+nav {
+    background: var(--clr-btn-bg);
+    padding: var(--gap-small);
+    color: var(--clr-fg);
+    display: flex;
+    gap: var(--gap-small);
+    font-size: 2em;
+    margin-bottom: var(--gap);
+}
+nav a {
+    display: inline-block;
+    color: inherit;
+    text-decoration: none;
 }
 button {
     background: hsl(var(--hue-bg), var(--sat-bg), calc(var(--lit-bg) + 10%));
-    border: 2px solid var(--clr-btn-border);
-    padding: var(--gap-small);
+    border: 1px solid var(--clr-btn-border);
     color: var(--clr-fg);
 }
 button:active {
@@ -32,14 +47,65 @@ button:active {
     opacity: .5;
     pointer-event: none;
 }
+section.remote {
+    display: grid;
+    grid-template-columns: 1fr;
+    place-items: center;
+}
 .buttons {
     display: inline-grid;
     gap: var(--gap);
     place-items: center;
-    grid-template-columns: repeat(var(--remote-columns), 1fr);
     margin-bottom: var(--gap);
 }
 button[data-key] {
-    width: var(--button-width);
     aspect-ratio: 1;
+    font-size: 2em;
+    height: 1.4em;
+    border: none;
+    border-radius: .2em;
+}
+.buttons.col-3 {
+    grid-template-columns: repeat(3, 1fr);
+}
+.buttons.col-4 {
+    grid-template-columns: repeat(4, 1fr);
+}
+.buttons.col-5 {
+    grid-template-columns: repeat(5, 1fr);
+    padding-block: var(--gap);
+}
+.buttons.p-block {
+    padding-block: var(--gap);
+}
+.keyboard {
+    display: grid;
+    gap: var(--gap-minimal);
+    position: fixed;
+    bottom: var(--gap-minimal);
+    width: calc(100% - 2 * var(--gap-minimal));
+    padding-inline: var(--gap-minimal);
+}
+.keyboard > div {
+    display: flex;
+    justify-content: center;
+    gap: var(--gap-minimal);
+}
+.keyboard button[data-key] {
+    aspect-ratio: revert;
+    padding-inline: .4em;
+    flex-grow: .1;
+    height: 1.6em;
+}
+.keyboard > div:last-child {
+    justify-content: space-between;
+}
+.keyboard > div:last-child button:nth-child(2) {
+    flex-grow: 1;
+}
+@media (max-width: 480px) {
+    .keyboard button[data-key] {
+        padding-inline: .3em;
+        font-size: 1.5em;
+    }
 }

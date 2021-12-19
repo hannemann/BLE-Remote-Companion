@@ -93,6 +93,12 @@ class HIDUsageKeys {
     static const HID_USAGE_KEY layoutRemoteNumbers[];
     static const HID_USAGE_KEY layoutRemoteMedia[];
     static const HID_USAGE_KEY layoutRemoteColors[];
+    static const HID_USAGE_KEY layoutRemoteFunctional[];
+    static const HID_USAGE_KEY layoutKeyboardNumbers[];
+    static const HID_USAGE_KEY layoutKeyboardRow1[];
+    static const HID_USAGE_KEY layoutKeyboardRow2[];
+    static const HID_USAGE_KEY layoutKeyboardRow3[];
+    static const HID_USAGE_KEY layoutKeyboardRow4[];
 };
 
 enum LAYOUTS {
@@ -101,7 +107,13 @@ enum LAYOUTS {
     LAYOUT_REMOTE_DPAD,
     LAYOUT_REMOTE_NUMBERS,
     LAYOUT_REMOTE_MEDIA,
-    LAYOUT_REMOTE_COLORS
+    LAYOUT_REMOTE_COLORS,
+    LAYOUT_REMOTE_FUNCTIONAL,
+    LAYOUT_KEYBOARD_NUMBERS,
+    LAYOUT_KEYBOARD_ROW1,
+    LAYOUT_KEYBOARD_ROW2,
+    LAYOUT_KEYBOARD_ROW3,
+    LAYOUT_KEYBOARD_ROW4
 };
 
 const HID_USAGE HIDKeyboard[] = {

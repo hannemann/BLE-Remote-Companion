@@ -44,7 +44,9 @@ setTimeout(() => {
   }
   if (btnClear) {
     btnClear.addEventListener("pointerup", (e) => {
-      ws.send(JSON.stringify({ method: "clear" }));
+      if (confirm("Delete Configuration?")) {
+        ws.send(JSON.stringify({ method: "clear" }));
+      }
     });
   }
 }, 2000);
