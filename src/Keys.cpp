@@ -83,6 +83,8 @@ const HID_USAGE_KEY HIDUsageKeys::layoutRemoteMedia[] {
 
 const HID_USAGE_KEY HIDUsageKeys::layoutRemoteFunctional[] {
     {TYPE_KEYBOARD, HIDUsageKeys::getKeyIndex(TYPE_KEYBOARD, "KEYCODE_ESCAPE"), "&#x21b0;", 0},
+    {TYPE_CONSUMER, HIDUsageKeys::getKeyIndex(TYPE_CONSUMER, "KEYCODE_POWER"), "PWR", 0},
+    {TYPE_CONSUMER, HIDUsageKeys::getKeyIndex(TYPE_CONSUMER, "KEYCODE_MENU"), "M", 0},
 };
 
 const HID_USAGE_KEY HIDUsageKeys::layoutKeyboardNumbers[] {

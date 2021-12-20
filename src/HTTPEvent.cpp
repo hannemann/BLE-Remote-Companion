@@ -38,17 +38,24 @@ void HTTPEvent::learn() {
     Serial.printf("GET /learn\n");
     String response = header();
     response += nav();
-    response += "<main><section class=\"remote\">\n";
+    response += "<main class=\"learn\"><section class=\"remote\">\n";
     response += numbers();
     response += functional();
     response += dpad();
     response += media();
     response += colors();
-    response += "</section></main>\n";
-    response += "<div class=\"config\">\n";
+    response += "</section>\n";
+    response += "<section class=\"keyboard\">\n";
+    response += keyboardRow(LAYOUT_KEYBOARD_NUMBERS);
+    response += keyboardRow(LAYOUT_KEYBOARD_ROW1);
+    response += keyboardRow(LAYOUT_KEYBOARD_ROW2);
+    response += keyboardRow(LAYOUT_KEYBOARD_ROW3);
+    response += keyboardRow(LAYOUT_KEYBOARD_ROW4);
+    response += "</section>\n";
+    response += "<section class=\"config\">\n";
     response += "<label>Learn <input name=\"learn\" type=\"checkbox\"/></label>\n";
     response += "<button name=\"clear\">Clear Configuration</button>\n";
-    response += "</div>\n";
+    response += "</section></main>\n";
     response += footer();
     instance().server.send(200, "text/html", response);
 }

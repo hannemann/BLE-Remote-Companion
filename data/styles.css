@@ -81,10 +81,12 @@ button[data-key] {
 .keyboard {
     display: grid;
     gap: var(--gap-minimal);
-    position: fixed;
-    bottom: var(--gap-minimal);
     width: calc(100% - 2 * var(--gap-minimal));
     padding-inline: var(--gap-minimal);
+}
+main:not(.learn) .keyboard {
+    position: fixed;
+    bottom: var(--gap-minimal);
 }
 .keyboard > div {
     display: flex;
