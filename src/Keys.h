@@ -86,7 +86,6 @@ class HIDUsageKeys {
     static int16_t getKeyIndex(uint8_t type, const char* code);
     static void getLayout(uint8_t id, HID_USAGE_KEY *buffer);
     static const uint8_t getLayoutSize(uint8_t id);
-  private:
     static const HID_USAGE_KEY layoutEmpty[];
     static const HID_USAGE_KEY layoutRemoteMinimal[];
     static const HID_USAGE_KEY layoutRemoteDPad[];

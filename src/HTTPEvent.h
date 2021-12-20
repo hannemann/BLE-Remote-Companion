@@ -29,8 +29,9 @@ class HTTPEvent {
         static String media();
         static String colors();
         static String functional();
-        static String keyboardRow(uint8_t layoutId);
+        static String keyboardRows();
         static String button(HID_USAGE_KEY key);
+        static JSONVar buttonJSON(HID_USAGE_KEY key);
 
 };
 

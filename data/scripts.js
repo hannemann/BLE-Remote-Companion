@@ -1,4 +1,26 @@
+const renderButtons = function (parent, config) {
+  const container = parent.appendChild(document.createElement("div"));
+  container.classList.add("buttons");
+  config.classes.forEach((c) => container.classList.add(c));
+  config.buttons.forEach((b) => {
+    let btn;
+    if (b.type > 0) {
+      btn = container.appendChild(document.createElement("button"));
+      btn.dataset.key = b.key;
+      btn.dataset.type = b.type;
+    } else {
+      btn = container.appendChild(document.createElement("span"));
+    }
+    btn.innerHTML = b.label;
+  });
+};
+
 setTimeout(() => {
+  renderButtons(document.querySelector("section.remote"), numbers);
+  renderButtons(document.querySelector("section.remote"), functional);
+  renderButtons(document.querySelector("section.remote"), dpad);
+  renderButtons(document.querySelector("section.remote"), media);
+  renderButtons(document.querySelector("section.remote"), colors);
   const ws = new WebSocket("ws://192.168.178.218:2339/jsonrpc");
   const btnClear = document.querySelector('button[name="clear"]');
   const btnsKey = document.querySelectorAll("button[data-key]");
