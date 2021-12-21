@@ -1,3 +1,5 @@
+let ws;
+
 const renderButtons = function (parent, config) {
   const container = parent.appendChild(document.createElement("div"));
   container.classList.add("buttons");
@@ -15,21 +17,24 @@ const renderButtons = function (parent, config) {
   });
 };
 
-setTimeout(() => {
-  renderButtons(document.querySelector("section.remote"), numbers);
-  renderButtons(document.querySelector("section.remote"), functional);
-  renderButtons(document.querySelector("section.remote"), dpad);
-  renderButtons(document.querySelector("section.remote"), media);
-  renderButtons(document.querySelector("section.remote"), colors);
-  const ws = new WebSocket("ws://192.168.178.218:2339/jsonrpc");
+let buttonsJson = {};
+let blocked = false;
+
+const handleWebsocketResults = function (result) {
+  const data = JSON.parse(result.data);
+  if (data.buttons) {
+    renderButtons(document.querySelector("section.remote"), data.buttons);
+  }
+  if (data.result === "OK") {
+    blocked = false;
+  }
+};
+
+const addEvents = function () {
   const btnClear = document.querySelector('button[name="clear"]');
   const btnsKey = document.querySelectorAll("button[data-key]");
   const btnsNav = document.querySelectorAll("nav a");
-  ws.onopen = (e) => document.body.classList.remove("ws-off");
-  ws.onerror = (e) => document.body.classList.add("ws-off");
-  ws.onclose = (e) => document.body.classList.add("ws-off");
   if (btnsKey) {
-    let blocked = false;
     btnsNav.forEach((b) => {
       b.addEventListener("click", (e) => {
         ws.addEventListener(
@@ -56,9 +61,6 @@ setTimeout(() => {
         );
       });
       b.addEventListener("pointerup", (e) => {
-        ws.addEventListener("message", (e) => (blocked = false), {
-          once: true,
-        });
         if (document.querySelector('[name="learn"]:checked')) {
           ws.send(
             JSON.stringify({
@@ -84,4 +86,29 @@ setTimeout(() => {
       }
     });
   }
+};
+
+const initButtons = function () {
+  let i = 0;
+  const bi = setInterval(() => {
+    console.log(i);
+    ws.send(JSON.stringify({ method: "buttons", type: buttons[i] }));
+    i++;
+    if (i >= buttons.length) {
+      clearInterval(bi);
+      addEvents();
+      document.body.classList.remove("ws-off");
+    }
+  }, 200);
+};
+
+const deactivate = () => document.body.classList.add("ws-off");
+const activate = () => document.body.classList.remove("ws-off");
+
+setTimeout(() => {
+  ws = new WebSocket("ws://192.168.178.218:2339/jsonrpc");
+  ws.addEventListener("error", deactivate);
+  ws.addEventListener("close", deactivate);
+  ws.addEventListener("message", handleWebsocketResults);
+  ws.addEventListener("open", initButtons);
 }, 1000);

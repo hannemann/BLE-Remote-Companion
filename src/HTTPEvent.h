@@ -15,7 +15,6 @@ class HTTPEvent {
         void run();
         void loop();
         WebServer server;
-    private:
         uint16_t port = HTTP_PORT;
         static void home();
         static void learn();
@@ -24,12 +23,12 @@ class HTTPEvent {
         static String header();
         static String footer();
         static String nav();
-        static String numbers();
-        static String dpad();
-        static String media();
-        static String colors();
-        static String functional();
-        static String keyboardRows();
+        static JSONVar numbers();
+        static JSONVar dpad();
+        static JSONVar media();
+        static JSONVar colors();
+        static JSONVar functional();
+        static JSONVar keyboardRows();
         static String button(HID_USAGE_KEY key);
         static JSONVar buttonJSON(HID_USAGE_KEY key);
 

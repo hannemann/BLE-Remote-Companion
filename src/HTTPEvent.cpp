@@ -1,4 +1,5 @@
 #include "HTTPEvent.h"
+#include "page/index.h"
 
 void HTTPEvent::init() {
     Serial.println("Init HTTP server...");
@@ -7,8 +8,8 @@ void HTTPEvent::init() {
 
 void HTTPEvent::run() {
     server.on("/", home);
-    server.on("/keyboard", keyboard);
-    server.on("/learn", learn);
+    // server.on("/keyboard", keyboard);
+    // server.on("/learn", learn);
     server.onNotFound(fourOFour);
     server.begin();
     Serial.printf("Webserver started listening on port %d\n", port);
@@ -20,18 +21,7 @@ void HTTPEvent::loop() {
 
 void HTTPEvent::home() {
     Serial.printf("GET /\n");
-    String response = header();
-    response += nav();
-    response += "<main><section class=\"remote\">\n";
-    response += numbers();
-    response += functional();
-    response += dpad();
-    response += media();
-    response += colors();
-    response += "</section></main>\n";
-
-    response += footer();
-    instance().server.send(200, "text/html", response);
+    instance().server.send_P(200, "text/html", indexHTML);
     Serial.println(ESP.getFreeHeap());
 }
 
@@ -40,14 +30,9 @@ void HTTPEvent::learn() {
     String response = header();
     response += nav();
     response += "<main class=\"learn\"><section class=\"remote\">\n";
-    response += numbers();
-    response += functional();
-    response += dpad();
-    response += media();
-    response += colors();
     response += "</section>\n";
     response += "<section class=\"keyboard\">\n";
-    response += keyboardRows();
+    // response += keyboardRows();
     response += "</section>\n";
     response += "<section class=\"config\">\n";
     response += "<label>Learn <input name=\"learn\" type=\"checkbox\"/></label>\n";
@@ -62,11 +47,9 @@ void HTTPEvent::keyboard() {
     String response = header();
     response += nav();
     response += "<main><section class=\"remote\">\n";
-    response += functional();
-    response += dpad();
     response += "</section>\n";
     response += "<section class=\"keyboard\">\n";
-    response += keyboardRows();
+    // response += keyboardRows();
     response += "</section></main>\n";
     response += footer();
     instance().server.send(200, "text/html", response);
@@ -93,6 +76,7 @@ String HTTPEvent::header() {
 
 String HTTPEvent::footer() {
     String footer = "<script>\n";
+    footer += "const buttons = [\"numbers\", \"functional\", \"dpad\", \"media\", \"colors\"];\n";
     footer += Files::scripts;
     footer += "</script></body></html>";
     return footer;
@@ -107,130 +91,140 @@ String HTTPEvent::nav() {
     return nav;
 }
 
-String HTTPEvent::numbers() {
+JSONVar HTTPEvent::numbers() {
     JSONVar root;
     JSONVar classes;
     JSONVar btns;
     classes[0] = "col-3";
     root["classes"] = classes;
     const uint8_t size = HIDUsageKeys::getLayoutSize(LAYOUT_REMOTE_NUMBERS);
-    String buttons;
     for (int16_t i=0; i < size; i++) {
         JSONVar btn = buttonJSON(HIDUsageKeys::layoutRemoteNumbers[i]);
         btns[i] = btn;
     }
     root["buttons"] = btns;
-    buttons += "<script>\nvar numbers = ";
-    buttons += JSON.stringify(root);
-    buttons += ";\n</script>";
-    return buttons;
+    return root;
 }
 
-String HTTPEvent::dpad() {
+JSONVar HTTPEvent::dpad() {
     JSONVar root;
     JSONVar classes;
     JSONVar btns;
     classes[0] = "col-5";
     classes[1] = "p-block";
     root["classes"] = classes;
-    String buttons;
     const uint8_t size = HIDUsageKeys::getLayoutSize(LAYOUT_REMOTE_DPAD);
     for (int16_t i=0; i < size; i++) {
         JSONVar btn = buttonJSON(HIDUsageKeys::layoutRemoteDPad[i]);
         btns[i] = btn;
     }
     root["buttons"] = btns;
-    buttons += "<script>\nvar dpad = ";
-    buttons += JSON.stringify(root);
-    buttons += ";\n</script>";
-    return buttons;
+    return root;
 }
 
-String HTTPEvent::functional() {
+JSONVar HTTPEvent::functional() {
     JSONVar root;
     JSONVar classes;
     JSONVar btns;
     classes[0] = "col-3";
     root["classes"] = classes;
-    String buttons;
     const uint8_t size = HIDUsageKeys::getLayoutSize(LAYOUT_REMOTE_FUNCTIONAL);
     for (int16_t i=0; i < size; i++) {
         JSONVar btn = buttonJSON(HIDUsageKeys::layoutRemoteFunctional[i]);
         btns[i] = btn;
     }
     root["buttons"] = btns;
-    buttons += "<script>\nvar functional = ";
-    buttons += JSON.stringify(root);
-    buttons += ";\n</script>";
-    return buttons;
+    return root;
 }
 
-String HTTPEvent::media() {
+JSONVar HTTPEvent::media() {
     JSONVar root;
     JSONVar classes;
     JSONVar btns;
     classes[0] = "col-4";
     root["classes"] = classes;
-    String buttons;
     const uint8_t size = HIDUsageKeys::getLayoutSize(LAYOUT_REMOTE_MEDIA);
     for (int16_t i=0; i < size; i++) {
         JSONVar btn = buttonJSON(HIDUsageKeys::layoutRemoteMedia[i]);
         btns[i] = btn;
     }
     root["buttons"] = btns;
-    buttons += "<script>\nvar media = ";
-    buttons += JSON.stringify(root);
-    buttons += ";\n</script>";
-    return buttons;
+    return root;
 }
 
-String HTTPEvent::colors() {
+JSONVar HTTPEvent::colors() {
     JSONVar root;
     JSONVar classes;
     JSONVar btns;
     classes[0] = "col-4";
     root["classes"] = classes;
-    String buttons;
     const uint8_t size = HIDUsageKeys::getLayoutSize(LAYOUT_REMOTE_COLORS);
     for (int16_t i=0; i < size; i++) {
         JSONVar btn = buttonJSON(HIDUsageKeys::layoutRemoteColors[i]);
         btns[i] = btn;
     }
     root["buttons"] = btns;
-    buttons += "<script>\nvar colors = ";
-    buttons += JSON.stringify(root);
-    buttons += ";\n</script>";
-    return buttons;
+    return root;
 }
 
-String HTTPEvent::keyboardRows() {
+JSONVar HTTPEvent::keyboardRows() {
+    JSONVar root;
+    JSONVar rows;
+    JSONVar rowN;
+    JSONVar row1;
+    JSONVar row2;
+    JSONVar row3;
+    JSONVar row4;
     uint8_t size = HIDUsageKeys::getLayoutSize(LAYOUT_KEYBOARD_NUMBERS);
-    String buttons = "<div>\n";
     for (int16_t i=0; i < size; i++) {
-        buttons += button(HIDUsageKeys::layoutKeyboardNumbers[i]);
+        JSONVar btn = buttonJSON(HIDUsageKeys::layoutKeyboardNumbers[i]);
+        rowN[i] = btn;
     }
-    buttons += "</div><div>\n";
+    // rows[0] = rowN;
+    Serial.println(JSON.stringify(rowN));
+    Serial.println();
+    Serial.println();
+    
     size = HIDUsageKeys::getLayoutSize(LAYOUT_KEYBOARD_ROW1);
     for (int16_t i=0; i < size; i++) {
-        buttons += button(HIDUsageKeys::layoutKeyboardRow1[i]);
+        JSONVar btn = buttonJSON(HIDUsageKeys::layoutKeyboardRow1[i]);
+        row1[i] = btn;
     }
-    buttons += "</div><div>\n";
+    // rows[1] = row1;
+    Serial.println(JSON.stringify(row1));
+    Serial.println();
+    Serial.println();
+
     size = HIDUsageKeys::getLayoutSize(LAYOUT_KEYBOARD_ROW2);
     for (int16_t i=0; i < size; i++) {
-        buttons += button(HIDUsageKeys::layoutKeyboardRow2[i]);
+        JSONVar btn = buttonJSON(HIDUsageKeys::layoutKeyboardRow2[i]);
+        row2[i] = btn;
     }
-    buttons += "</div><div>\n";
+    // rows[2] = row2;
+    Serial.println(JSON.stringify(row2));
+    Serial.println();
+    Serial.println();
+
     size = HIDUsageKeys::getLayoutSize(LAYOUT_KEYBOARD_ROW3);
     for (int16_t i=0; i < size; i++) {
-        buttons += button(HIDUsageKeys::layoutKeyboardRow3[i]);
+        JSONVar btn = buttonJSON(HIDUsageKeys::layoutKeyboardRow3[i]);
+        row3[i] = btn;
     }
-    buttons += "</div><div>\n";
+    // rows[3] = row3;
+    Serial.println(JSON.stringify(row3));
+    Serial.println();
+    Serial.println();
+
     size = HIDUsageKeys::getLayoutSize(LAYOUT_KEYBOARD_ROW4);
     for (int16_t i=0; i < size; i++) {
-        buttons += button(HIDUsageKeys::layoutKeyboardRow4[4]);
+        JSONVar btn = buttonJSON(HIDUsageKeys::layoutKeyboardRow4[i]);
+        row4[i] = btn;
     }
-    buttons += "</div>\n";
-    return buttons;
+    // rows[4] = row4;
+    Serial.println(JSON.stringify(row4));
+    // root["rows"] = rows;
+    // Serial.println(JSON.stringify(root));
+    return root;
 }
 
 String HTTPEvent::button(HID_USAGE_KEY key) {

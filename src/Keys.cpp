@@ -136,7 +136,7 @@ const HID_USAGE_KEY HIDUsageKeys::layoutKeyboardRow3[] {
 const HID_USAGE_KEY HIDUsageKeys::layoutKeyboardRow4[] {
     {TYPE_NONE, -1, "&nbsp;", 0},
     {TYPE_KEYBOARD, HIDUsageKeys::getKeyIndex(TYPE_KEYBOARD, "KEYCODE_SPACE"), "&nbsp", 0},
-    {TYPE_KEYBOARD, HIDUsageKeys::getKeyIndex(TYPE_KEYBOARD, "KEYCODE_ENTER"), "&#x21b2", 0},
+    {TYPE_KEYBOARD, HIDUsageKeys::getKeyIndex(TYPE_KEYBOARD, "KEYCODE_ENTER"), "&#x23ce", 0},
 };
 
 int16_t HIDUsageKeys::hidKeyboard(uint16_t id) {

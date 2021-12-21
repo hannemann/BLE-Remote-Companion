@@ -87,6 +87,33 @@ void WSEvent::webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size
           IRService::instance().clearConfig();
           return;
         }
+        if (strcmp(jsonBody["method"], "buttons") == 0) {
+          JSONVar btns;
+          JSONVar result;
+          const char* request = jsonBody["type"];
+          if (strcmp(request, "numbers") == 0) {
+              btns = HTTPEvent::numbers();
+          }
+          if (strcmp(request, "functional") == 0) {
+              btns = HTTPEvent::functional();
+          }
+          if (strcmp(request, "dpad") == 0) {
+              btns = HTTPEvent::dpad();
+          }
+          if (strcmp(request, "media") == 0) {
+              btns = HTTPEvent::media();
+          }
+          if (strcmp(request, "colors") == 0) {
+              btns = HTTPEvent::colors();
+          }
+          if (strcmp(request, "keyboard") == 0) {
+              HTTPEvent::keyboardRows();
+              return;
+          }
+          result["buttons"] = btns;
+          webSocket.sendTXT(num, JSON.stringify(result).c_str());
+          return;
+        }
         if (!jsonBody.hasOwnProperty("params") || !jsonBody["params"].hasOwnProperty("key")) {
           Serial.println("JSON parse cannot find key");
           return;
