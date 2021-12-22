@@ -8,8 +8,6 @@ void HTTPEvent::init() {
 
 void HTTPEvent::run() {
     server.on("/", home);
-    // server.on("/keyboard", keyboard);
-    // server.on("/learn", learn);
     server.onNotFound(fourOFour);
     server.begin();
     Serial.printf("Webserver started listening on port %d\n", port);
@@ -25,70 +23,8 @@ void HTTPEvent::home() {
     Serial.println(ESP.getFreeHeap());
 }
 
-void HTTPEvent::learn() {
-    Serial.printf("GET /learn\n");
-    String response = header();
-    response += nav();
-    response += "<main class=\"learn\"><section class=\"remote\">\n";
-    response += "</section>\n";
-    response += "<section class=\"keyboard\">\n";
-    // response += keyboardRows();
-    response += "</section>\n";
-    response += "<section class=\"config\">\n";
-    response += "<label>Learn <input name=\"learn\" type=\"checkbox\"/></label>\n";
-    response += "<button name=\"clear\">Clear Configuration</button>\n";
-    response += "</section></main>\n";
-    response += footer();
-    instance().server.send(200, "text/html", response);
-}
-
-void HTTPEvent::keyboard() {
-    Serial.printf("GET /keyboard\n");
-    String response = header();
-    response += nav();
-    response += "<main><section class=\"remote\">\n";
-    response += "</section>\n";
-    response += "<section class=\"keyboard\">\n";
-    // response += keyboardRows();
-    response += "</section></main>\n";
-    response += footer();
-    instance().server.send(200, "text/html", response);
-    // Serial.println(ESP.getFreeHeap());
-}
-
 void HTTPEvent::fourOFour() {
   instance().server.send(404, "text/plain", "404 Not found");
-}
-
-String HTTPEvent::header() {
-    String header = "<!DOCTYPE html><html><head>\n";
-    header += "<meta charset=\"utf-8\">\n";
-    header += "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n";
-    header += "<meta name=\"color-scheme\" content=\"dark light\">\n";
-    header += "<title>BLE-LIRC</title>\n";
-    header += "<style>\n";
-    header += Files::css;
-    header += "</style>\n";
-    header += "<link rel=\"icon\" href=\"data:,\"></head>\n";
-    header += "<body class=\"ws-off\">\n";
-    return header;
-}
-
-String HTTPEvent::footer() {
-    String footer = "<script>\n";
-    footer += "const buttons = [\"numbers\", \"functional\", \"dpad\", \"media\", \"colors\"];\n";
-    footer += Files::scripts;
-    footer += "</script></body></html>";
-    return footer;
-}
-
-String HTTPEvent::nav() {
-    String nav = "<nav>\n";
-    nav += "<a href=\"/\">&#x2302;</a>\n";
-    nav += "<a href=\"/keyboard\">&#x2328;</a>\n";
-    nav += "<a href=\"/learn\">&#x2699;</a>\n";
-    nav += "</nav>\n";
-    return nav;
 }
 
 JSONVar HTTPEvent::numbers() {

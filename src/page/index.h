@@ -293,5 +293,4 @@ const char indexHTML[] PROGMEM = R"=====(<!DOCTYPE html>
         });
     </script>
 </body>
-</html>
-)=====";
+</html>)=====";
