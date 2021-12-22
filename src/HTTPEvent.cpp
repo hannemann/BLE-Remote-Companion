@@ -19,7 +19,9 @@ void HTTPEvent::loop() {
 
 void HTTPEvent::home() {
     Serial.printf("GET /\n");
-    instance().server.send_P(200, "text/html", indexHTML);
+    instance().server.sendHeader("Content-Encoding", "gzip");
+    instance()
+        .server.send_P(200, "text/html", indexHTML, indexHTML_L);
     Serial.println(ESP.getFreeHeap());
 }
 

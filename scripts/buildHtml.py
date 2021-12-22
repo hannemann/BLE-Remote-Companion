@@ -5,12 +5,17 @@ import os
 import platform
 import subprocess
 import time
+import gzip
+from io import BytesIO
+import binascii
+import codecs
 
 Import("env")
 
 cImport = "#include <Arduino.h>\n\n"
-cProgmem = "const char indexHTML[] PROGMEM = R\"=====("
-cWrapEnd = ")=====\";"
+cProgmem = "const char indexHTML[] PROGMEM = {"
+cWrapEnd = "};"
+cLengthTemplate = "const uint16_t indexHTML_L = %d;\n"
 
 def get_build_flag_value(flag_name):
     build_flags = env.ParseFlags(env['BUILD_FLAGS'])
@@ -23,10 +28,17 @@ def readFile(name):
         data = file.read().replace('[%WS_PORT%]', get_build_flag_value('WS_PORT'))
     return data
 
-def wrap(data):
-    return cImport + cProgmem + data + cWrapEnd 
+def zip(data):
+    out = BytesIO()
+    with gzip.GzipFile(fileobj=out, mode="w") as f:
+        f.write(data.encode('utf-8'))
+    
+    global cLength
+    cLength = cLengthTemplate % len(out.getvalue())
+    return ",".join(["{0:#0{1}x}".format(b,4) for b in out.getvalue()])
 
-# def zip(data):
+def wrap(data):
+    return cImport + cLength + cProgmem + data + cWrapEnd 
 
 def write(data):
     with open("./src/page/index.h", "w") as text_file:
@@ -40,7 +52,7 @@ def build_web():
             print("Nope...")
         else:
             file = readFile("./src/page/index.html");
-            write(wrap(file))
+            write(wrap(zip(file)))
     except OSError as e:
         print("Encountered error OSError building webpage:", e)
         if e.filename:
@@ -53,6 +65,6 @@ def build_web():
     except Exception as e:
         print("Encountered error", type(e).__name__, "building webpage:", e)
         print("WARNING: Failed to build web package. Using pre-built page.")
-    #sys.exit(1)
+    # sys.exit(1)
 
 build_web()

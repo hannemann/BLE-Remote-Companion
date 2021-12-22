@@ -303,7 +303,6 @@
         }
 
         const handleKeyup = function (e) {
-            if (blocked) return;
             ws.send(
                 JSON.stringify({
                     method: main.dataset.page === "learn" ? "learn" : "keyup",
