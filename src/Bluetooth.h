@@ -42,6 +42,7 @@ class Bluetooth
     public:
     Bluetooth();
     void press(JSONVar jsonBody);
+    void pressByCode(JSONVar jsonBody);
     void down(JSONVar jsonBody);
     void up(JSONVar jsonBody);
     static bool BLEconnected;

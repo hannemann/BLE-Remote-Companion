@@ -253,16 +253,23 @@ int16_t HIDUsageKeys::getKey(uint8_t type, uint16_t id) {
     return -1;
 }
 
-int16_t HIDUsageKeys::getKey(uint8_t type, const char* code) {
-    switch(type) {
-        case TYPE_KEYBOARD:
-            return instance().hidKeyboard(code);
-        case TYPE_CONSUMER:
-            return instance().hidConsumer(code);
-        case TYPE_APP_LAUNCHER:
-            return instance().hidAppLauncher(code);
-        case TYPE_APP_CONTROL:
-            return instance().hidAppControl(code);
+int16_t HIDUsageKeys::getKey(const char *type, const char *code)
+{
+    if (strcmp(type, "KEYBOARD") == 0)
+    {
+        return instance().hidKeyboard(code);
+    }
+    else if (strcmp(type, "CONSUMER") == 0)
+    {
+        return instance().hidConsumer(code);
+    }
+    else if (strcmp(type, "APP_LAUNCHER") == 0)
+    {
+        return instance().hidAppLauncher(code);
+    }
+    else if (strcmp(type, "APP_CONTROL") == 0)
+    {
+        return instance().hidAppControl(code);
     }
     return -1;
 }

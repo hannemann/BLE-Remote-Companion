@@ -64,6 +64,22 @@ void Bluetooth::press(JSONVar jsonBody) {
   }
 }
 
+void Bluetooth::pressByCode(JSONVar jsonBody)
+{
+  if (jsonBody["params"].hasOwnProperty("type") && jsonBody["params"].hasOwnProperty("code"))
+  {
+    const char *type = jsonBody["params"]["type"];
+    const char *code = jsonBody["params"]["code"];
+    int16_t key = HIDUsageKeys::getKey(type, code);
+    if (key > 0)
+    {
+      bool longpress = jsonBody["params"].hasOwnProperty("longpress");
+      strcmp(type, "KEYBOARD") == 0 ? keydown(key, longpress) : mediadown(key, longpress);
+      strcmp(type, "KEYBOARD") == 0 ? keyup() : mediaup();
+    }
+  }
+}
+
 void Bluetooth::down(JSONVar jsonBody) {
   int8_t typeId = atoi(jsonBody["params"]["type"]);
   int8_t idx = atoi(jsonBody["params"]["key"]);

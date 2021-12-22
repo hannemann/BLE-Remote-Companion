@@ -82,7 +82,7 @@ class HIDUsageKeys {
     int16_t hidAppControl(const char* code);
     int16_t hidAppControlIndex(const char* code);
     static int16_t getKey(uint8_t type, uint16_t id);
-    static int16_t getKey(uint8_t type, const char* code);
+    static int16_t getKey(const char *type, const char *code);
     static int16_t getKeyIndex(uint8_t type, const char* code);
     static void getLayout(uint8_t id, HID_USAGE_KEY *buffer);
     static const uint8_t getLayoutSize(uint8_t id);

@@ -114,7 +114,8 @@ void WSEvent::webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size
           webSocket.sendTXT(num, JSON.stringify(result).c_str());
           return;
         }
-        if (!jsonBody.hasOwnProperty("params") || !jsonBody["params"].hasOwnProperty("key")) {
+        if (!jsonBody.hasOwnProperty("params") || !jsonBody["params"].hasOwnProperty("type") || !(jsonBody["params"].hasOwnProperty("key") || jsonBody["params"].hasOwnProperty("code")))
+        {
           Serial.println("JSON parse cannot find key");
           return;
         }
@@ -124,7 +125,14 @@ void WSEvent::webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size
         // }
         Serial.println("Correctly parsed JSON");
         if (strcmp(jsonBody["method"], "press") == 0) {
-          bluetooth.press(jsonBody);
+          if (jsonBody["params"].hasOwnProperty("code"))
+          {
+            bluetooth.pressByCode(jsonBody);
+          }
+          else
+          {
+            bluetooth.press(jsonBody);
+          }
         }
         if (strcmp(jsonBody["method"], "keydown") == 0) {
           bluetooth.down(jsonBody);
