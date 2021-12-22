@@ -19,34 +19,75 @@ const char indexHTML[] PROGMEM = R"=====(<!DOCTYPE html>
         --clr-fg: hsl(var(--hue-fg), var(--sat-fg), var(--lit-fg));
         --clr-btn-bg: hsl(var(--hue-bg), var(--sat-bg), calc(var(--lit-bg) + 10%));
         --clr-btn-border: hsl(var(--hue-bg), var(--sat-bg), calc(var(--lit-bg) + 50%));
-        --gap: 1em;
+        --gap: 1rem;
         --gap-small: calc(var(--gap) / 2);
         --gap-big: calc(var(--gap) + var(--gap) / 4);
         --gap-minimal: calc(var(--gap) / 4);
+        --font-size: 16px;
+        --line-height: 1.2;
+        --menu-width: calc(min(75vw, 20rem) - 2 * var(--gap));
+        --nav-height: calc((2rem * var(--line-height)) + 2 * var(--gap-small));
+        --nav-shadow-width: 200px;
+        --nav-shadow: 0 0 var(--nav-shadow-width) hsla(0 0% 0% / .5);
+        font-size: var(--font-size);
+        line-height: var(--line-height);
+    }
+    * {
+        box-sizing: border-box;
+        padding: 0;
+        margin: 0;
+        font-family: sans-serif;
     }
     body {
         background: var(--clr-bg);
         color: var(--clr-fg);
         margin: 0;
+        overflow-x: hidden;
+    }
+    .nav-shadow {
+        position: absolute;
+        inset: 0 0 auto 0;
+        height: var(--nav-height);
+        box-shadow: var(--nav-shadow);
     }
     nav {
         background: var(--clr-btn-bg);
         padding: var(--gap-small);
         color: var(--clr-fg);
+    }
+    nav:not([data-menu]) {
         display: flex;
         gap: var(--gap-small);
         font-size: 2em;
         margin-bottom: var(--gap);
         position: sticky;
         inset: 0 0 auto;
+        z-index: 1;
     }
     nav a {
         display: inline-block;
         color: inherit;
         text-decoration: none;
     }
-    nav a:last-of-type {
+    nav:not([data-menu]) a:last-of-type {
         margin-left: auto;
+    }
+    nav[data-menu] {
+        position: fixed;
+        font-size: 2em;
+        width: var(--menu-width);
+        inset: var(--nav-height) 0 0 auto;
+        padding: var(--gap-small);
+        transition: transform 250ms ease-out; 
+        transform: translateX(calc(var(--menu-width) + var(--nav-shadow-width) + 2 * var(--gap-small)));
+        box-shadow: var(--nav-shadow);
+    }
+    nav[data-menu="open"] {
+        transform: translateX(0);
+    }
+    nav[data-menu] a {
+        display: block;
+        text-align: right;
     }
     button {
         background: hsl(var(--hue-bg), var(--sat-bg), calc(var(--lit-bg) + 10%));
@@ -140,10 +181,11 @@ const char indexHTML[] PROGMEM = R"=====(<!DOCTYPE html>
     <link rel="icon" href="data:,">
 </head>
 <body class="ws-off">
+    <div class="nav-shadow"></div>
     <nav>
-        <a href="/">&#x1f4fa;</a>
+        <a href="/remote">&#x1f4fa;</a>
         <a href="/keyboard">&#x2328;</a>
-        <a href="/learn">&#x2699;</a>
+        <a href="/menu">&#x2630;</a>
     </nav>
     <main data-page="home">
         <section class="config p-inline">
@@ -157,6 +199,9 @@ const char indexHTML[] PROGMEM = R"=====(<!DOCTYPE html>
             <button name="clear">Clear Configuration</button>
         </section>
     </main>
+    <nav data-menu="closed">
+        <a href="/learn">Learn</a>
+    </nav>
     <script>
         let ws;
         let blocked = false;
@@ -216,12 +261,13 @@ const char indexHTML[] PROGMEM = R"=====(<!DOCTYPE html>
             const btnsKey = document.querySelectorAll("button[data-key]");
             const btnsNav = document.querySelectorAll("nav a");
             const main = document.querySelector("main");
+            const menu = document.querySelector("nav[data-menu]");
             if (btnsKey) {
                 btnsNav.forEach((b) => {
                     b.addEventListener("click", (e) => {
                         e.preventDefault();
                         switch (e.target.pathname) {
-                            case "/":
+                            case "/remote":
                                 main.dataset.page = "home";
                                 break;
                             case "/keyboard":
@@ -229,6 +275,10 @@ const char indexHTML[] PROGMEM = R"=====(<!DOCTYPE html>
                                 break;
                             case "/learn":
                                 main.dataset.page = "learn";
+                                menu.dataset.menu = "closed";
+                                break;
+                            case "/menu":
+                                menu.dataset.menu = menu.dataset.menu === "open" ? "closed" : "open";
                                 break;
                         }
                     });
