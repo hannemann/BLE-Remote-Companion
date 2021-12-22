@@ -5,6 +5,7 @@ const char indexHTML[] PROGMEM = R"=====(<!DOCTYPE html>
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="color-scheme" content="dark light">
     <title>BLE-LIRC</title>
     <style>
@@ -37,6 +38,7 @@ const char indexHTML[] PROGMEM = R"=====(<!DOCTYPE html>
         padding: 0;
         margin: 0;
         font-family: sans-serif;
+        user-select: none;
     }
     body {
         background: var(--clr-bg);
@@ -74,10 +76,9 @@ const char indexHTML[] PROGMEM = R"=====(<!DOCTYPE html>
     }
     nav[data-menu] {
         position: fixed;
-        font-size: 2em;
+        font-size: 1.25em;
         width: var(--menu-width);
         inset: var(--nav-height) 0 0 auto;
-        padding: var(--gap-small);
         transition: transform 250ms ease-out; 
         transform: translateX(calc(var(--menu-width) + var(--nav-shadow-width) + 2 * var(--gap-small)));
         box-shadow: var(--nav-shadow);
@@ -88,6 +89,7 @@ const char indexHTML[] PROGMEM = R"=====(<!DOCTYPE html>
     nav[data-menu] a {
         display: block;
         text-align: right;
+        padding: var(--gap) var(--gap) 0;
     }
     button {
         background: hsl(var(--hue-bg), var(--sat-bg), calc(var(--lit-bg) + 10%));
@@ -168,9 +170,9 @@ const char indexHTML[] PROGMEM = R"=====(<!DOCTYPE html>
     .keyboard > div:last-child button:nth-child(2) {
         flex-grow: 1;
     }
-    @media (max-width: 480px) {
+    @media (max-width: 30rem) {
         :root {
-            --gap: .85em;
+            --gap: .85rem;
         }
         .keyboard button[data-key] {
             padding-inline: .3em;
@@ -200,7 +202,8 @@ const char indexHTML[] PROGMEM = R"=====(<!DOCTYPE html>
         </section>
     </main>
     <nav data-menu="closed">
-        <a href="/learn">Learn</a>
+        <a href="/learn">Learn IR Codes</a>
+        <a href="/learn">Set WS Broadcasts</a>
     </nav>
     <script>
         let ws;
@@ -222,9 +225,24 @@ const char indexHTML[] PROGMEM = R"=====(<!DOCTYPE html>
                 row4: {"buttons":[{"key":-1,"type":0,"label":"&nbsp;"},{"key":40,"type":1,"label":"&nbsp"},{"key":36,"type":1,"label":"&#x23ce"}]}
             }
         };
+        const btnClear = document.querySelector('button[name="clear"]');
+        const main = document.querySelector("main");
+        const nav = document.querySelector("nav:not([data-menu])");
+        const menu = document.querySelector("nav[data-menu]");
 
         const deactivate = () => document.body.classList.add("ws-off");
         const activate = () => document.body.classList.remove("ws-off");
+        const openMenu = () => {
+            menu.dataset.menu = "open";
+            blocked = true;
+        };
+        const closeMenu = () => {
+            menu.dataset.menu = "closed";
+            blocked = false;
+        };
+        const toggleMenu = () => {
+            menu.dataset.menu === "open" ? closeMenu() : openMenu();
+        }
 
         const renderButtons = function (parent, config, part) {
             const container = parent.appendChild(document.createElement("div"));
@@ -256,76 +274,80 @@ const char indexHTML[] PROGMEM = R"=====(<!DOCTYPE html>
             }
         };
 
+        const handleNav = function (e) {
+            e.preventDefault();
+            e.target.pathname !== '/menu' && closeMenu();
+            switch (e.target.pathname) {
+                case "/remote":
+                    main.dataset.page = "home";
+                    break;
+                case "/keyboard":
+                    main.dataset.page = "keyboard";
+                    break;
+                case "/learn":
+                    main.dataset.page = "learn";
+                    break;
+                case "/menu":
+                    toggleMenu()
+                    break;
+            }
+        }
+
+        const handleKeydown = function (e) {
+            if (main.dataset.page === "learn" || blocked) return;
+            blocked = true;
+            ws.send(
+                JSON.stringify({
+                    method: "keydown",
+                    params: e.target.dataset,
+                })
+            );
+        }
+
+        const handleKeyup = function (e) {
+            if (blocked) return;
+            ws.send(
+                JSON.stringify({
+                    method: main.dataset.page === "learn" ? "learn" : "keyup",
+                    params: e.target.dataset,
+                })
+            );
+        }
+
         const addEvents = function () {
-            const btnClear = document.querySelector('button[name="clear"]');
             const btnsKey = document.querySelectorAll("button[data-key]");
             const btnsNav = document.querySelectorAll("nav a");
-            const main = document.querySelector("main");
-            const menu = document.querySelector("nav[data-menu]");
-            if (btnsKey) {
-                btnsNav.forEach((b) => {
-                    b.addEventListener("click", (e) => {
-                        e.preventDefault();
-                        switch (e.target.pathname) {
-                            case "/remote":
-                                main.dataset.page = "home";
-                                break;
-                            case "/keyboard":
-                                main.dataset.page = "keyboard";
-                                break;
-                            case "/learn":
-                                main.dataset.page = "learn";
-                                menu.dataset.menu = "closed";
-                                break;
-                            case "/menu":
-                                menu.dataset.menu = menu.dataset.menu === "open" ? "closed" : "open";
-                                break;
-                        }
-                    });
-                });
-                btnsKey.forEach((b) => {
-                    b.addEventListener("pointerdown", (e) => {
-                        if (main.dataset.page === "learn" || blocked) return;
-                        blocked = true;
-                        ws.send(
-                            JSON.stringify({
-                                method: "keydown",
-                                params: e.target.dataset,
-                            })
-                        );
-                    });
-                    b.addEventListener("pointerup", (e) => {
-                        if (main.dataset.page === "learn") {
-                            ws.send(
-                                JSON.stringify({
-                                    method: "learn",
-                                    params: e.target.dataset,
-                                })
-                            );
-                        } else {
-                            ws.send(
-                                JSON.stringify({
-                                    method: "keyup",
-                                    params: e.target.dataset,
-                                })
-                            );
-                        }
-                    });
-                });
-            }
-            if (btnClear) {
-                btnClear.addEventListener("pointerup", (e) => {
-                    if (confirm("Delete Configuration?")) {
-                        ws.send(JSON.stringify({ method: "clear" }));
-                    }
-                });
-            }
+            document.body.addEventListener('pointerup', (e) => {
+                const p = e.composedPath();
+                if (p.indexOf(menu) < 0 && p.indexOf(nav) < 0) {
+                    closeMenu();
+                }
+            });
+            btnsNav.forEach((b) => {
+                b.addEventListener("click", handleNav);
+            });
+            btnsKey.forEach((b) => {
+                b.addEventListener("pointerdown", handleKeydown);
+                b.addEventListener("pointerup", handleKeyup);
+            });
+            btnClear.addEventListener("pointerup", (e) => {
+                if (confirm("Delete Configuration?")) {
+                    ws.send(JSON.stringify({ method: "clear" }));
+                }
+            });
         };
 
         const initButtons = function () {
             addEvents();
             document.body.classList.remove("ws-off");
         };
+
+        Object.keys(buttons.remote).forEach(b => {
+            renderButtons(document.querySelector("section.remote"), buttons.remote[b], b);
+        });
+        Object.keys(buttons.keyboard).forEach(b => {
+            renderButtons(document.querySelector("section.keyboard"), buttons.keyboard[b], b);
+        });
 
         setTimeout(() => {
             ws = new WebSocket(`ws://${location.host}:2339/jsonrpc`);
@@ -334,13 +356,6 @@ const char indexHTML[] PROGMEM = R"=====(<!DOCTYPE html>
             ws.addEventListener("message", handleWebsocketResults);
             ws.addEventListener("open", initButtons);
         }, 1000);
-
-        Object.keys(buttons.remote).forEach(b => {
-            renderButtons(document.querySelector("section.remote"), buttons.remote[b], b);
-        });
-        Object.keys(buttons.keyboard).forEach(b => {
-            renderButtons(document.querySelector("section.keyboard"), buttons.keyboard[b], b);
-        });
     </script>
 </body>
 </html>)=====";
