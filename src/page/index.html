@@ -276,7 +276,7 @@
         };
 
         setTimeout(() => {
-            ws = new WebSocket("ws://192.168.178.218:2339/jsonrpc");
+            ws = new WebSocket(`ws://${location.host}:[%WS_PORT%]/jsonrpc`);
             ws.addEventListener("error", deactivate);
             ws.addEventListener("close", deactivate);
             ws.addEventListener("message", handleWebsocketResults);

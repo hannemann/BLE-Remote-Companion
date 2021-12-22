@@ -278,7 +278,7 @@ const char indexHTML[] PROGMEM = R"=====(<!DOCTYPE html>
         };
 
         setTimeout(() => {
-            ws = new WebSocket("ws://192.168.178.218:2339/jsonrpc");
+            ws = new WebSocket(`ws://${location.host}:2339/jsonrpc`);
             ws.addEventListener("error", deactivate);
             ws.addEventListener("close", deactivate);
             ws.addEventListener("message", handleWebsocketResults);

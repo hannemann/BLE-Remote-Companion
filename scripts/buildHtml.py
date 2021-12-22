@@ -12,9 +12,15 @@ cImport = "#include <Arduino.h>\n\n"
 cProgmem = "const char indexHTML[] PROGMEM = R\"=====("
 cWrapEnd = ")=====\";"
 
+def get_build_flag_value(flag_name):
+    build_flags = env.ParseFlags(env['BUILD_FLAGS'])
+    flags_with_value_list = [build_flag for build_flag in build_flags.get('CPPDEFINES') if type(build_flag) == list]
+    defines = {k: v for (k, v) in flags_with_value_list}
+    return defines.get(flag_name)
+
 def readFile(name):
     with open(name, 'r') as file:
-        data = file.read()
+        data = file.read().replace('[%WS_PORT%]', get_build_flag_value('WS_PORT'))
     return data
 
 def wrap(data):
