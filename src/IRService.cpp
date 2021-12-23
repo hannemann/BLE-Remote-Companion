@@ -100,10 +100,12 @@ String IRService::getConfigValue() {
 void IRService::press() {
     const int16_t key = getHidUsageFromIr();
     getTypeId() == TYPE_KEYBOARD ? bluetooth.keydown(key, false) : bluetooth.mediadown(key, false);
+    WSEvent::broadcastKey(getTypeId(), getKeyId(), "keydown");
 }
 
 void IRService::release() {
     getTypeId() == TYPE_KEYBOARD ? bluetooth.keyup() : bluetooth.mediaup();
+    WSEvent::broadcastKey(getTypeId(), getKeyId(), "keyup");
 }
 
 int16_t IRService::getHidUsageFromIr() {

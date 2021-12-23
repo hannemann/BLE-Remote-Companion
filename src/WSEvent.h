@@ -25,7 +25,9 @@ class WSEvent
     static WebSocketsServer webSocket;
     static void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length);
     static void initIPAddressFailures();
-    private:
+    static void broadcastKey(uint8_t type, uint16_t key, const char *method);
+
+private:
     static IPAddressFail IPAddressFailures[254];
 };
 

@@ -134,14 +134,19 @@ void WSEvent::webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size
             bluetooth.press(jsonBody);
           }
         }
+        if (strcmp(jsonBody["method"], "learn") == 0)
+        {
+          IRService::instance().learn(jsonBody["params"]);
+        }
+        uint8_t typeId = atoi(jsonBody["params"]["type"]);
+        uint16_t idx = atoi(jsonBody["params"]["key"]);
         if (strcmp(jsonBody["method"], "keydown") == 0) {
           bluetooth.down(jsonBody);
+          broadcastKey(typeId, idx, "keydown");
         }
         if (strcmp(jsonBody["method"], "keyup") == 0) {
           bluetooth.up(jsonBody);
-        }
-        if (strcmp(jsonBody["method"], "learn") == 0) {
-          IRService::instance().learn(jsonBody["params"]);
+          broadcastKey(typeId, idx, "keyup");
         }
         Serial.printf("Function time was %d\n", (int)(millis() - startTime));
         webSocket.sendTXT(num, "{\"id\":1,\"jsonrpc\":\"2.0\",\"result\":\"OK\"}");
@@ -158,4 +163,13 @@ void WSEvent::webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size
       break;
   }
 
+}
+
+void WSEvent::broadcastKey(uint8_t type, uint16_t key, const char *method)
+{
+  const char *keyName = HIDUsageKeys::getKeyName(type, key);
+  const char *keyType = HIDUsageKeys::getKeyType(type);
+  char message[255];
+  snprintf(message, 255, "{\"id\":1,\"jsonrpc\":\"2.0\",\"method\":\"%s\",\"params\":{\"type\":\"%s\",\"key\":\"%s\"}}", method, keyType, keyName);
+  webSocket.broadcastTXT(message);
 }
