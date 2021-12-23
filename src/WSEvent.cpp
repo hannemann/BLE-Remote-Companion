@@ -138,14 +138,17 @@ void WSEvent::webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size
         {
           IRService::instance().learn(jsonBody["params"]);
         }
-        uint8_t typeId = atoi(jsonBody["params"]["type"]);
-        uint16_t idx = atoi(jsonBody["params"]["key"]);
-        if (strcmp(jsonBody["method"], "keydown") == 0) {
+        if (strcmp(jsonBody["method"], "keydown") == 0)
+        {
           bluetooth.down(jsonBody);
+          uint8_t typeId = atoi(jsonBody["params"]["type"]);
+          uint16_t idx = atoi(jsonBody["params"]["key"]);
           broadcastKey(typeId, idx, "keydown");
         }
         if (strcmp(jsonBody["method"], "keyup") == 0) {
           bluetooth.up(jsonBody);
+          uint8_t typeId = atoi(jsonBody["params"]["type"]);
+          uint16_t idx = atoi(jsonBody["params"]["key"]);
           broadcastKey(typeId, idx, "keyup");
         }
         Serial.printf("Function time was %d\n", (int)(millis() - startTime));
