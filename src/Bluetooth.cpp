@@ -58,45 +58,48 @@ void Bluetooth::mediaup() {
     delay(10);
 }
 
-void Bluetooth::press(JSONVar jsonBody) {
-  int8_t typeId = atoi(jsonBody["params"]["type"]);
-  int8_t idx = atoi(jsonBody["params"]["key"]);
+void Bluetooth::keypress(JSONVar params)
+{
+  int8_t typeId = atoi(params["type"]);
+  int8_t idx = atoi(params["key"]);
   int16_t key = HIDUsageKeys::getKey(typeId, idx);
   if (key > 0) {
-    bool longpress = jsonBody["params"].hasOwnProperty("longpress");
+    bool longpress = params.hasOwnProperty("longpress");
     typeId == TYPE_KEYBOARD ? keydown(key, longpress) : mediadown(key, longpress);
     typeId == TYPE_KEYBOARD ? keyup() : mediaup();
   }
 }
 
-void Bluetooth::pressByCode(JSONVar jsonBody)
+void Bluetooth::keypressByCode(JSONVar params)
 {
-  if (jsonBody["params"].hasOwnProperty("type") && jsonBody["params"].hasOwnProperty("code"))
+  if (params.hasOwnProperty("type") && params.hasOwnProperty("code"))
   {
-    const char *type = jsonBody["params"]["type"];
-    const char *code = jsonBody["params"]["code"];
+    const char *type = params["type"];
+    const char *code = params["code"];
     int16_t key = HIDUsageKeys::getKey(type, code);
     if (key > 0)
     {
-      bool longpress = jsonBody["params"].hasOwnProperty("longpress");
+      bool longpress = params.hasOwnProperty("longpress");
       strcmp(type, "KEYBOARD") == 0 ? keydown(key, longpress) : mediadown(key, longpress);
       strcmp(type, "KEYBOARD") == 0 ? keyup() : mediaup();
     }
   }
 }
 
-void Bluetooth::down(JSONVar jsonBody) {
-  int8_t typeId = atoi(jsonBody["params"]["type"]);
-  int8_t idx = atoi(jsonBody["params"]["key"]);
+void Bluetooth::keydown(JSONVar params)
+{
+  int8_t typeId = atoi(params["type"]);
+  int8_t idx = atoi(params["key"]);
   int16_t key = HIDUsageKeys::getKey(typeId, idx);
   if (key > 0) {
     typeId == TYPE_KEYBOARD ? keydown(key, false) : mediadown(key, false);
   }
 }
 
-void Bluetooth::up(JSONVar jsonBody) {
-  int8_t typeId = atoi(jsonBody["params"]["type"]);
-  int8_t idx = atoi(jsonBody["params"]["key"]);
+void Bluetooth::keyup(JSONVar params)
+{
+  int8_t typeId = atoi(params["type"]);
+  int8_t idx = atoi(params["key"]);
   int16_t key = HIDUsageKeys::getKey(typeId, idx);
   if (key > 0) {
     typeId == TYPE_KEYBOARD ? keyup() : mediaup();

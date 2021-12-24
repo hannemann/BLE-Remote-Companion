@@ -2,11 +2,8 @@
 
 WebSocketsServer WSEvent::webSocket = WebSocketsServer(webSocketPort);
 
-IPAddressFail WSEvent::IPAddressFailures[254];
-
 void WSEvent::init() {
     Serial.println("Init Websocket server...");
-    initIPAddressFailures();
     webSocket.onEvent(webSocketEvent);
 }
 
@@ -20,147 +17,35 @@ void WSEvent::loop() {
 }
 
 /**
- * Populate the list of struct array with IP addresses
- * for a /24 subnet this will need to be modified if you are on something else
+ * @brief websocket event handler
+ * 
+ * @param num 
+ * @param type 
+ * @param payload 
+ * @param length 
  */
-void WSEvent::initIPAddressFailures() {
-    for (int i=0; i<253; i++) {
-        IPAddressFailures[i].FailedAttempts = 0;
-    }
-}
-
 void WSEvent::webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length) {
 
-  switch (type) {
+    switch (type)
+    {
     case WStype_DISCONNECTED:
-      Serial.printf("WEBSOCKET: [%u] Disconnected!\n", num);
-      // Serial.printf("Connected Clients: %d\n", webSocket.connectedClients());
-      break;
-    case WStype_CONNECTED:
-      {
-        IPAddress ip = webSocket.remoteIP(num);
-        Serial.printf("WEBSOCKET: [%u] Connected from %d.%d.%d.%d url: %s\n", num, ip[0], ip[1], ip[2], ip[3], payload);
-        /* A simple system to block IP Addresses that fail connecting 5 times for a 5 minute period */
-        int IPAddressPosition = ip[3]-1;
-        if ((IPAddressPosition>=0) && (IPAddressPosition<253)) {
-          int FailedAttempts = IPAddressFailures[IPAddressPosition].FailedAttempts;
-          if (FailedAttempts<5) {
-            if (strcmp((const char *)payload, "/jsonrpc") != 0) {
-              Serial.println("WEBSOCKET: Client has not connected to the correct path, disconnecting...");
-              Serial.printf("IP Address %d.%d.%d.%d has failed connecting\n",ip[0], ip[1], ip[2], ip[3]);
-  
-              IPAddressFailures[IPAddressPosition].lastFailure = time(nullptr);
-              IPAddressFailures[IPAddressPosition].FailedAttempts=FailedAttempts+1;
-              if ((FailedAttempts+1)==5) {
-                Serial.printf("IP Address %d.%d.%d.%d has failed connecting 5 times, it will now be blocked for 300 seconds\n",ip[0], ip[1], ip[2], ip[3]);
-              } 
-              webSocket.disconnect(num);
-            }        
-          } else {
-            Serial.println("Disconnecting client due to being banned");
-            if ((IPAddressFailures[IPAddressPosition].lastFailure+300)<time(nullptr)) {
-              Serial.println("It has now been over five minutes, disabling client block...");
-              IPAddressFailures[IPAddressPosition].FailedAttempts = 0;
-            }
-            webSocket.disconnect(num);
-          }
-        }
-      }
-      break;
-    case WStype_TEXT:
-      {
-        unsigned long startTime;
-        startTime = millis();
-
-        Serial.printf("WEBSOCKET: [%u] Payload: %s\n", num, payload);
-        JSONVar jsonBody = JSON.parse((const char *)payload);
-
-        if (JSON.typeof(jsonBody) == "undefined") {
-          Serial.println("Parsing input failed!");
-          return;
-        }
-        if (!jsonBody.hasOwnProperty("method")) {
-          Serial.println("JSON parse cannot find method");
-          return;
-        }
-        if (strcmp(jsonBody["method"], "btDisconnect") == 0)
-        {
-          bluetooth.disconnect();
-          return;
-        }
-        if (strcmp(jsonBody["method"], "clear") == 0) {
-          IRService::instance().clearConfig();
-          return;
-        }
-        if (strcmp(jsonBody["method"], "buttons") == 0) {
-          JSONVar btns;
-          JSONVar result;
-          const char* request = jsonBody["type"];
-          if (strcmp(request, "numbers") == 0) {
-              btns = HTTPEvent::numbers();
-          }
-          if (strcmp(request, "functional") == 0) {
-              btns = HTTPEvent::functional();
-          }
-          if (strcmp(request, "dpad") == 0) {
-              btns = HTTPEvent::dpad();
-          }
-          if (strcmp(request, "media") == 0) {
-              btns = HTTPEvent::media();
-          }
-          if (strcmp(request, "colors") == 0) {
-              btns = HTTPEvent::colors();
-          }
-          if (strcmp(request, "keyboard") == 0) {
-              HTTPEvent::keyboardRows();
-              return;
-          }
-          result["buttons"] = btns;
-          webSocket.sendTXT(num, JSON.stringify(result).c_str());
-          return;
-        }
-        if (!jsonBody.hasOwnProperty("params") || !jsonBody["params"].hasOwnProperty("type") || !(jsonBody["params"].hasOwnProperty("key") || jsonBody["params"].hasOwnProperty("code")))
-        {
-          Serial.println("JSON parse cannot find key");
-          return;
-        }
-        // if (Bluetooth::BLEconnected == false && strcmp(jsonBody["method"], "learn") != 0) {
-        //   Serial.println("Bluetooth not connected");
-        //   return;
-        // }
-        Serial.println("Correctly parsed JSON");
-        if (strcmp(jsonBody["method"], "keypress") == 0)
-        {
-          if (jsonBody["params"].hasOwnProperty("code"))
-          {
-            bluetooth.pressByCode(jsonBody);
-          }
-          else
-          {
-            bluetooth.press(jsonBody);
-          }
-        }
-        if (strcmp(jsonBody["method"], "learn") == 0)
-        {
-          IRService::instance().learn(jsonBody["params"]);
-        }
-        if (strcmp(jsonBody["method"], "keydown") == 0)
-        {
-          bluetooth.down(jsonBody);
-          uint8_t typeId = atoi(jsonBody["params"]["type"]);
-          uint16_t idx = atoi(jsonBody["params"]["key"]);
-          broadcastKey(typeId, idx, "keydown");
-        }
-        if (strcmp(jsonBody["method"], "keyup") == 0) {
-          bluetooth.up(jsonBody);
-          uint8_t typeId = atoi(jsonBody["params"]["type"]);
-          uint16_t idx = atoi(jsonBody["params"]["key"]);
-          broadcastKey(typeId, idx, "keyup");
-        }
-        Serial.printf("Function time was %d\n", (int)(millis() - startTime));
-        webSocket.sendTXT(num, "{\"id\":1,\"jsonrpc\":\"2.0\",\"result\":\"OK\"}");
+        Serial.printf("WEBSOCKET: [%u] Disconnected!\n", num);
         break;
-      }
+    case WStype_CONNECTED:
+    {
+        IPAddress ip = webSocket.remoteIP(num);
+        if (strcmp((const char *)payload, "/jsonrpc") != 0)
+        {
+            webSocket.disconnect(num);
+            Serial.println("WEBSOCKET: [%u] pathname does not match /jsonrpc");
+            return;
+        }
+        Serial.printf("WEBSOCKET: [%u] Connected from %d.%d.%d.%d url: %s\n", num, ip[0], ip[1], ip[2], ip[3], payload);
+        break;
+    }
+    case WStype_TEXT:
+        instance().handlePayload(num, payload);
+        break;
     case WStype_BIN:
     case WStype_ERROR:
     case WStype_FRAGMENT_TEXT_START:
@@ -169,16 +54,249 @@ void WSEvent::webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size
     case WStype_FRAGMENT_FIN:
     case WStype_PING:
     case WStype_PONG:
-      break;
-  }
-
+        break;
+    }
 }
 
+/**
+ * @brief validate payload
+ * 
+ * @param num 
+ * @param payload 
+ * @return true 
+ * @return false 
+ */
+bool WSEvent::validatePayload(uint8_t num, JSONVar &payload)
+{
+    if (!payload.hasOwnProperty("method"))
+    {
+        Serial.printf("WEBSOCKET: [%u] no method requested\n", num);
+        return false;
+    }
+    if (payload.hasOwnProperty("params"))
+    {
+        JSONVar params = payload["params"];
+        if (!params.hasOwnProperty("type") || !(params.hasOwnProperty("key") || params.hasOwnProperty("code")))
+        {
+            Serial.printf("WEBSOCKET: [%u] params invalid\n", num);
+            resultError(num);
+            return false;
+        }
+    }
+    return true;
+}
+
+/**
+ * @brief handle payload
+ * 
+ * @param num 
+ * @param payload 
+ */
+void WSEvent::handlePayload(uint8_t num, uint8_t *payload)
+{
+    unsigned long startTime;
+    startTime = millis();
+    Serial.printf("WEBSOCKET: [%u] Payload: %s\n", num, payload);
+    JSONVar jsonBody = JSON.parse((const char *)payload);
+
+    if (JSON.typeof(jsonBody) == "undefined" || !validatePayload(num, jsonBody))
+    {
+        Serial.printf("WEBSOCKET: [%u] input invalid\n", num);
+        resultError(num);
+        return;
+    }
+    if (!jsonBody.hasOwnProperty("params"))
+    {
+        callMethod(num, jsonBody["method"]);
+    }
+    else
+    {
+        JSONVar params = jsonBody["params"];
+        callMethod(num, jsonBody["method"], params);
+    }
+    Serial.printf("Function time was %d\n", (int)(millis() - startTime));
+}
+
+/**
+ * @brief call method
+ * 
+ * @param num 
+ * @param method 
+ */
+void WSEvent::callMethod(uint8_t num, const char *method)
+{
+    if (strcmp(method, "btDisconnect") == 0)
+    {
+        bluetooth.disconnect();
+    }
+    if (strcmp(method, "clear") == 0)
+    {
+        IRService::instance().clearConfig();
+    }
+    if (strcmp(method, "buttons") == 0)
+    {
+        sendButtons(num, method);
+    }
+    resultOK(num);
+}
+
+/**
+ * @brief call method with params
+ * 
+ * @param num 
+ * @param method 
+ * @param params 
+ */
+void WSEvent::callMethod(uint8_t num, const char *method, JSONVar &params)
+{
+    if (strcmp(method, "learn") == 0)
+    {
+        IRService::instance().learn(params);
+        resultOK(num);
+    }
+    if (strcmp(method, "keypress") == 0)
+    {
+        btKeypress(num, params);
+    }
+    if (strcmp(method, "keydown") == 0)
+    {
+        btKeydown(num, params);
+    }
+    if (strcmp(method, "keyup") == 0)
+    {
+        btKeyup(num, params);
+    }
+}
+
+/**
+ * @brief fetch buttons by type and send json to ws client
+ * 
+ * @param num 
+ * @param type 
+ */
+void WSEvent::sendButtons(uint8_t num, const char *type)
+{
+    JSONVar btns;
+    JSONVar result;
+    if (strcmp(type, "numbers") == 0)
+    {
+        btns = HTTPEvent::numbers();
+    }
+    if (strcmp(type, "functional") == 0)
+    {
+        btns = HTTPEvent::functional();
+    }
+    if (strcmp(type, "dpad") == 0)
+    {
+        btns = HTTPEvent::dpad();
+    }
+    if (strcmp(type, "media") == 0)
+    {
+        btns = HTTPEvent::media();
+    }
+    if (strcmp(type, "colors") == 0)
+    {
+        btns = HTTPEvent::colors();
+    }
+    if (strcmp(type, "keyboard") == 0)
+    {
+        HTTPEvent::keyboardRows();
+        return;
+    }
+    // TODO: send in chunks
+    result["buttons"] = btns;
+    webSocket.sendTXT(num, JSON.stringify(result).c_str());
+}
+
+/**
+ * @brief send ws broadcast
+ * 
+ * @param type 
+ * @param key 
+ * @param method 
+ */
 void WSEvent::broadcastKey(uint8_t type, uint16_t key, const char *method)
 {
-  const char *keyName = HIDUsageKeys::getKeyName(type, key);
-  const char *keyType = HIDUsageKeys::getKeyType(type);
-  char message[255];
-  snprintf(message, 255, "{\"id\":1,\"jsonrpc\":\"2.0\",\"method\":\"%s\",\"params\":{\"type\":\"%s\",\"key\":\"%s\"}}", method, keyType, keyName);
-  webSocket.broadcastTXT(message);
+    const char *keyName = HIDUsageKeys::getKeyName(type, key);
+    const char *keyType = HIDUsageKeys::getKeyType(type);
+    char message[255];
+    snprintf(message, 255, "{\"id\":1,\"jsonrpc\":\"2.0\",\"method\":\"%s\",\"params\":{\"type\":\"%s\",\"key\":\"%s\"}}", method, keyType, keyName);
+    webSocket.broadcastTXT(message);
+}
+
+/**
+ * @brief send keypress to bluetooth client
+ * 
+ * @param num 
+ * @param params 
+ */
+void WSEvent::btKeypress(uint8_t num, JSONVar &params)
+{
+    if (Bluetooth::BLEconnected)
+    {
+        params.hasOwnProperty("code") ? bluetooth.keypressByCode(params) : bluetooth.keypress(params);
+        resultOK(num);
+        return;
+    }
+    resultError(num);
+}
+
+/**
+ * @brief send keydown to bluetooth client
+ * 
+ * @param num 
+ * @param params 
+ */
+void WSEvent::btKeydown(uint8_t num, JSONVar &params)
+{
+    if (Bluetooth::BLEconnected)
+    {
+        bluetooth.keydown(params);
+        uint8_t typeId = atoi(params["type"]);
+        uint16_t idx = atoi(params["key"]);
+        broadcastKey(typeId, idx, "keydown");
+        resultOK(num);
+        return;
+    }
+    resultError(num);
+}
+
+/**
+ * @brief send keyup to bluetooth client
+ * 
+ * @param num 
+ * @param params 
+ */
+void WSEvent::btKeyup(uint8_t num, JSONVar &params)
+{
+    if (Bluetooth::BLEconnected)
+    {
+        bluetooth.keyup(params);
+        uint8_t typeId = atoi(params["type"]);
+        uint16_t idx = atoi(params["key"]);
+        broadcastKey(typeId, idx, "keyup");
+        resultOK(num);
+        return;
+    }
+    resultError(num);
+}
+
+/**
+ * @brief send ok message to ws client
+ * 
+ * @param num 
+ */
+void WSEvent::resultOK(uint8_t num)
+{
+    webSocket.sendTXT(num, "{\"id\":1,\"jsonrpc\":\"2.0\",\"result\":\"OK\"}");
+}
+
+/**
+ * @brief send error message to ws client
+ * 
+ * @param num 
+ */
+void WSEvent::resultError(uint8_t num)
+{
+    webSocket.sendTXT(num, "{\"id\":1,\"jsonrpc\":\"2.0\",\"result\":\"Error\"}");
 }

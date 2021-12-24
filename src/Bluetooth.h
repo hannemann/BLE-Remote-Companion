@@ -41,10 +41,10 @@ class Bluetooth
 {
     public:
     Bluetooth();
-    void press(JSONVar jsonBody);
-    void pressByCode(JSONVar jsonBody);
-    void down(JSONVar jsonBody);
-    void up(JSONVar jsonBody);
+    void keypress(JSONVar params);
+    void keypressByCode(JSONVar params);
+    void keydown(JSONVar params);
+    void keyup(JSONVar params);
     static bool BLEconnected;
     static BLEHIDDevice* hid;
     static BLECharacteristic* input;
