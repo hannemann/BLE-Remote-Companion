@@ -73,14 +73,23 @@ bool WSEvent::validatePayload(uint8_t num, JSONVar &payload)
     if (payload.hasOwnProperty("params"))
     {
         JSONVar params = payload["params"];
-        if (!params.hasOwnProperty("type") || !(params.hasOwnProperty("key") || params.hasOwnProperty("code")))
+        if (strcmp(payload["method"], "buttons") == 0)
         {
-            Serial.printf("WEBSOCKET: [%u] params invalid\n", num);
-            resultError(num);
-            return false;
+            if (params.hasOwnProperty("type"))
+            {
+                return true;
+            }
         }
+        if (strcmp(payload["method"], "keypress") == 0 || strcmp(payload["method"], "keyup") == 0 || strcmp(payload["method"], "keydown") == 0 || strcmp(payload["method"], "learn") == 0)
+        {
+            if (params.hasOwnProperty("type") && (params.hasOwnProperty("key") || params.hasOwnProperty("code")))
+            {
+                return true;
+            }
+        }
+        Serial.printf("WEBSOCKET: [%u] %s params invalid\n", num, (const char *)payload["method"]);
     }
-    return true;
+    return false;
 }
 
 /**
@@ -96,7 +105,13 @@ void WSEvent::handlePayload(uint8_t num, uint8_t *payload)
     Serial.printf("WEBSOCKET: [%u] Payload: %s\n", num, payload);
     JSONVar jsonBody = JSON.parse((const char *)payload);
 
-    if (JSON.typeof(jsonBody) == "undefined" || !validatePayload(num, jsonBody))
+    if (JSON.typeof(jsonBody) == "undefined")
+    {
+        Serial.printf("WEBSOCKET: [%u] jsonBody missing\n", num);
+        resultError(num);
+        return;
+    }
+    if (!validatePayload(num, jsonBody))
     {
         Serial.printf("WEBSOCKET: [%u] input invalid\n", num);
         resultError(num);
@@ -137,11 +152,6 @@ void WSEvent::callMethod(uint8_t num, const char *method)
         IRService::instance().clearConfig();
         resultOK(num);
     }
-    if (strcmp(method, "buttons") == 0)
-    {
-        sendButtons(num, method);
-        resultOK(num);
-    }
 }
 
 /**
@@ -156,6 +166,11 @@ void WSEvent::callMethod(uint8_t num, const char *method, JSONVar &params)
     if (strcmp(method, "learn") == 0)
     {
         IRService::instance().learn(params);
+        resultOK(num);
+    }
+    if (strcmp(method, "buttons") == 0)
+    {
+        sendButtons(num, params["type"]);
         resultOK(num);
     }
     if (strcmp(method, "keypress") == 0)
@@ -209,7 +224,14 @@ void WSEvent::sendButtons(uint8_t num, const char *type)
     }
     // TODO: send in chunks
     result["buttons"] = btns;
-    sendTXT(num, JSON.stringify(result).c_str());
+    // sendTXT(num, JSON.stringify(result).c_str());
+    WSclient_t *client = &_clients[num];
+    if (clientIsConnected(client))
+    {
+        const char *json = JSON.stringify(result).c_str();
+        char *payload = (char *)json;
+        sendFrame(client, WSop_text, (uint8_t *)payload, strlen(json), true, false);
+    }
 }
 
 /**
