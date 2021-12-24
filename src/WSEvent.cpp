@@ -83,6 +83,11 @@ void WSEvent::webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size
           Serial.println("JSON parse cannot find method");
           return;
         }
+        if (strcmp(jsonBody["method"], "btDisconnect") == 0)
+        {
+          bluetooth.disconnect();
+          return;
+        }
         if (strcmp(jsonBody["method"], "clear") == 0) {
           IRService::instance().clearConfig();
           return;

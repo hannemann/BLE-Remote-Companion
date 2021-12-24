@@ -51,18 +51,25 @@ class Bluetooth
     static BLECharacteristic* output;
     static BLECharacteristic* inputMedia;
     static BLECharacteristic* outputMedia;
+    static BLEServer *pServer;
+    static BLEAdvertising *pAdvertising;
+    static BLESecurity *pSecurity;
+    static uint16_t connId;
+    static esp_ble_gatts_cb_param_t *bdParams;
     void keydown(int16_t key, bool longpress);
     void keyup();
     void mediadown(int16_t key, bool longpress);
     void mediaup();
-    private:
+    void disconnect();
+
+  private:
     inputKeyboard_t keyboard_report{};
 };
 
 class BLECallback : public BLEServerCallbacks {
     public:
-    void onConnect(BLEServer* pServer);
-    void onDisconnect(BLEServer* pServer);
+      void onConnect(BLEServer *pServer, esp_ble_gatts_cb_param_t *param);
+      void onDisconnect(BLEServer *pServer);
 };
 
 extern Bluetooth bluetooth;

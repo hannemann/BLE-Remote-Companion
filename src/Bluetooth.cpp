@@ -8,6 +8,11 @@ BLECharacteristic* Bluetooth::input;
 BLECharacteristic* Bluetooth::output;
 BLECharacteristic* Bluetooth::inputMedia;
 BLECharacteristic* Bluetooth::outputMedia;
+BLEServer *Bluetooth::pServer;
+BLEAdvertising *Bluetooth::pAdvertising;
+BLESecurity *Bluetooth::pSecurity;
+uint16_t Bluetooth::connId = 0;
+esp_ble_gatts_cb_param_t *Bluetooth::bdParams;
 
 void Bluetooth::keydown(int16_t key, bool longpress) {
   Serial.printf("Sending key code: %d %s\n", key, longpress ? "longpress" : "");
@@ -98,7 +103,15 @@ void Bluetooth::up(JSONVar jsonBody) {
   }
 }
 
-void BLECallback::onConnect(BLEServer* pServer) {
+void Bluetooth::disconnect()
+{
+    pServer->disconnect(bdParams->connect.conn_id);
+    pServer->removePeerDevice(bdParams->connect.conn_id, false);
+    esp_ble_remove_bond_device(bdParams->connect.remote_bda);
+}
+
+void BLECallback::onConnect(BLEServer *pServer, esp_ble_gatts_cb_param_t *param)
+{
     Bluetooth::BLEconnected = true;
     Serial.println("Bluetooth Connected");
     BLE2902* desc = (BLE2902*)Bluetooth::input->getDescriptorByUUID(BLEUUID((uint16_t)0x2902));
@@ -106,6 +119,8 @@ void BLECallback::onConnect(BLEServer* pServer) {
 
     BLE2902* descv = (BLE2902*)Bluetooth::inputMedia->getDescriptorByUUID(BLEUUID((uint16_t)0x2902));
     descv->setNotifications(true);
+    Bluetooth::connId = pServer->getConnId();
+    Bluetooth::bdParams = param;
 }
 
 void BLECallback::onDisconnect(BLEServer* pServer) {
@@ -116,40 +131,42 @@ void BLECallback::onDisconnect(BLEServer* pServer) {
 
     BLE2902* descv = (BLE2902*)Bluetooth::inputMedia->getDescriptorByUUID(BLEUUID((uint16_t)0x2902));
     descv->setNotifications(false);
+    Bluetooth::pAdvertising->start();
+    Bluetooth::connId = 0;
 }
 
 void keyTaskServer(void*) {
-  BLEDevice::init("BLIRC Keyboard Emulator");
-  BLEServer *pServer = BLEDevice::createServer();
-  pServer->setCallbacks(new BLECallback());
+    BLEDevice::init("BLIRC Keyboard Emulator");
+    Bluetooth::pServer = BLEDevice::createServer();
+    Bluetooth::pServer->setCallbacks(new BLECallback());
 
-  Bluetooth::hid = new BLEHIDDevice(pServer);
-  Bluetooth::inputMedia = Bluetooth::hid->inputReport(1); // <-- input REPORTID from report map
-  Bluetooth::outputMedia = Bluetooth::hid->outputReport(1); // <-- output REPORTID from report map
+    Bluetooth::hid = new BLEHIDDevice(Bluetooth::pServer);
+    Bluetooth::inputMedia = Bluetooth::hid->inputReport(1);   // <-- input REPORTID from report map
+    Bluetooth::outputMedia = Bluetooth::hid->outputReport(1); // <-- output REPORTID from report map
 
-  Bluetooth::input = Bluetooth::hid->inputReport(2); // <-- input REPORTID from report map
-  Bluetooth::output = Bluetooth::hid->outputReport(2); // <-- output REPORTID from report map
+    Bluetooth::input = Bluetooth::hid->inputReport(2);   // <-- input REPORTID from report map
+    Bluetooth::output = Bluetooth::hid->outputReport(2); // <-- output REPORTID from report map
 
-  std::string name = "Hannemann";
-  Bluetooth::hid->manufacturer()->setValue(name);
+    std::string name = "Example Inc. (TM)";
+    Bluetooth::hid->manufacturer()->setValue(name);
 
-  Bluetooth::hid->pnp(0x02, 0xe502, 0xa111, 0x0210);
-  Bluetooth::hid->hidInfo(0x00, 0x02);
+    Bluetooth::hid->pnp(0x02, 0xe502, 0xa111, 0x0210);
+    Bluetooth::hid->hidInfo(0x00, 0x02);
 
-  Bluetooth::hid->reportMap((uint8_t*)HidDescriptor, sizeof(HidDescriptor));
-  Bluetooth::hid->startServices();
+    Bluetooth::hid->reportMap((uint8_t *)HidDescriptor, sizeof(HidDescriptor));
+    Bluetooth::hid->startServices();
 
-  BLESecurity *pSecurity = new BLESecurity();
-  //  pSecurity->setKeySize();
-  pSecurity->setAuthenticationMode(ESP_LE_AUTH_BOND);
+    Bluetooth::pSecurity = new BLESecurity();
+    //  pSecurity->setKeySize();
+    Bluetooth::pSecurity->setAuthenticationMode(ESP_LE_AUTH_BOND);
 
-  BLEAdvertising *pAdvertising = pServer->getAdvertising();
-  pAdvertising->setAppearance(HID_KEYBOARD);
-  pAdvertising->addServiceUUID(Bluetooth::hid->hidService()->getUUID());
-  pAdvertising->start();
-  Bluetooth::hid->setBatteryLevel(100);
-  yield();
-  delay(portMAX_DELAY);
+    Bluetooth::pAdvertising = Bluetooth::pServer->getAdvertising();
+    Bluetooth::pAdvertising->setAppearance(HID_KEYBOARD);
+    Bluetooth::pAdvertising->addServiceUUID(Bluetooth::hid->hidService()->getUUID());
+    Bluetooth::pAdvertising->start();
+    Bluetooth::hid->setBatteryLevel(100);
+    yield();
+    delay(portMAX_DELAY);
 }
 
 Bluetooth bluetooth = Bluetooth();
