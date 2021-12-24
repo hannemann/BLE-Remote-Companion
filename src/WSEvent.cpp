@@ -129,7 +129,8 @@ void WSEvent::webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size
         //   return;
         // }
         Serial.println("Correctly parsed JSON");
-        if (strcmp(jsonBody["method"], "press") == 0) {
+        if (strcmp(jsonBody["method"], "keypress") == 0)
+        {
           if (jsonBody["params"].hasOwnProperty("code"))
           {
             bluetooth.pressByCode(jsonBody);
