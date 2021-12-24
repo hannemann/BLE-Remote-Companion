@@ -201,7 +201,7 @@
     </main>
     <nav data-menu="closed">
         <a href="/learn">Learn IR Codes</a>
-        <a href="/learn">Set WS Broadcasts</a>
+        <a href="/reboot">Reboot</a>
     </nav>
     <script>
         let ws;
@@ -286,7 +286,10 @@
                     main.dataset.page = "learn";
                     break;
                 case "/menu":
-                    toggleMenu()
+                    toggleMenu();
+                    break;
+                case "/reboot":
+                    ws.send(JSON.stringify({method: "reboot"}));
                     break;
             }
         }

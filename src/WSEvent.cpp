@@ -128,16 +128,23 @@ void WSEvent::callMethod(uint8_t num, const char *method)
     if (strcmp(method, "btDisconnect") == 0)
     {
         bluetooth.disconnect();
+        resultOK(num);
+    }
+    if (strcmp(method, "reboot") == 0)
+    {
+        resultOK(num);
+        ESP.restart();
     }
     if (strcmp(method, "clear") == 0)
     {
         IRService::instance().clearConfig();
+        resultOK(num);
     }
     if (strcmp(method, "buttons") == 0)
     {
         sendButtons(num, method);
+        resultOK(num);
     }
-    resultOK(num);
 }
 
 /**
