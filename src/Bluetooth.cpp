@@ -58,7 +58,7 @@ void Bluetooth::mediaup() {
     delay(10);
 }
 
-void Bluetooth::keypress(JSONVar params)
+void Bluetooth::keypress(JSONVar &params)
 {
   int8_t typeId = atoi(params["type"]);
   int8_t idx = atoi(params["key"]);
@@ -70,7 +70,7 @@ void Bluetooth::keypress(JSONVar params)
   }
 }
 
-void Bluetooth::keypressByCode(JSONVar params)
+void Bluetooth::keypressByCode(JSONVar &params)
 {
   if (params.hasOwnProperty("type") && params.hasOwnProperty("code"))
   {
@@ -86,7 +86,7 @@ void Bluetooth::keypressByCode(JSONVar params)
   }
 }
 
-void Bluetooth::keydown(JSONVar params)
+void Bluetooth::keydown(JSONVar &params)
 {
   int8_t typeId = atoi(params["type"]);
   int8_t idx = atoi(params["key"]);
@@ -96,7 +96,7 @@ void Bluetooth::keydown(JSONVar params)
   }
 }
 
-void Bluetooth::keyup(JSONVar params)
+void Bluetooth::keyup(JSONVar &params)
 {
   int8_t typeId = atoi(params["type"]);
   int8_t idx = atoi(params["key"]);
