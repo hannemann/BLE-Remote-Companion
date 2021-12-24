@@ -1,19 +1,16 @@
 #include "WSEvent.h"
 
-WebSocketsServer WSEvent::webSocket = WebSocketsServer(webSocketPort);
+WSEvent::WSEvent(uint16_t port)
+    : WebSocketsServer(port){};
 
 void WSEvent::init() {
     Serial.println("Init Websocket server...");
-    webSocket.onEvent(webSocketEvent);
+    onEvent(webSocketEvent);
 }
 
 void WSEvent::run() {
-    webSocket.begin();
+    begin();
     Serial.printf("Websocket started listening on port %d\n", WS_PORT);
-}
-
-void WSEvent::loop() {
-    webSocket.loop();
 }
 
 /**
@@ -33,10 +30,10 @@ void WSEvent::webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size
         break;
     case WStype_CONNECTED:
     {
-        IPAddress ip = webSocket.remoteIP(num);
+        IPAddress ip = WSEvent::instance().remoteIP(num);
         if (strcmp((const char *)payload, "/jsonrpc") != 0)
         {
-            webSocket.disconnect(num);
+            WSEvent::instance().disconnect(num);
             Serial.println("WEBSOCKET: [%u] pathname does not match /jsonrpc");
             return;
         }
@@ -44,7 +41,7 @@ void WSEvent::webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size
         break;
     }
     case WStype_TEXT:
-        instance().handlePayload(num, payload);
+        WSEvent::instance().handlePayload(num, payload);
         break;
     case WStype_BIN:
     case WStype_ERROR:
@@ -212,7 +209,7 @@ void WSEvent::sendButtons(uint8_t num, const char *type)
     }
     // TODO: send in chunks
     result["buttons"] = btns;
-    webSocket.sendTXT(num, JSON.stringify(result).c_str());
+    sendTXT(num, JSON.stringify(result).c_str());
 }
 
 /**
@@ -228,7 +225,7 @@ void WSEvent::broadcastKey(uint8_t type, uint16_t key, const char *method)
     const char *keyType = HIDUsageKeys::getKeyType(type);
     char message[255];
     snprintf(message, 255, "{\"id\":1,\"jsonrpc\":\"2.0\",\"method\":\"%s\",\"params\":{\"type\":\"%s\",\"key\":\"%s\"}}", method, keyType, keyName);
-    webSocket.broadcastTXT(message);
+    broadcastTXT(message);
 }
 
 /**
@@ -295,7 +292,7 @@ void WSEvent::btKeyup(uint8_t num, JSONVar &params)
  */
 void WSEvent::resultOK(uint8_t num)
 {
-    webSocket.sendTXT(num, "{\"id\":1,\"jsonrpc\":\"2.0\",\"result\":\"OK\"}");
+    sendTXT(num, "{\"id\":1,\"jsonrpc\":\"2.0\",\"result\":\"OK\"}");
 }
 
 /**
@@ -305,5 +302,5 @@ void WSEvent::resultOK(uint8_t num)
  */
 void WSEvent::resultError(uint8_t num)
 {
-    webSocket.sendTXT(num, "{\"id\":1,\"jsonrpc\":\"2.0\",\"result\":\"Error\"}");
+    sendTXT(num, "{\"id\":1,\"jsonrpc\":\"2.0\",\"result\":\"Error\"}");
 }

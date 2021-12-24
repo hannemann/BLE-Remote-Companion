@@ -10,21 +10,19 @@ struct IPAddressFail {
     time_t lastFailure;
 };
 
-class WSEvent
+class WSEvent : public WebSocketsServer
 {
 public:
-    WSEvent() {};
-    static WSEvent& instance()
+    WSEvent(uint16_t port);
+    static WSEvent &instance()
     {
-        static WSEvent instance;
+        static WSEvent instance(WS_PORT);
         return instance;
     }
     void init();
     void run();
-    void loop();
-    static WebSocketsServer webSocket;
+    void broadcastKey(uint8_t type, uint16_t key, const char *method);
     static void webSocketEvent(uint8_t num, WStype_t type, uint8_t *payload, size_t length);
-    static void broadcastKey(uint8_t type, uint16_t key, const char *method);
 
 private:
     bool validatePayload(uint8_t num, JSONVar &payload);
