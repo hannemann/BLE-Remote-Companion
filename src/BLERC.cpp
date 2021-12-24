@@ -1,8 +1,8 @@
-#include <BLIRC.h>
+#include "BLERC.h"
 
-BLIRC::BLIRC(){};
+BLERC::BLERC(){};
 
-void BLIRC::setup()
+void BLERC::setup()
 {
   delay(1000);
   Serial.begin(115200);
@@ -23,7 +23,7 @@ void BLIRC::setup()
   WebService::instance().run();
 }
 
-void BLIRC::loop()
+void BLERC::loop()
 {
   WebService::instance().loop();
   if (!WebService::captiveMode)

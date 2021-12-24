@@ -1,6 +1,6 @@
 #ifndef LAYOUTS_H
 #define LAYOUTS_H
 
-#include "BLIRC.h"
+#include "BLERC.h"
 
 #endif // LAYOUTS_H

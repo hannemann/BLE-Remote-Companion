@@ -1,9 +1,9 @@
-#include "BLIRC.h"
+#include "BLERC.h"
 
 void setup() {
-    BLIRC::instance().setup();
+    BLERC::instance().setup();
 }
 
 void loop() {
-    BLIRC::instance().loop();
+    BLERC::instance().loop();
 }

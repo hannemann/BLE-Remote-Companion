@@ -1,5 +1,5 @@
-#ifndef BLIRC_H
-#define BLIRC_H
+#ifndef BLERC_H
+#define BLERC_H
 
 #include <Arduino.h>
 #include <Arduino_JSON.h>
@@ -8,12 +8,12 @@
 #define IR_PIN 23
 #endif
 
-#ifndef WS_PORT
-#define WS_PORT 2339
-#endif
-
 #ifndef HTTP_PORT
 #define HTTP_PORT 80
+#endif
+
+#ifndef WS_PORT
+#define WS_PORT 81
 #endif
 
 #define DNS_PORT 53
@@ -46,17 +46,17 @@
 #include "IRService.h"
 #include "Bluetooth.h"
 
-class BLIRC
+class BLERC
 {
-    public:
-        BLIRC();
-        static BLIRC& instance()
-        {
-            static BLIRC instance;
-            return instance;
-        }
-        void setup();
-        void loop();
+public:
+    BLERC();
+    static BLERC &instance()
+    {
+        static BLERC instance;
+        return instance;
+    }
+    void setup();
+    void loop();
 };
 
-#endif // BLIRC_H
+#endif // BLERC_H

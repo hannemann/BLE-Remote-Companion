@@ -1,7 +1,7 @@
 #ifndef WSEVENT_H
 #define WSEVENT_H
 
-#include "BLIRC.h"
+#include "BLERC.h"
 
 const int webSocketPort = WS_PORT;
 

@@ -38,7 +38,7 @@ void WebService::init() {
         IPAddress netMsk(255, 255, 255, 0);
         WiFi.mode(WIFI_AP);
         WiFi.softAPConfig(apIP, apIP, netMsk);
-        WiFi.softAP("BLIRC", "0987654321");
+        WiFi.softAP("BLERC", "0987654321");
         delay(500); // Without delay IsoftAP_ssid, softAP_password've seen the IP address blank
         Serial.print("AP IP address: ");
         Serial.println(WiFi.softAPIP());

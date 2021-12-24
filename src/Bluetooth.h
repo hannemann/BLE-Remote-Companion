@@ -1,7 +1,7 @@
 #ifndef BLUETOOTH_H
 #define BLUETOOTH_H
 
-#include "BLIRC.h"
+#include "BLERC.h"
 
 const uint8_t HidDescriptor[] = {
   0x05, 0x0c,                    // USAGE_PAGE (Consumer Devices)

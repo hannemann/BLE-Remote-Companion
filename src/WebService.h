@@ -1,7 +1,7 @@
 #ifndef WIFI_H
 #define WIFI_H
 
-#include "BLIRC.h"
+#include "BLERC.h"
 
 class WebService {
     public:

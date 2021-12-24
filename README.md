@@ -1,4 +1,4 @@
-# Bluetooth Remote Companion
+# Bluetooth LE Remote Companion
 
 Remotely control devices via Bluetooth from your Browser, Homeassistant via NodeRed or any IR Remote 
 

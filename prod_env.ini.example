@@ -6,6 +6,6 @@
 build_flags = 
   '-DWIFI_SSID="xx"'
   '-DWIFI_PASSWORD="xx"'
-  '-DWS_PORT=2339'
+  '-DWS_PORT=81'
   '-DHTTP_PORT=80'
   '-DIR_PIN=23'

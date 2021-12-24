@@ -136,37 +136,37 @@ void BLECallback::onDisconnect(BLEServer* pServer) {
 }
 
 void keyTaskServer(void*) {
-    BLEDevice::init("BLIRC Keyboard Emulator");
-    Bluetooth::pServer = BLEDevice::createServer();
-    Bluetooth::pServer->setCallbacks(new BLECallback());
+  BLEDevice::init("BLE Remote Companion");
+  Bluetooth::pServer = BLEDevice::createServer();
+  Bluetooth::pServer->setCallbacks(new BLECallback());
 
-    Bluetooth::hid = new BLEHIDDevice(Bluetooth::pServer);
-    Bluetooth::inputMedia = Bluetooth::hid->inputReport(1);   // <-- input REPORTID from report map
-    Bluetooth::outputMedia = Bluetooth::hid->outputReport(1); // <-- output REPORTID from report map
+  Bluetooth::hid = new BLEHIDDevice(Bluetooth::pServer);
+  Bluetooth::inputMedia = Bluetooth::hid->inputReport(1);   // <-- input REPORTID from report map
+  Bluetooth::outputMedia = Bluetooth::hid->outputReport(1); // <-- output REPORTID from report map
 
-    Bluetooth::input = Bluetooth::hid->inputReport(2);   // <-- input REPORTID from report map
-    Bluetooth::output = Bluetooth::hid->outputReport(2); // <-- output REPORTID from report map
+  Bluetooth::input = Bluetooth::hid->inputReport(2);   // <-- input REPORTID from report map
+  Bluetooth::output = Bluetooth::hid->outputReport(2); // <-- output REPORTID from report map
 
-    std::string name = "Example Inc. (TM)";
-    Bluetooth::hid->manufacturer()->setValue(name);
+  std::string name = "Example Inc. (TM)";
+  Bluetooth::hid->manufacturer()->setValue(name);
 
-    Bluetooth::hid->pnp(0x02, 0xe502, 0xa111, 0x0210);
-    Bluetooth::hid->hidInfo(0x00, 0x02);
+  Bluetooth::hid->pnp(0x02, 0xe502, 0xa111, 0x0210);
+  Bluetooth::hid->hidInfo(0x00, 0x02);
 
-    Bluetooth::hid->reportMap((uint8_t *)HidDescriptor, sizeof(HidDescriptor));
-    Bluetooth::hid->startServices();
+  Bluetooth::hid->reportMap((uint8_t *)HidDescriptor, sizeof(HidDescriptor));
+  Bluetooth::hid->startServices();
 
-    Bluetooth::pSecurity = new BLESecurity();
-    //  pSecurity->setKeySize();
-    Bluetooth::pSecurity->setAuthenticationMode(ESP_LE_AUTH_BOND);
+  Bluetooth::pSecurity = new BLESecurity();
+  //  pSecurity->setKeySize();
+  Bluetooth::pSecurity->setAuthenticationMode(ESP_LE_AUTH_BOND);
 
-    Bluetooth::pAdvertising = Bluetooth::pServer->getAdvertising();
-    Bluetooth::pAdvertising->setAppearance(HID_KEYBOARD);
-    Bluetooth::pAdvertising->addServiceUUID(Bluetooth::hid->hidService()->getUUID());
-    Bluetooth::pAdvertising->start();
-    Bluetooth::hid->setBatteryLevel(100);
-    yield();
-    delay(portMAX_DELAY);
+  Bluetooth::pAdvertising = Bluetooth::pServer->getAdvertising();
+  Bluetooth::pAdvertising->setAppearance(HID_KEYBOARD);
+  Bluetooth::pAdvertising->addServiceUUID(Bluetooth::hid->hidService()->getUUID());
+  Bluetooth::pAdvertising->start();
+  Bluetooth::hid->setBatteryLevel(100);
+  yield();
+  delay(portMAX_DELAY);
 }
 
 Bluetooth bluetooth = Bluetooth();

@@ -1,7 +1,7 @@
 #ifndef IR_H
 #define IR_H
 
-#include "BLIRC.h"
+#include "BLERC.h"
 
 class IRService {
     public:
