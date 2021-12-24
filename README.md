@@ -1,17 +1,26 @@
-# NVIDIAControlDevice
+# Bluetooth Remote Companion
 
-Remotely control an NVIDIA shield via Bluetooth from HTTP/Websockets 
+Remotely control devices via Bluetooth from your Browser, Homeassistant via NodeRed or any IR Remote 
 
-This software runs on an ESP32 making it into a virtual keyboard running a Kodi style websocket server, this allows clients to connect via any of the standard Kodi remote control tools, such as:
-* Kassi (Chrome)
-* Yatse/Kore (Android)
+This software runs on an ESP32 making it into a virtual keyboard running a websocket server, this allows clients to connect via websocket and send named keycodes.
+
+Keycodes sent are also broadcasted to all connected websocket clients making it possible to react 
+e.g. using Homeassistant via NodeRed and start your favourite streaming app via adb ore toggle lights or...
+
+A simple keyboard is also available in the web frontend. Point your browser to the esp's IP and check out.
+
+The web frontend offers an easy way to configure your IR remote.
 
 #### Supported Hardware
 * ESP32
 
-#### Installation
-This requires the https://github.com/Links2004/arduinoWebSockets websockets library and the inbuilt Arduino_JSON by Arduino library, please ensure you change the ssid, password and port numbers in the top of the INO file
+#### Recommended Peripherals
+* TSOP4838 on PIN 23 (pin can be configured in prod_env.ini see example)
 
-#### Limitations
-* Unfortuntely, this does not support authentication for its websocket, as the remote control applications do not currently support this, instead this relies on security through obscurity only allowing connections to the correct path and blocks a client from connecting for five minutes, if it connects to the wrong path 5 times.
-* I managed to get the time for an action down to 15ms, if you know of any ways to improve this, please submit a patch.
+#### Installation
+##### PlatformIO
+* Checkout Project
+* Connect ESP32
+* Upload
+
+No configuration needed.
