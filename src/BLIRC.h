@@ -3,9 +3,27 @@
 
 #include <Arduino.h>
 #include <Arduino_JSON.h>
+
+#ifndef IR_PIN
+#define IR_PIN 23
+#endif
+
+#ifndef WS_PORT
+#define WS_PORT 2339
+#endif
+
+#ifndef HTTP_PORT
+#define HTTP_PORT 80
+#endif
+
+#define DNS_PORT 53
+
 #include <WebServer.h>
 #include <WebSocketsServer.h>
+#include <DNSServer.h>
+#include <ESPmDNS.h>
 #include <WiFi.h>
+#include <WiFiClient.h>
 #include <iterator>
 
 #include <BLEDevice.h>
@@ -28,18 +46,6 @@
 #include "IRService.h"
 #include "Bluetooth.h"
 
-#ifndef IR_PIN
-#define IR_PIN 23
-#endif
-
-#ifndef WS_PORT
-#define WS_PORT 2339
-#endif
-
-#ifndef HTTP_PORT
-#define HTTP_PORT 80
-#endif
-
 class BLIRC
 {
     public:
@@ -51,11 +57,6 @@ class BLIRC
         }
         void setup();
         void loop();
-        const char* getSSID();
-        const char* getPSK();
-    private:
-        const char* ssid = WIFI_SSID;
-        const char* psk = WIFI_PASSWORD;
 };
 
 #endif // BLIRC_H

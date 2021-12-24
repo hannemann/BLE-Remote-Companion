@@ -4,8 +4,8 @@ BLIRC::BLIRC(){};
 
 void BLIRC::setup()
 {
+  delay(1000);
   Serial.begin(115200);
-  delay(500);
   Serial.print("[SETUP] BOOT WAIT");
   for (uint8_t t = 4; t > 0; t--)
   {
@@ -15,23 +15,19 @@ void BLIRC::setup()
   }
   Serial.println("");
   WebService::instance().init();
-  xTaskCreate(keyTaskServer, "server", 2048, NULL, 5, NULL);
-  IRService::instance().init().run();
+  if (!WebService::captiveMode)
+  {
+    xTaskCreate(keyTaskServer, "server", 2048, NULL, 5, NULL);
+    IRService::instance().init().run();
+  }
   WebService::instance().run();
 }
 
 void BLIRC::loop()
 {
   WebService::instance().loop();
-  IRService::instance().loop();
-}
-
-const char *BLIRC::getSSID()
-{
-  return ssid;
-}
-
-const char *BLIRC::getPSK()
-{
-  return psk;
+  if (!WebService::captiveMode)
+  {
+    IRService::instance().loop();
+  }
 }

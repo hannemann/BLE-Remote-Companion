@@ -87,7 +87,7 @@ const char captiveHTML[] PROGMEM = R"=====(<!DOCTYPE html>
     </style>
 </head>
 <body>
-    <form action="/wifi-setp">
+    <form action="/wifi-setup" method="post">
         <h1>Please enter your WIFI credentials.</h1>
         <fieldset>
             <legend>SSID:</legend>

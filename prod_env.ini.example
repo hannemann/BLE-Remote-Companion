@@ -1,3 +1,7 @@
+; wifi credentials can be configured via captive portal
+; all other values are defaults
+; This file should only be needed for edge cases
+
 [my]
 build_flags = 
   '-DWIFI_SSID="xx"'

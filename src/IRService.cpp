@@ -11,8 +11,8 @@ IRService& IRService::init() {
     String configJSON = preferences.getString("config", "{}");
     config = JSON.parse(configJSON);
     preferences.end();
-    Serial.printf("%d Configuration bytes parsed in ", config.length());
-    Serial.println((millis() - start));
+    uint16_t dur = millis() - start;
+    Serial.printf("%d Configuration bytes parsed in %dms\n", configJSON.length(), dur);
     return *this;
 }
 

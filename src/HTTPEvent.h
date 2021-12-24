@@ -17,6 +17,8 @@ class HTTPEvent {
         WebServer server;
         uint16_t port = HTTP_PORT;
         static void home();
+        static void captivePortal();
+        static void captiveSave();
         static void learn();
         static void keyboard();
         static void fourOFour();

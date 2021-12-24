@@ -14,6 +14,14 @@ class WebService {
         void init();
         void run();
         void loop();
+        bool hasWifiCredentials();
+        void saveCredentials(const char *ssid, const char *psk);
+        void deleteCredentials();
+        static DNSServer dnsServer;
+        static bool captiveMode;
+
+    private:
+        static Preferences preferences;
 };
 
 #endif // WIFI_H

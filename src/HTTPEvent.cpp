@@ -1,32 +1,80 @@
 #include "HTTPEvent.h"
 #include "page/index.h"
+#include "page/captive.h"
+#include "page/reboot.h"
 
 void HTTPEvent::init() {
     Serial.println("Init HTTP server...");
-    WebServer server(port);
+    WebServer server(HTTP_PORT);
+    Serial.println("HTTP Server initialized.");
 }
 
-void HTTPEvent::run() {
-    server.on("/", home);
+void HTTPEvent::run()
+{
+    if (!WebService::captiveMode)
+    {
+        Serial.println("Init routes...");
+        server.on("/", home);
+    }
+    else
+    {
+        Serial.println("Init captive routes...");
+        server.on("/", captivePortal);
+        server.on("/generate_204", captivePortal); //Android captive portal. Maybe not needed. Might be handled by notFound handler.
+        server.on("/fwlink", captivePortal);       //Microsoft captive portal. Maybe not needed. Might be handled by notFound handler.
+        server.on("/wifi-setup", HTTP_POST, captiveSave);
+    }
     server.onNotFound(fourOFour);
+    Serial.println("HTTP Routes added.");
     server.begin();
     Serial.printf("Webserver started listening on port %d\n", port);
 }
 
-void HTTPEvent::loop() {
+void HTTPEvent::loop()
+{
     server.handleClient();
 }
 
 void HTTPEvent::home() {
     Serial.printf("GET /\n");
     instance().server.sendHeader("Content-Encoding", "gzip");
-    instance()
-        .server.send_P(200, "text/html", indexHTML, indexHTML_L);
+    instance().server.send_P(200, "text/html", indexHTML, indexHTML_L);
     Serial.println(ESP.getFreeHeap());
 }
 
 void HTTPEvent::fourOFour() {
   instance().server.send(404, "text/plain", "404 Not found");
+}
+
+void HTTPEvent::captivePortal()
+{
+    Serial.printf("GET / CaptivePortal\n");
+    instance().server.send_P(200, "text/html", captiveHTML);
+}
+
+void HTTPEvent::captiveSave()
+{
+    String ssid;
+    String psk;
+    if (instance().server.hasArg("ssid") && instance().server.hasArg("psk"))
+    {
+        for (uint8_t i = 0; i < instance().server.args(); i++)
+        {
+            if (instance().server.argName(i) == "ssid")
+            {
+                ssid = instance().server.arg(i);
+            }
+            if (instance().server.argName(i) == "psk")
+            {
+                psk = instance().server.arg(i);
+            }
+        }
+        WebService::instance().saveCredentials(ssid.c_str(), psk.c_str());
+    }
+    // WebService::instance().saveCredentials();
+    instance()
+        .server.send_P(200, "text/html", rebootHTML);
+    ESP.restart();
 }
 
 JSONVar HTTPEvent::numbers() {
