@@ -9,3 +9,4 @@ build_flags =
   '-DWS_PORT=81'
   '-DHTTP_PORT=80'
   '-DIR_PIN=23'
+	'-DDISABLE_BROWNOUT_DETECTION_DURING_WIFI_STARTUP=1' # 1=yes, 0=no

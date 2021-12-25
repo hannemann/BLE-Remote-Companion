@@ -24,3 +24,9 @@ The web frontend offers an easy way to configure your IR remote.
 * Upload
 
 No configuration needed.
+
+
+#### TODO
+* Reinit Websocket (visibilitychange)
+* add Home button to frontend
+* load all keycodes for configuration

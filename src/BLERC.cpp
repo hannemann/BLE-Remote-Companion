@@ -23,6 +23,16 @@ void BLERC::setup()
     IRService::instance().init().run();
   }
   WebService::instance().run();
+  delay(2000);
+  const char *line1 = PSTR("**** BLE REMOTE COMPANION V1 ****");
+  const uint8_t length = 40;
+  uint8_t pre = (length - strlen_P(line1)) / 2;
+  Serial.printf("\n%*s%s\n\n", pre, "", line1);
+  uint8_t tmp = strlen_P(" RAM SYSTEM  BASIC BYTES FREE");
+  char buffer[tmp + 10];
+  snprintf(buffer, tmp + 10, "%dK RAM SYSTEM %d BASIC BYTES FREE", (uint8_t)(floor(ESP.getHeapSize() / 1024)), ESP.getFreeHeap());
+  uint8_t pre2 = (length - strlen(buffer)) / 2;
+  Serial.printf("%*s%s\n\nReady.\n", pre2, "", buffer);
 }
 
 void BLERC::loop()

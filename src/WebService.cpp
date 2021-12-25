@@ -8,6 +8,11 @@ DNSServer WebService::dnsServer = DNSServer();
 void WebService::init() {
     WiFi.disconnect();
     Serial.println("Init Webservices...");
+
+#if (DISABLE_BROWNOUT_DETECTION_DURING_WIFI_STARTUP > 0)
+    uint32_t brown_reg_temp = READ_PERI_REG(RTC_CNTL_BROWN_OUT_REG);
+    WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 0);
+#endif
     if (hasWifiCredentials())
     {
         Serial.print("Connecting to WIFI");
@@ -20,6 +25,7 @@ void WebService::init() {
         String psk = preferences.getString("psk");
         preferences.end();
         Serial.print(" using configured credentials");
+        WiFi.mode(WIFI_MODE_STA);
         WiFi.begin(ssid.c_str(), psk.c_str());
 #endif
         while (WiFi.status() != WL_CONNECTED)
@@ -45,6 +51,10 @@ void WebService::init() {
         dnsServer.setErrorReplyCode(DNSReplyCode::NoError);
         dnsServer.start(DNS_PORT, "*", WiFi.softAPIP());
     }
+
+#if (DISABLE_BROWNOUT_DETECTION_DURING_WIFI_STARTUP > 0)
+    WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, brown_reg_temp);
+#endif
     HTTPEvent::instance().init();
 }
 

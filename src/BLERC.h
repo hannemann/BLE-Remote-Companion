@@ -4,6 +4,11 @@
 #include <Arduino.h>
 #include <Arduino_JSON.h>
 
+#if (DISABLE_BROWNOUT_DETECTION_DURING_WIFI_STARTUP > 0)
+#include "soc/soc.h"
+#include "soc/rtc_cntl_reg.h"
+#endif
+
 #ifndef IR_PIN
 #define IR_PIN 23
 #endif
