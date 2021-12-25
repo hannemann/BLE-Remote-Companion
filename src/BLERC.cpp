@@ -17,7 +17,9 @@ void BLERC::setup()
   WebService::instance().init();
   if (!WebService::captiveMode)
   {
-    xTaskCreate(keyTaskServer, "server", 2048, NULL, 5, NULL);
+    delay(1000);
+    Bluetooth::create();
+    xTaskCreate(keyTaskServer, "server", 3062, NULL, 5, NULL);
     IRService::instance().init().run();
   }
   WebService::instance().run();

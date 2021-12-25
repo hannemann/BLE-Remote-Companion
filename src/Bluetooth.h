@@ -45,6 +45,7 @@ class Bluetooth
     void keypressByCode(JSONVar &params);
     void keydown(JSONVar &params);
     void keyup(JSONVar &params);
+    static void create();
     static bool BLEconnected;
     static BLEHIDDevice* hid;
     static BLECharacteristic* input;

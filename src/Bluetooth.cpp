@@ -13,6 +13,13 @@ BLEAdvertising *Bluetooth::pAdvertising;
 BLESecurity *Bluetooth::pSecurity;
 uint16_t Bluetooth::connId = 0;
 esp_ble_gatts_cb_param_t *Bluetooth::bdParams;
+Bluetooth bluetooth;
+
+void Bluetooth::create()
+{
+  Serial.println("Creating Bluetooth instance...");
+  bluetooth = Bluetooth();
+}
 
 void Bluetooth::keydown(int16_t key, bool longpress) {
   Serial.printf("Sending key code: %d %s\n", key, longpress ? "longpress" : "");
@@ -168,8 +175,7 @@ void keyTaskServer(void*) {
   Bluetooth::pAdvertising->addServiceUUID(Bluetooth::hid->hidService()->getUUID());
   Bluetooth::pAdvertising->start();
   Bluetooth::hid->setBatteryLevel(100);
+  Serial.println("Waiting for Bluetooth connection...");
   yield();
   delay(portMAX_DELAY);
 }
-
-Bluetooth bluetooth = Bluetooth();
