@@ -7,6 +7,7 @@ import subprocess
 import time
 import gzip
 from io import BytesIO
+from pathlib import Path
 import binascii
 import codecs
 
@@ -51,8 +52,10 @@ def build_web():
         if platform.system() == "Windows":
             print("Nope...")
         else:
-            file = readFile("./src/page/index.html");
-            write(wrap(zip(file)))
+            inFile = Path("./src/page/index.html");
+            outFile = Path("./src/page/index.h");
+            if not outFile.exists() or inFile.stat().st_mtime > outFile.stat().st_mtime:
+                write(wrap(zip(readFile("./src/page/index.html"))))
     except OSError as e:
         print("Encountered error OSError building webpage:", e)
         if e.filename:
