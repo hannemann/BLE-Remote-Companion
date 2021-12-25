@@ -155,61 +155,46 @@ JSONVar HTTPEvent::colors() {
 
 JSONVar HTTPEvent::keyboardRows() {
     JSONVar root;
-    JSONVar rows;
-    JSONVar rowN;
-    JSONVar row1;
-    JSONVar row2;
-    JSONVar row3;
-    JSONVar row4;
-    uint8_t size = HIDUsageKeys::getLayoutSize(LAYOUT_KEYBOARD_NUMBERS);
-    for (int16_t i=0; i < size; i++) {
+    root["rows"] = JSONVar();
+    root["rows"][0] = JSONVar();
+    for (uint8_t i = 0; i < HIDUsageKeys::getLayoutSize(LAYOUT_KEYBOARD_NUMBERS); i++)
+    {
         JSONVar btn = buttonJSON(HIDUsageKeys::layoutKeyboardNumbers[i]);
-        rowN[i] = btn;
+        root["rows"][0][i] = btn;
     }
-    // rows[0] = rowN;
-    Serial.println(JSON.stringify(rowN));
-    Serial.println();
-    Serial.println();
-    
-    size = HIDUsageKeys::getLayoutSize(LAYOUT_KEYBOARD_ROW1);
-    for (int16_t i=0; i < size; i++) {
+    Serial.println(ESP.getFreeHeap());
+
+    root["rows"][1] = JSONVar();
+    for (uint8_t i = 0; i < HIDUsageKeys::getLayoutSize(LAYOUT_KEYBOARD_ROW1); i++)
+    {
         JSONVar btn = buttonJSON(HIDUsageKeys::layoutKeyboardRow1[i]);
-        row1[i] = btn;
+        root["rows"][1][i] = btn;
     }
-    // rows[1] = row1;
-    Serial.println(JSON.stringify(row1));
-    Serial.println();
-    Serial.println();
+    Serial.println(ESP.getFreeHeap());
 
-    size = HIDUsageKeys::getLayoutSize(LAYOUT_KEYBOARD_ROW2);
-    for (int16_t i=0; i < size; i++) {
+    root["rows"][2] = JSONVar();
+    for (uint8_t i = 0; i < HIDUsageKeys::getLayoutSize(LAYOUT_KEYBOARD_ROW2); i++)
+    {
         JSONVar btn = buttonJSON(HIDUsageKeys::layoutKeyboardRow2[i]);
-        row2[i] = btn;
+        root["rows"][2][i] = btn;
     }
-    // rows[2] = row2;
-    Serial.println(JSON.stringify(row2));
-    Serial.println();
-    Serial.println();
+    Serial.println(ESP.getFreeHeap());
 
-    size = HIDUsageKeys::getLayoutSize(LAYOUT_KEYBOARD_ROW3);
-    for (int16_t i=0; i < size; i++) {
-        JSONVar btn = buttonJSON(HIDUsageKeys::layoutKeyboardRow3[i]);
-        row3[i] = btn;
-    }
-    // rows[3] = row3;
-    Serial.println(JSON.stringify(row3));
-    Serial.println();
-    Serial.println();
+    // root["rows"][3] = JSONVar();
+    // for (uint8_t i = 0; i < HIDUsageKeys::getLayoutSize(LAYOUT_KEYBOARD_ROW3); i++)
+    // {
+    //     JSONVar btn = buttonJSON(HIDUsageKeys::layoutKeyboardRow3[i]);
+    //     root["rows"][3][i] = btn;
+    // }
+    // Serial.println(ESP.getFreeHeap());
 
-    size = HIDUsageKeys::getLayoutSize(LAYOUT_KEYBOARD_ROW4);
-    for (int16_t i=0; i < size; i++) {
-        JSONVar btn = buttonJSON(HIDUsageKeys::layoutKeyboardRow4[i]);
-        row4[i] = btn;
-    }
-    // rows[4] = row4;
-    Serial.println(JSON.stringify(row4));
-    // root["rows"] = rows;
-    // Serial.println(JSON.stringify(root));
+    // root["rows"][4] = JSONVar();
+    // for (uint8_t i = 0; i < HIDUsageKeys::getLayoutSize(LAYOUT_KEYBOARD_ROW4); i++)
+    // {
+    //     JSONVar btn = buttonJSON(HIDUsageKeys::layoutKeyboardRow4[i]);
+    //     root["rows"][4][i] = btn;
+    // }
+    // Serial.println(ESP.getFreeHeap());
     return root;
 }
 

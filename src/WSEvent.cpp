@@ -219,8 +219,7 @@ void WSEvent::sendButtons(uint8_t num, const char *type)
     }
     if (strcmp(type, "keyboard") == 0)
     {
-        HTTPEvent::keyboardRows();
-        return;
+        btns = HTTPEvent::keyboardRows();
     }
     // TODO: send in chunks
     result["buttons"] = btns;
@@ -228,9 +227,22 @@ void WSEvent::sendButtons(uint8_t num, const char *type)
     WSclient_t *client = &_clients[num];
     if (clientIsConnected(client))
     {
-        const char *json = JSON.stringify(result).c_str();
-        char *payload = (char *)json;
-        sendFrame(client, WSop_text, (uint8_t *)payload, strlen(json), true, false);
+        String strBtns = JSON.stringify(result);
+        size_t len = strBtns.length();
+        size_t chunksize = 1024;
+        bool fin = false;
+        WSopcode_t opcode = WSop_text;
+        for (size_t i = 0; i < len; i += chunksize)
+        {
+            fin = i + chunksize >= len;
+            String chunk = fin ? strBtns.substring(i) : strBtns.substring(i, i + chunksize);
+            // Serial.println(chunk.c_str());
+            // Serial.printf("Final? %s, Start: %d, Length: %d, Size: %d =========\n", (fin ? "yes" : "no"), i, chunk.length(), chunksize);
+            char *payload = (char *)chunk.c_str();
+            sendFrame(client, opcode, (uint8_t *)payload, strlen(payload), fin, false);
+            opcode = WSop_continuation;
+            delay(100);
+        }
     }
 }
 
