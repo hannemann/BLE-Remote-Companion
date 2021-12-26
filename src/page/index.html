@@ -28,6 +28,9 @@
         --nav-height: calc((2rem * var(--line-height)) + 2 * var(--gap-small));
         --nav-shadow-width: 200px;
         --nav-shadow: 0 0 var(--nav-shadow-width) hsla(0 0% 0% / .5);
+        --dpad-gap: 1em;
+        --dpad-ok-width: 40%;
+        --clr-dpad-gap: var(--clr-bg);
         font-size: var(--font-size);
         line-height: var(--line-height);
     }
@@ -103,9 +106,8 @@
     }
     .buttons {
         display: inline-grid;
-        gap: var(--gap);
+        gap: var(--gap-small);
         place-items: center;
-        margin-bottom: var(--gap);
     }
     button[data-key] {
         aspect-ratio: 1;
@@ -134,6 +136,7 @@
         display: grid;
         grid-template-columns: 1fr;
         place-items: center;
+        gap: var(--gap);
     }
     section.keyboard {
         display: grid;
@@ -150,6 +153,90 @@
     main[data-page="keyboard"] section.remote > div:not(.dpad):not(.functional) {
         display: none;
     }
+    /* DPAD */
+        .dpad {
+            display: grid;
+            place-items: center;
+            grid-template-areas: "volume dpad channels";
+            grid-template-columns: 20% 60% 20%;
+            width: 18rem;
+            aspect-ratio: 14 / 10;
+        }
+        .dpad > div {
+            grid-area: dpad;
+        }
+        .dpad .background, .dpad .directions, .dpad .buttons {
+            width: 100%;
+            aspect-ratio: 1;
+        }
+        .dpad .background {
+            display: grid;
+            grid-template-areas: "dpad-background";
+            place-items: center;
+            border-radius: 50%;
+            overflow: hidden;
+        }
+        .dpad .background .directions {
+            grid-area: dpad-background;
+            display: grid;
+            gap: var(--dpad-gap);
+            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+            transform: rotate(45deg);
+            background-color: var(--clr-dpad-gap);
+        }
+        .dpad .dir, .dpad .ok {
+            aspect-ratio: 1;
+            background-color: var(--clr-btn-bg);
+        }
+        .dpad .ok {
+            grid-area: dpad-background;
+            width: var(--dpad-ok-width);
+            border-radius: 50%;
+            outline: var(--dpad-gap) solid var(--clr-dpad-gap);
+            transform: rotate(0deg);
+        }
+        /** Buttons */
+        .dpad .buttons {
+            display: grid;
+            grid-template-columns: 1fr calc(var(--dpad-ok-width) + 2 * var(--dpad-gap)) 1fr;
+            grid-template-rows: 1fr calc(var(--dpad-ok-width) + 2 * var(--dpad-gap)) 1fr;
+            gap: revert;
+            transform: rotate(0deg);
+        }
+        .dpad button {
+            border: none;
+            background: none;
+            color: var(--clr-fg);
+            font-size: 1.6em;
+            min-width: 1.3em;
+            height: revert;
+            aspect-ratio: revert;
+        }
+        .dpad .volume {
+            grid-area: volume;
+        }
+        .dpad .channels {
+            grid-area: channels;
+        }
+        .dpad .volume, .dpad .channels {
+            display: grid;
+            grid-template-columns: 1fr;
+            place-content: space-around;
+            height: 100%;
+            justify-self: stretch;
+            padding: var(--gap-small);
+        }
+        .dpad .volume button, .dpad .channels button {
+            width: 100%;
+            aspect-ratio: 1;
+            border-radius: 50%;
+            background-color: var(--clr-btn-bg);
+        }
+        .dpad .volume span, .dpad .channels span {
+            text-align: center;
+        }
+    /* /DPAD */
     .keyboard > div {
         display: flex;
         justify-content: center;
@@ -167,6 +254,26 @@
     }
     .keyboard > div:last-child button:nth-child(2) {
         flex-grow: 1;
+    }
+    /* Specials */
+    .power {
+        display: block;
+        border: 4px solid red;
+        height: .8em;
+        aspect-ratio: 1;
+        border-radius: 50%;
+        margin-inline: auto;
+        position: relative;
+    }
+    .power:after {
+        content: "";
+        position: absolute;
+        top: -5px;
+        height: 10px;
+        width: 4px;
+        background: red;
+        outline: 3px solid var(--clr-btn-bg);
+        transform: translateX(-50%);
     }
     @media (max-width: 30rem) {
         :root {
@@ -193,7 +300,42 @@
             <p>Hit the button you want learn and press the button on your IR remote.</p>
             <p>To delete the entire configuration hit &quot;Clear Configuration&quot; at the bottom of the page.</p>
         </section>
-        <section class="remote"></section>
+        <section class="remote">
+            <div class="dpad">
+                <div class="volume">
+                    <button>&plus;</button>
+                    <span>Vol</span>
+                    <button>&minus;</button>
+                </div>
+                <div class="background">
+                    <div class="directions">
+                        <div class="dir" data-dir="up"></div>
+                        <div class="dir" data-dir="right"></div>
+                        <div class="dir" data-dir="down"></div>
+                        <div class="dir" data-dir="left"></div>
+                    </div>
+                    <div class="ok"></div>
+                </div>
+                <div class="buttons">
+                    <span></span>
+                    <button>&utrif;</button>
+                    <span></span>
+                    
+                    <button>&ltrif;</button>
+                    <button>OK</button>
+                    <button>&rtrif;</button>
+                    
+                    <span></span>
+                    <button>&dtrif;</button>
+                    <span></span>
+                </div>
+                <div class="channels">
+                    <button>&plus;</button>
+                    <span>Ch</span>
+                    <button>&minus;</button>
+                </div>
+            </div>
+        </section>
         <section class="keyboard"></section>
         <section class="config p-block p-inline">
             <button name="clear">Clear Configuration</button>
@@ -359,16 +501,19 @@
         }
 
         class ButtonsAbstract extends PageHandler {
+            _container = null;
+
             constructor(pageController, parent) {
                 super(pageController);
+                this.parent = parent;
                 this.keyDownHandler = this.handleKeydown.bind(this);
                 this.keyUpHandler = this.handleKeyup.bind(this);
                 for (let i of this) {
-                    this.render(parent, this.buttons[i], i);
+                    this.render(this.buttons[i], i);
                 }
             }
-            render(parent, config, part) {
-                const container = parent.appendChild(document.createElement("div"));
+            render(config, part) {
+                const container = this.container;
                 container.classList.add("buttons", part);
                 if (config.classes) {
                     config.classes.forEach((c) => container.classList.add(c));
@@ -379,22 +524,27 @@
                         btn = container.appendChild(document.createElement("button"));
                         btn.dataset.key = b.key;
                         btn.dataset.type = b.type;
+                        btn.addEventListener("pointerdown", this.keyDownHandler);
+                        btn.addEventListener("pointerup", this.keyUpHandler);
                     } else {
                         btn = container.appendChild(document.createElement("span"));
                     }
-                    btn.innerHTML = b.label;
-                    btn.addEventListener("pointerdown", this.keyDownHandler);
-                    btn.addEventListener("pointerup", this.keyUpHandler);
+                    let label = b.label[0] === "." ? `<span class="${b.label.replace(/^\./, "")}"></span>` : b.label;
+                    btn.innerHTML = label;
                 });
             }
 
             handleKeydown = function (e) {
                 if (this.pageController.page === "learn" || !this.pageController.ws.active) return;
-                this.pageController.ws.keydown(e.target)
+                this.pageController.ws.keydown(e.currentTarget)
             }
 
             handleKeyup = function (e) {
-                this.pageController.ws.keyup(e.target)
+                this.pageController.ws.keyup(e.currentTarget)
+            }
+
+            get container() {
+                return this.parent.appendChild(document.createElement("div"));
             }
 
             get buttons() {
@@ -402,20 +552,77 @@
             }
 
             [Symbol.iterator]() {
-                let index = 0;
+                let index = -1;
                 let data = Object.keys(this.buttons);
                 return {
-                    next: () => ({ value: data[index++], done: !(index in data) })
+                    next: () => ({ value: data[++index], done: !(index in data) })
                 };
             }
         }
 
-        class Remote extends ButtonsAbstract {
+        class Upper extends ButtonsAbstract {
+            _container = null;
+            get container() {
+                return this.parent
+                        .insertBefore(document.createElement('div'), document.querySelector('.dpad'));
+            }
             get buttons() {
                 return {
+                    top: {"classes":["col-3"],"buttons":[{"key":0,"type":2,"label":".power"},{"key":-1,"type":0,"label":""},{"key":-1,"type":0,"label":""}]},
                     numbers: {"classes":["col-3"],"buttons":[{"key":26,"type":1,"label":"1"},{"key":27,"type":1,"label":"2"},{"key":28,"type":1,"label":"3"},{"key":29,"type":1,"label":"4"},{"key":30,"type":1,"label":"5"},{"key":31,"type":1,"label":"6"},{"key":32,"type":1,"label":"7"},{"key":33,"type":1,"label":"8"},{"key":34,"type":1,"label":"9"},{"key":-1,"type":0,"label":""},{"key":35,"type":1,"label":"0"},{"key":-1,"type":0,"label":""}]},
-                    functional: {"classes":["col-3"],"buttons":[{"key":37,"type":1,"label":"&#x21b0;"},{"key":0,"type":2,"label":"PWR"},{"key":1,"type":2,"label":"M"}]},
-                    dpad: {"classes":["col-5","p-block"],"buttons":[{"key":27,"type":2,"label":"&plus;"},{"key":-1,"type":0,"label":""},{"key":77,"type":1,"label":"&utrif;"},{"key":-1,"type":0,"label":""},{"key":70,"type":1,"label":"&plus;"},{"key":-1,"type":0,"label":"Vol"},{"key":75,"type":1,"label":"&ltrif;"},{"key":36,"type":1,"label":"&#x2386"},{"key":74,"type":1,"label":"&rtrif;"},{"key":-1,"type":0,"label":"CH"},{"key":28,"type":2,"label":"&minus;"},{"key":-1,"type":0,"label":""},{"key":76,"type":1,"label":"&dtrif;"},{"key":-1,"type":0,"label":""},{"key":73,"type":1,"label":"&minus;"},{"key":-1,"type":0,"label":""},{"key":26,"type":2,"label":"&#x1f507;"},{"key":-1,"type":0,"label":""},{"key":7,"type":2,"label":"&#x1f504;"},{"key":-1,"type":0,"label":""}]},
+                    functional: {"classes":["col-3"],"buttons":[{"key":37,"type":1,"label":"&#x21b0;"},{"key":41,"type":2,"label":"&#x2302"},{"key":1,"type":2,"label":"M"}]}
+                }
+            }
+        }
+
+        class Dpad extends ButtonsAbstract {
+            render(config, part) {
+                const container = document.querySelector(".dpad");
+                const buttons = container.querySelectorAll('button, span')
+                config.buttons.forEach((b, i) => {
+                    if (buttons[i].tagName === "BUTTON") {
+                        buttons[i].dataset.key = b.key;
+                        buttons[i].dataset.type = b.type;
+                        buttons[i].addEventListener("pointerdown", this.keyDownHandler);
+                        buttons[i].addEventListener("pointerup", this.keyUpHandler);
+                    }
+                    buttons[i].innerHTML = b.label;
+                });
+            }
+
+            get buttons() {
+                return {
+                    dpad: {
+                        "buttons":[
+                            {"key":27,"type":2,"label":"&plus;"},
+                            {"key":-1,"type":0,"label":"Vol"},
+                            {"key":28,"type":2,"label":"&minus;"},                            
+                            
+                            {"key":-1,"type":0,"label":""},
+                            {"key":77,"type":1,"label":"&utrif;"},
+                            {"key":-1,"type":0,"label":""},
+
+                            {"key":75,"type":1,"label":"&ltrif;"},
+                            {"key":36,"type":1,"label":"OK"},
+                            {"key":74,"type":1,"label":"&rtrif;"},
+
+                            {"key":-1,"type":0,"label":""},
+                            {"key":76,"type":1,"label":"&dtrif;"},
+                            {"key":-1,"type":0,"label":""},                            
+                            
+                            {"key":70,"type":1,"label":"&plus;"},
+                            {"key":-1,"type":0,"label":"CH"},
+                            {"key":73,"type":1,"label":"&minus;"}
+                        ]
+                    }
+                }
+            }
+        }
+
+        class Lower extends ButtonsAbstract {
+            get buttons() {
+                return {
+                    functionalLower: {"classes":["col-3"],"buttons":[{"key":26,"type":2,"label":"&#x1f507;"},{"key":-1,"type":0,"label":""},{"key":7,"type":2,"label":"&#x1f504;"}]},
                     media: {"classes":["col-4"],"buttons":[{"key":22,"type":2,"label":"&#x23EE;"},{"key":20,"type":2,"label":"&#x23EA;"},{"key":19,"type":2,"label":"&#x23E9;"},{"key":21,"type":2,"label":"&#x23ED;"},{"key":18,"type":2,"label":"&#x23FA;"},{"key":23,"type":2,"label":"&#x23f9;"},{"key":25,"type":2,"label":"&#x23EF;"}]},
                     colors: {"classes":["col-4"],"buttons":[{"key":3,"type":2,"label":"&#128997;"},{"key":4,"type":2,"label":"&#129001;"},{"key":6,"type":2,"label":"&#129000;"},{"key":5,"type":2,"label":"&#128998;"}]}
                 }
@@ -462,8 +669,8 @@
 
             handlePointerEvent(e) {
                 e.preventDefault();
-                e.target.pathname !== '/menu' && (this.pageController.menu.open = false);
-                switch (e.target.pathname) {
+                e.currentTarget.pathname !== '/menu' && (this.pageController.menu.open = false);
+                switch (e.currentTarget.pathname) {
                     case "/remote":
                         this.pageController.page = "home";
                         break;
@@ -488,7 +695,9 @@
                 this.main = document.querySelector("main");
                 this.nav = new Nav(this);
                 this.menu = new Menu(this);
-                this.remote = new Remote(this, document.querySelector("section.remote"));
+                this.upper = new Upper(this, document.querySelector("section.remote"));
+                this.dpad = new Dpad(this, document.querySelector("section.remote"));
+                this.lower = new Lower(this, document.querySelector("section.remote"));
                 this.keyboard = new Keyboard(this, document.querySelector("section.keyboard"));
                 try {
                     this.ws = new WebsocketHandler(this).run();

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        :root {
+            --hue-bg: 225;
+            --sat-bg: 14%;
+            --lit-bg: 20%;
+            --hue-fg: 0;
+            --sat-fg: 0%;
+            --lit-fg: 80%;
+            --clr-bg: hsl(var(--hue-bg), var(--sat-bg), var(--lit-bg));
+            --clr-fg: hsl(var(--hue-fg), var(--sat-fg), var(--lit-fg));
+            --clr-btn-bg: hsl(var(--hue-bg), var(--sat-bg), calc(var(--lit-bg) + 10%));
+            --clr-btn-border: hsl(var(--hue-bg), var(--sat-bg), calc(var(--lit-bg) + 50%));
+            --gap: 1rem;
+            --gap-small: calc(var(--gap) / 2);
+            --gap-big: calc(var(--gap) + var(--gap) / 4);
+            --gap-minimal: calc(var(--gap) / 4);
+            --font-size: 16px;
+            --line-height: 1.2;
+            --menu-width: calc(min(75vw, 20rem) - 2 * var(--gap));
+            --nav-height: calc((2rem * var(--line-height)) + 2 * var(--gap-small));
+            --nav-shadow-width: 200px;
+            --nav-shadow: 0 0 var(--nav-shadow-width) hsla(0 0% 0% / .5);
+            font-size: var(--font-size);
+            line-height: var(--line-height);
+
+
+            --dpad-gap: 1em;
+            --dpad-ok-width: 40%;
+            --clr-dpad-gap: var(--clr-bg);
+        }
+        * {
+            box-sizing: border-box;
+            padding: 0;
+            margin: 0;
+            font-family: sans-serif;
+            user-select: none;
+        }
+        body {
+            display: grid;
+            place-items: center;
+            width: 100vw;
+            height: 100vh;
+            background: var(--clr-bg);
+            color: var(--clr-fg);
+            overflow-x: hidden;
+        }
+
+        .dpad {
+            display: grid;
+            place-items: center;
+            grid-template-areas: "volume dpad channels";
+            grid-template-columns: 20% 60% 20%;
+            width: 18rem;
+            aspect-ratio: 14 / 10;
+        }
+        .dpad > div {
+            grid-area: dpad;
+        }
+        .dpad .background, .dpad .directions, .dpad .buttons {
+            width: 100%;
+            aspect-ratio: 1;
+        }
+        .dpad .background {
+            display: grid;
+            grid-template-areas: "dpad-background";
+            place-items: center;
+            border-radius: 50%;
+            overflow: hidden;
+        }
+        .dpad .background .directions {
+            grid-area: dpad-background;
+            display: grid;
+            gap: var(--dpad-gap);
+            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+            transform: rotate(45deg);
+            background-color: var(--clr-dpad-gap);
+        }
+        .dpad .dir, .dpad .ok {
+            aspect-ratio: 1;
+            background-color: var(--clr-btn-bg);
+        }
+        .dpad .ok {
+            grid-area: dpad-background;
+            width: var(--dpad-ok-width);
+            border-radius: 50%;
+            outline: var(--dpad-gap) solid var(--clr-dpad-gap);
+            transform: rotate(0deg);
+        }
+        /** Buttons */
+        .dpad .buttons {
+            display: grid;
+            grid-template-columns: 1fr calc(var(--dpad-ok-width) + 2 * var(--dpad-gap)) 1fr;
+            grid-template-rows: 1fr calc(var(--dpad-ok-width) + 2 * var(--dpad-gap)) 1fr;
+            gap: revert;
+            margin: 0;
+            transform: rotate(0deg);
+        }
+        .dpad button {
+            border: none;
+            background: none;
+            color: var(--clr-fg);
+            font-size: 1.6em;
+            height: revert;
+            aspect-ratio: revert;
+        }
+        .dpad .volume {
+            grid-area: volume;
+        }
+        .dpad .channels {
+            grid-area: channels;
+        }
+        .dpad .volume, .dpad .channels {
+            display: grid;
+            grid-template-columns: 1fr;
+            place-content: space-around;
+            height: 100%;
+            justify-self: stretch;
+            padding: var(--gap-small);
+        }
+        .dpad .volume button, .dpad .channels button {
+            width: 100%;
+            aspect-ratio: 1;
+            border-radius: 50%;
+            background-color: var(--clr-btn-bg);
+        }
+        .dpad .volume span, .dpad .channels span {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="dpad">
+        <div class="volume">
+            <button>&plus;</button>
+            <span>Vol</span>
+            <button>&minus;</button>
+        </div>
+        <div class="background">
+            <div class="directions">
+                <div class="dir" data-dir="up"></div>
+                <div class="dir" data-dir="right"></div>
+                <div class="dir" data-dir="down"></div>
+                <div class="dir" data-dir="left"></div>
+            </div>
+            <div class="ok"></div>
+        </div>
+        <div class="buttons">
+            <span></span>
+            <button>&utrif;</button>
+            <span></span>
+            
+            <button>&ltrif;</button>
+            <button>OK</button>
+            <button>&rtrif;</button>
+            
+            <span></span>
+            <button>&dtrif;</button>
+            <span></span>
+        </div>
+        <div class="channels">
+            <button>&plus;</button>
+            <span>Ch</span>
+            <button>&minus;</button>
+        </div>
+    </div>
+</body>
+</html>

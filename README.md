@@ -30,3 +30,6 @@ No configuration needed.
 * -Reinit Websocket (visibilitychange)-
 * add Home button to frontend
 * load all keycodes for configuration
+* configurable ws timeout
+* case for d1 Mini style with TSOP (reset button)
+* case for Node MCU style with TSOP (reset button)

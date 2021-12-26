@@ -81,6 +81,8 @@ class HIDUsageKeys {
     static const HID_USAGE_KEY layoutRemoteMedia[];
     static const HID_USAGE_KEY layoutRemoteColors[];
     static const HID_USAGE_KEY layoutRemoteFunctional[];
+    static const HID_USAGE_KEY layoutRemoteFunctionalLower[];
+    static const HID_USAGE_KEY layoutRemoteTop[];
     static const HID_USAGE_KEY layoutKeyboardNumbers[];
     static const HID_USAGE_KEY layoutKeyboardRow1[];
     static const HID_USAGE_KEY layoutKeyboardRow2[];
@@ -232,47 +234,47 @@ const HID_USAGE HIDConsumer[48] = {
     {"KEYCODE_WINDOW", 0x0067},
     {"KEYCODE_PROG_RED", 0x0069},
     {"KEYCODE_PROG_GREEN", 0x006a},
-    {"KEYCODE_PROG_BLUE", 0x006b},
+    {"KEYCODE_PROG_BLUE", 0x006b}, // 5
     {"KEYCODE_PROG_YELLOW", 0x006c},
     {"KEYCODE_LAST_CHANNEL", 0x0083},
     {"KEYCODE_TV", 0x0089},
     {"KEYCODE_EXPLORER", 0x008a},
-    {"KEYCODE_CALL", 0x008c},
+    {"KEYCODE_CALL", 0x008c}, // 10
     {"KEYCODE_GUIDE", 0x008d},
     {"KEYCODE_DVR", 0x009a},
     {"KEYCODE_CAPTIONS", 0x0061},
     {"KEYCODE_CHANNEL_UP", 0x009c},
-    {"KEYCODE_CHANNEL_DOWN", 0x009d},
+    {"KEYCODE_CHANNEL_DOWN", 0x009d}, // 15
     {"KEYCODE_MEDIA_PLAY", 0x00b0},
     {"KEYCODE_BREAK", 0x00b1},
     {"KEYCODE_MEDIA_RECORD", 0x00b2},
     {"KEYCODE_MEDIA_FAST_FORWARD", 0x00b3},
-    {"KEYCODE_MEDIA_REWIND", 0x00b4},
+    {"KEYCODE_MEDIA_REWIND", 0x00b4}, // 20
     {"KEYCODE_MEDIA_NEXT", 0x00b5},
     {"KEYCODE_MEDIA_PREVIOUS", 0x00b6},
     {"KEYCODE_MEDIA_STOP", 0x00b7},
     {"KEYCODE_MEDIA_EJECT", 0x00b8},
-    {"KEYCODE_MEDIA_PLAY_PAUSE", 0x00cd},
+    {"KEYCODE_MEDIA_PLAY_PAUSE", 0x00cd}, // 25
     {"KEYCODE_VOLUME_MUTE", 0x00e2},
     {"KEYCODE_VOLUME_UP", 0x00e9},
     {"KEYCODE_VOLUME_DOWN", 0x00ea},
     {"KEYCODE_MEDIA_AUDIO_TRACK", 0x0173},
-    {"KEYCODE_BOOKMARK", 0x0182},
+    {"KEYCODE_BOOKMARK", 0x0182}, // 30
     {"KEYCODE_MUSIC", 0x0183},
     {"KEYCODE_ENVELOPE", 0x018a},
     {"KEYCODE_CONTACTS", 0x018d},
     {"KEYCODE_CALENDAR", 0x018e},
-    {"KEYCODE_CALCULATOR", 0x0192},
+    {"KEYCODE_CALCULATOR", 0x0192}, // 35
     {"KEYCODE_EXPLORER", 0x0196},
     {"KEYCODE_POWER", 0x019e},
     {"KEYCODE_HEADSETHOOK", 0x01b6},
     {"KEYCODE_MUSIC", 0x01b7},
-    {"KEYCODE_SEARCH", 0x0221},
+    {"KEYCODE_SEARCH", 0x0221}, // 40
     {"KEYCODE_HOME", 0x0223},
     {"KEYCODE_BACK", 0x0224},
     {"KEYCODE_FORWARD", 0x0225},
     {"KEYCODE_MEDIA_STOP", 0x0226},
-    {"KEYCODE_BOOKMARK", 0x022a},
+    {"KEYCODE_BOOKMARK", 0x022a}, // 45
     {"KEYCODE_PAGE_UP", 0x0233},
     {"KEYCODE_PAGE_DOWN", 0x0234}};
 
