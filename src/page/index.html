@@ -214,6 +214,7 @@
             #active = false;
             #attempts = 0;
             #timeout = 2000;
+            #canReconnect = true;
 
             get active() {
                 return this.#active && this.ws.readyState === WebSocket.OPEN;
@@ -269,6 +270,11 @@
                 }
             }
 
+            close() {
+                this.#canReconnect = false;
+                this.ws.close();
+            }
+
             handleOpen() {
                 console.debug("[Websocket] open");
                 this.active = true;
@@ -281,7 +287,9 @@
                 this.pageController.active = false;
                 this.removeListeners();
                 delete this.ws;
-                this.connect();
+                if (this.#canReconnect) {
+                    this.connect();
+                }
             }
 
             handleMessage = function (result) {
@@ -484,10 +492,22 @@
                 this.keyboard = new Keyboard(this, document.querySelector("section.keyboard"));
                 try {
                     this.ws = new WebsocketHandler(this).run();
-                    return this.initBody().initClear();
+                    return this.initBody().initClear().initVisibility();
                 } catch (error) {
                     console.error(error);
                 }
+            }
+
+            initVisibility() {
+                document.addEventListener("visibilitychange", () => {
+                    console.log("Visibility: is hidden %s", document.hidden);
+                    if (document.hidden) {
+                        this.ws.close();
+                    } else {
+                        this.ws.connect();
+                    }
+                }, false);
+                return this;
             }
 
             initBody() {
