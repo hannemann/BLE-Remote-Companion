@@ -27,6 +27,6 @@ No configuration needed.
 
 
 #### TODO
-* Reinit Websocket (visibilitychange)
+* -Reinit Websocket (visibilitychange)-
 * add Home button to frontend
 * load all keycodes for configuration
