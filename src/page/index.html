@@ -55,7 +55,7 @@
         padding: var(--gap-small);
         color: var(--clr-fg);
     }
-    nav:not([data-menu]) {
+    nav:not(.menu) {
         display: flex;
         gap: var(--gap-small);
         font-size: 2em;
@@ -69,10 +69,10 @@
         color: inherit;
         text-decoration: none;
     }
-    nav:not([data-menu]) a:last-of-type {
+    nav:not(.menu) a:last-of-type {
         margin-left: auto;
     }
-    nav[data-menu] {
+    nav.menu {
         position: fixed;
         font-size: 1.25em;
         width: var(--menu-width);
@@ -81,10 +81,10 @@
         transform: translateX(calc(var(--menu-width) + var(--nav-shadow-width) + 2 * var(--gap-small)));
         box-shadow: var(--nav-shadow);
     }
-    nav[data-menu="open"] {
+    nav.menu[data-open="true"] {
         transform: translateX(0);
     }
-    nav[data-menu] a {
+    nav.menu a {
         display: block;
         text-align: right;
         padding: var(--gap) var(--gap) 0;
@@ -199,163 +199,335 @@
             <button name="clear">Clear Configuration</button>
         </section>
     </main>
-    <nav data-menu="closed">
+    <nav class="menu" data-state="closed">
         <a href="/learn">Learn IR Codes</a>
         <a href="/reboot">Reboot</a>
     </nav>
     <script>
-        let ws;
-        let blocked = false;
 
-        const buttons = {
-            remote: {
-                numbers: {"classes":["col-3"],"buttons":[{"key":26,"type":1,"label":"1"},{"key":27,"type":1,"label":"2"},{"key":28,"type":1,"label":"3"},{"key":29,"type":1,"label":"4"},{"key":30,"type":1,"label":"5"},{"key":31,"type":1,"label":"6"},{"key":32,"type":1,"label":"7"},{"key":33,"type":1,"label":"8"},{"key":34,"type":1,"label":"9"},{"key":-1,"type":0,"label":""},{"key":35,"type":1,"label":"0"},{"key":-1,"type":0,"label":""}]},
-                functional: {"classes":["col-3"],"buttons":[{"key":37,"type":1,"label":"&#x21b0;"},{"key":0,"type":2,"label":"PWR"},{"key":1,"type":2,"label":"M"}]},
-                dpad: {"classes":["col-5","p-block"],"buttons":[{"key":27,"type":2,"label":"&plus;"},{"key":-1,"type":0,"label":""},{"key":77,"type":1,"label":"&utrif;"},{"key":-1,"type":0,"label":""},{"key":70,"type":1,"label":"&plus;"},{"key":-1,"type":0,"label":"Vol"},{"key":75,"type":1,"label":"&ltrif;"},{"key":36,"type":1,"label":"&#x2386"},{"key":74,"type":1,"label":"&rtrif;"},{"key":-1,"type":0,"label":"CH"},{"key":28,"type":2,"label":"&minus;"},{"key":-1,"type":0,"label":""},{"key":76,"type":1,"label":"&dtrif;"},{"key":-1,"type":0,"label":""},{"key":73,"type":1,"label":"&minus;"},{"key":-1,"type":0,"label":""},{"key":26,"type":2,"label":"&#x1f507;"},{"key":-1,"type":0,"label":""},{"key":7,"type":2,"label":"&#x1f504;"},{"key":-1,"type":0,"label":""}]},
-                media: {"classes":["col-4"],"buttons":[{"key":22,"type":2,"label":"&#x23EE;"},{"key":20,"type":2,"label":"&#x23EA;"},{"key":19,"type":2,"label":"&#x23E9;"},{"key":21,"type":2,"label":"&#x23ED;"},{"key":18,"type":2,"label":"&#x23FA;"},{"key":23,"type":2,"label":"&#x23f9;"},{"key":25,"type":2,"label":"&#x23EF;"}]},
-                colors: {"classes":["col-4"],"buttons":[{"key":3,"type":2,"label":"&#128997;"},{"key":4,"type":2,"label":"&#129001;"},{"key":6,"type":2,"label":"&#129000;"},{"key":5,"type":2,"label":"&#128998;"}]}
-            },
-            keyboard: {
-                rowN: {"buttons":[{"key":26,"type":1,"label":"1"},{"key":27,"type":1,"label":"2"},{"key":28,"type":1,"label":"3"},{"key":29,"type":1,"label":"4"},{"key":30,"type":1,"label":"5"},{"key":31,"type":1,"label":"6"},{"key":32,"type":1,"label":"7"},{"key":33,"type":1,"label":"8"},{"key":34,"type":1,"label":"9"},{"key":35,"type":1,"label":"0"}]},
-                row1: {"buttons":[{"key":16,"type":1,"label":"Q"},{"key":22,"type":1,"label":"W"},{"key":4,"type":1,"label":"E"},{"key":17,"type":1,"label":"R"},{"key":19,"type":1,"label":"T"},{"key":25,"type":1,"label":"Z"},{"key":20,"type":1,"label":"U"},{"key":8,"type":1,"label":"I"},{"key":14,"type":1,"label":"O"},{"key":15,"type":1,"label":"P"}]},
-                row2: {"buttons":[{"key":0,"type":1,"label":"A"},{"key":18,"type":1,"label":"S"},{"key":3,"type":1,"label":"D"},{"key":5,"type":1,"label":"F"},{"key":6,"type":1,"label":"G"},{"key":7,"type":1,"label":"H"},{"key":9,"type":1,"label":"J"},{"key":10,"type":1,"label":"K"},{"key":11,"type":1,"label":"L"}]},
-                row3: {"buttons":[{"key":-1,"type":0,"label":""},{"key":24,"type":1,"label":"Y"},{"key":23,"type":1,"label":"X"},{"key":2,"type":1,"label":"C"},{"key":21,"type":1,"label":"V"},{"key":1,"type":1,"label":"B"},{"key":13,"type":1,"label":"N"},{"key":12,"type":1,"label":"M"},{"key":38,"type":1,"label":"&#x232b"}]},
-                row4: {"buttons":[{"key":-1,"type":0,"label":"&nbsp;"},{"key":40,"type":1,"label":"&nbsp"},{"key":36,"type":1,"label":"&#x23ce"}]}
+        class PageHandler {
+            constructor(pageController) {
+                this.pageController = pageController;
             }
-        };
-        const btnClear = document.querySelector('button[name="clear"]');
-        const main = document.querySelector("main");
-        const nav = document.querySelector("nav:not([data-menu])");
-        const menu = document.querySelector("nav[data-menu]");
-
-        const deactivate = () => document.body.classList.add("ws-off");
-        const activate = () => document.body.classList.remove("ws-off");
-        const openMenu = () => {
-            menu.dataset.menu = "open";
-            blocked = true;
-        };
-        const closeMenu = () => {
-            menu.dataset.menu = "closed";
-            blocked = false;
-        };
-        const toggleMenu = () => {
-            menu.dataset.menu === "open" ? closeMenu() : openMenu();
         }
+        class WebsocketHandler extends PageHandler {
+            #active = false;
+            #attempts = 0;
+            #timeout = 2000;
 
-        const renderButtons = function (parent, config, part) {
-            const container = parent.appendChild(document.createElement("div"));
-            container.classList.add("buttons", part);
-            if (config.classes) {
-                config.classes.forEach((c) => container.classList.add(c));
+            get active() {
+                return this.#active && this.ws.readyState === WebSocket.OPEN;
             }
-            config.buttons.forEach((b) => {
-                let btn;
-                if (b.type > 0) {
-                    btn = container.appendChild(document.createElement("button"));
-                    btn.dataset.key = b.key;
-                    btn.dataset.type = b.type;
-                } else {
-                    btn = container.appendChild(document.createElement("span"));
+
+            set active(v) {
+                this.#active = typeof v == "boolean" && v;
+            }
+
+            run() {
+                this.url = `ws://${location.host}:[%WS_PORT%]/jsonrpc`
+                // this.url = `ws://192.168.178.218:81/jsonrpc`;
+                this.initHandler()
+                    .initWebsocket();
+                return this;
+            }
+
+            initHandler() {
+                this.openedHandler = this.handleOpen.bind(this);
+                this.closedHandler = this.handleClose.bind(this);
+                this.messageHandler = this.handleMessage.bind(this);
+                this.timeoutHandler = this.handleTimeout.bind(this);
+                return this;
+            }
+
+            initWebsocket() {
+                this.#attempts++;
+                console.debug("[Websocket] connect attempt %d...", this.#attempts);
+                this.ws = new WebSocket(this.url);
+                this.addListeners()
+                return this;
+            }
+
+            addListeners() {
+                this.ws.addEventListener("open", this.openedHandler);
+                this.ws.addEventListener("error", this.closedHandler);
+                this.ws.addEventListener("close", this.closedHandler);
+                this.ws.addEventListener("message", this.messageHandler);
+                return this;
+            }
+
+            removeListeners() {
+                this.ws.removeEventListener("open", this.openedHandler);
+                this.ws.removeEventListener("error", this.closedHandler);
+                this.ws.removeEventListener("close", this.closedHandler);
+                this.ws.removeEventListener("message", this.messageHandler);
+                return this;
+            }
+
+            connect() {
+                if (!this.ws || this.ws.readyState === WebSocket.CLOSED) {
+                    this.initWebsocket();
                 }
-                btn.innerHTML = b.label;
-            });
-        };
-
-        const handleWebsocketResults = function (result) {
-            const data = JSON.parse(result.data);
-            if (data.buttons) {
-                // console.log(JSON.stringify(data.buttons));
-                renderButtons(document.querySelector("section.remote"), data.buttons);
             }
-            if (data.result === "OK") {
-                blocked = false;
-            }
-        };
 
-        const handleNav = function (e) {
-            e.preventDefault();
-            e.target.pathname !== '/menu' && closeMenu();
-            switch (e.target.pathname) {
-                case "/remote":
-                    main.dataset.page = "home";
-                    break;
-                case "/keyboard":
-                    main.dataset.page = "keyboard";
-                    break;
-                case "/learn":
-                    main.dataset.page = "learn";
-                    break;
-                case "/menu":
-                    toggleMenu();
-                    break;
-                case "/reboot":
-                    ws.send(JSON.stringify({method: "reboot"}));
-                    break;
+            handleOpen() {
+                console.debug("[Websocket] open");
+                this.active = true;
+                this.pageController.active = true;
             }
-        }
 
-        const handleKeydown = function (e) {
-            if (main.dataset.page === "learn" || blocked) return;
-            blocked = true;
-            ws.send(
-                JSON.stringify({
+            handleClose() {
+                console.debug("[Websocket] closed");
+                this.active = false;
+                this.pageController.active = false;
+                this.removeListeners();
+                delete this.ws;
+                this.connect();
+            }
+
+            handleMessage = function (result) {
+                console.debug("[Websocket] incoming message");
+                if (this.wsTimeout) {
+                    clearTimeout(this.wsTimeout);
+                    delete this.wsTimeout;
+                }
+                const data = JSON.parse(result.data);
+                if (data.result && data.result === "OK") {
+                    this.active = true;
+                    console.debug("[Websocket] OK");
+                }
+            };
+
+            handleTimeout() {
+                console.debug("[Websocket] closing after timeout of %dms", this.#timeout);
+                this.ws.close();
+                delete this.wsTimeout;
+                this.pageController.active = false;
+            }
+
+            keydown(btn) {
+                console.debug("[Websocket] keydown", btn);
+                this.active = false;
+                this.send(JSON.stringify({
                     method: "keydown",
-                    params: e.target.dataset,
-                })
-            );
+                    params: btn.dataset
+                }));
+            }
+
+            keyup(btn) {
+                console.debug("[Websocket] keyup", btn);
+                this.send(JSON.stringify({
+                    method: "keyup",
+                    params: btn.dataset
+                }));
+            }
+
+            learn(btn) {
+                console.debug("[Websocket] learn", btn);
+                this.send(JSON.stringify({
+                    method: "learn",
+                    params: btn.dataset
+                }));
+            }
+
+            clear() {
+                console.debug("[Websocket] clear");
+                this.send(JSON.stringify({ method: "clear" }));
+            }
+
+            reboot() {
+                console.debug("[Websocket] reboot");
+                this.send(JSON.stringify({method: "reboot"}));
+            }
+
+            send(message) {
+                if (this.pageController.active) {
+                    console.debug("[Websocket] send");
+                    this.ws.send(message);
+                    if ("undefined" === typeof this.wsTimeout) {
+                        this.wsTimeout = setTimeout(this.timeoutHandler, this.#timeout);
+                    }
+                }
+            }
         }
 
-        const handleKeyup = function (e) {
-            ws.send(
-                JSON.stringify({
-                    method: main.dataset.page === "learn" ? "learn" : "keyup",
-                    params: e.target.dataset,
-                })
-            );
+        class ButtonsAbstract extends PageHandler {
+            constructor(pageController, parent) {
+                super(pageController);
+                this.keyDownHandler = this.handleKeydown.bind(this);
+                this.keyUpHandler = this.handleKeyup.bind(this);
+                for (let i of this) {
+                    this.render(parent, this.buttons[i], i);
+                }
+            }
+            render(parent, config, part) {
+                const container = parent.appendChild(document.createElement("div"));
+                container.classList.add("buttons", part);
+                if (config.classes) {
+                    config.classes.forEach((c) => container.classList.add(c));
+                }
+                config.buttons.forEach((b) => {
+                    let btn;
+                    if (b.type > 0) {
+                        btn = container.appendChild(document.createElement("button"));
+                        btn.dataset.key = b.key;
+                        btn.dataset.type = b.type;
+                    } else {
+                        btn = container.appendChild(document.createElement("span"));
+                    }
+                    btn.innerHTML = b.label;
+                    btn.addEventListener("pointerdown", this.keyDownHandler);
+                    btn.addEventListener("pointerup", this.keyUpHandler);
+                });
+            }
+
+            handleKeydown = function (e) {
+                if (this.pageController.page === "learn" || !this.pageController.ws.active) return;
+                this.pageController.ws.keydown(e.target)
+            }
+
+            handleKeyup = function (e) {
+                this.pageController.ws.keyup(e.target)
+            }
+
+            get buttons() {
+                return {};
+            }
+
+            [Symbol.iterator]() {
+                let index = 0;
+                let data = Object.keys(this.buttons);
+                return {
+                    next: () => ({ value: data[index++], done: !(index in data) })
+                };
+            }
         }
 
-        const addEvents = function () {
-            const btnsKey = document.querySelectorAll("button[data-key]");
-            const btnsNav = document.querySelectorAll("nav a");
-            document.body.addEventListener('pointerup', (e) => {
-                const p = e.composedPath();
-                if (p.indexOf(menu) < 0 && p.indexOf(nav) < 0) {
-                    closeMenu();
+        class Remote extends ButtonsAbstract {
+            get buttons() {
+                return {
+                    numbers: {"classes":["col-3"],"buttons":[{"key":26,"type":1,"label":"1"},{"key":27,"type":1,"label":"2"},{"key":28,"type":1,"label":"3"},{"key":29,"type":1,"label":"4"},{"key":30,"type":1,"label":"5"},{"key":31,"type":1,"label":"6"},{"key":32,"type":1,"label":"7"},{"key":33,"type":1,"label":"8"},{"key":34,"type":1,"label":"9"},{"key":-1,"type":0,"label":""},{"key":35,"type":1,"label":"0"},{"key":-1,"type":0,"label":""}]},
+                    functional: {"classes":["col-3"],"buttons":[{"key":37,"type":1,"label":"&#x21b0;"},{"key":0,"type":2,"label":"PWR"},{"key":1,"type":2,"label":"M"}]},
+                    dpad: {"classes":["col-5","p-block"],"buttons":[{"key":27,"type":2,"label":"&plus;"},{"key":-1,"type":0,"label":""},{"key":77,"type":1,"label":"&utrif;"},{"key":-1,"type":0,"label":""},{"key":70,"type":1,"label":"&plus;"},{"key":-1,"type":0,"label":"Vol"},{"key":75,"type":1,"label":"&ltrif;"},{"key":36,"type":1,"label":"&#x2386"},{"key":74,"type":1,"label":"&rtrif;"},{"key":-1,"type":0,"label":"CH"},{"key":28,"type":2,"label":"&minus;"},{"key":-1,"type":0,"label":""},{"key":76,"type":1,"label":"&dtrif;"},{"key":-1,"type":0,"label":""},{"key":73,"type":1,"label":"&minus;"},{"key":-1,"type":0,"label":""},{"key":26,"type":2,"label":"&#x1f507;"},{"key":-1,"type":0,"label":""},{"key":7,"type":2,"label":"&#x1f504;"},{"key":-1,"type":0,"label":""}]},
+                    media: {"classes":["col-4"],"buttons":[{"key":22,"type":2,"label":"&#x23EE;"},{"key":20,"type":2,"label":"&#x23EA;"},{"key":19,"type":2,"label":"&#x23E9;"},{"key":21,"type":2,"label":"&#x23ED;"},{"key":18,"type":2,"label":"&#x23FA;"},{"key":23,"type":2,"label":"&#x23f9;"},{"key":25,"type":2,"label":"&#x23EF;"}]},
+                    colors: {"classes":["col-4"],"buttons":[{"key":3,"type":2,"label":"&#128997;"},{"key":4,"type":2,"label":"&#129001;"},{"key":6,"type":2,"label":"&#129000;"},{"key":5,"type":2,"label":"&#128998;"}]}
                 }
-            });
-            btnsNav.forEach((b) => {
-                b.addEventListener("click", handleNav);
-            });
-            btnsKey.forEach((b) => {
-                b.addEventListener("pointerdown", handleKeydown);
-                b.addEventListener("pointerup", handleKeyup);
-            });
-            btnClear.addEventListener("pointerup", (e) => {
-                if (confirm("Delete Configuration?")) {
-                    ws.send(JSON.stringify({ method: "clear" }));
+            }
+        }
+
+        class Keyboard extends ButtonsAbstract {
+            get buttons() {
+                return {
+                    rowN: {"buttons":[{"key":26,"type":1,"label":"1"},{"key":27,"type":1,"label":"2"},{"key":28,"type":1,"label":"3"},{"key":29,"type":1,"label":"4"},{"key":30,"type":1,"label":"5"},{"key":31,"type":1,"label":"6"},{"key":32,"type":1,"label":"7"},{"key":33,"type":1,"label":"8"},{"key":34,"type":1,"label":"9"},{"key":35,"type":1,"label":"0"}]},
+                    row1: {"buttons":[{"key":16,"type":1,"label":"Q"},{"key":22,"type":1,"label":"W"},{"key":4,"type":1,"label":"E"},{"key":17,"type":1,"label":"R"},{"key":19,"type":1,"label":"T"},{"key":25,"type":1,"label":"Z"},{"key":20,"type":1,"label":"U"},{"key":8,"type":1,"label":"I"},{"key":14,"type":1,"label":"O"},{"key":15,"type":1,"label":"P"}]},
+                    row2: {"buttons":[{"key":0,"type":1,"label":"A"},{"key":18,"type":1,"label":"S"},{"key":3,"type":1,"label":"D"},{"key":5,"type":1,"label":"F"},{"key":6,"type":1,"label":"G"},{"key":7,"type":1,"label":"H"},{"key":9,"type":1,"label":"J"},{"key":10,"type":1,"label":"K"},{"key":11,"type":1,"label":"L"}]},
+                    row3: {"buttons":[{"key":-1,"type":0,"label":""},{"key":24,"type":1,"label":"Y"},{"key":23,"type":1,"label":"X"},{"key":2,"type":1,"label":"C"},{"key":21,"type":1,"label":"V"},{"key":1,"type":1,"label":"B"},{"key":13,"type":1,"label":"N"},{"key":12,"type":1,"label":"M"},{"key":38,"type":1,"label":"&#x232b"}]},
+                    row4: {"buttons":[{"key":-1,"type":0,"label":"&nbsp;"},{"key":40,"type":1,"label":"&nbsp"},{"key":36,"type":1,"label":"&#x23ce"}]}
                 }
-            });
-        };
+            }
+        }
 
-        const initButtons = function () {
-            addEvents();
-            document.body.classList.remove("ws-off");
-        };
+        class Menu extends PageHandler {
+            constructor(pageController) {
+                super(pageController);
+                this.pageController = pageController;
+                this.node = document.querySelector('nav.menu');
+            } 
+            toggle() {
+                this.open = !this.open;
+            }
+            get open() {
+                return this.node.dataset.open === "true";
+            }
+            set open(s) {
+                this.node.dataset.open = typeof s === "boolean" && s ? "true" : "false";
+            }
+        }
 
-        Object.keys(buttons.remote).forEach(b => {
-            renderButtons(document.querySelector("section.remote"), buttons.remote[b], b);
-        });
-        Object.keys(buttons.keyboard).forEach(b => {
-            renderButtons(document.querySelector("section.keyboard"), buttons.keyboard[b], b);
-        });
+        class Nav extends PageHandler {
+            constructor(pageController) {
+                super(pageController);
+                this.btns = document.querySelectorAll("nav a");
+                this.btns.forEach((b) => {
+                    b.addEventListener("click", this.handlePointerEvent.bind(this));
+                })
+            }
 
-        setTimeout(() => {
-            ws = new WebSocket(`ws://${location.host}:[%WS_PORT%]/jsonrpc`);
-            ws.addEventListener("error", deactivate);
-            ws.addEventListener("close", deactivate);
-            ws.addEventListener("message", handleWebsocketResults);
-            ws.addEventListener("open", initButtons);
-        }, 1000);
+            handlePointerEvent(e) {
+                e.preventDefault();
+                e.target.pathname !== '/menu' && (this.pageController.menu.open = false);
+                switch (e.target.pathname) {
+                    case "/remote":
+                        this.pageController.page = "home";
+                        break;
+                    case "/keyboard":
+                        this.pageController.page = "keyboard";
+                        break;
+                    case "/learn":
+                        this.pageController.page = "learn";
+                        break;
+                    case "/menu":
+                        this.pageController.menu.toggle();
+                        break;
+                    case "/reboot":
+                        this.pageController.ws.reboot();
+                        break;
+                }
+            }
+        }
+
+        class PageController {
+            run() {
+                this.main = document.querySelector("main");
+                this.nav = new Nav(this);
+                this.menu = new Menu(this);
+                this.remote = new Remote(this, document.querySelector("section.remote"));
+                this.keyboard = new Keyboard(this, document.querySelector("section.keyboard"));
+                try {
+                    this.ws = new WebsocketHandler(this).run();
+                    return this.initBody().initClear();
+                } catch (error) {
+                    console.error(error);
+                }
+            }
+
+            initBody() {
+                document.body.addEventListener('pointerup', (e) => {
+                    const p = e.composedPath();
+                    if (p.indexOf(this.menu.node) < 0 && p.indexOf(this.nav.node) < 0) {
+                        this.menu.open = false;
+                    }
+                });
+                return this;
+            }
+
+            initClear() {
+                document.querySelector('button[name="clear"]')
+                .addEventListener("pointerup", (e) => {
+                    if (confirm("Delete Configuration?")) {
+                        this.ws.clear();
+                    }
+                });
+                return this;
+            }
+
+            get page() {
+                return this.main.dataset.page;
+            }
+            set page(page) {
+                this.main.dataset.page = page;
+            }
+
+            get active() {
+                return !document.body.classList.contains("ws-off");
+            }
+
+            set active(v) {
+                document.body.classList.toggle("ws-off", !v);
+            }
+        }
+
+        pageController = (new PageController()).run();
+
     </script>
 </body>
 </html>
