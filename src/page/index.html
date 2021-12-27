@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="color-scheme" content="dark light">
-    <title>BLERC</title>
+    <title>BLE-RC</title>
     <style>
     :root {
         --hue-bg: 225;
@@ -433,18 +433,22 @@
             }
         }
         class WebsocketHandler extends PageHandler {
-            #active = false;
-            #attempts = 0;
-            #timeout = 2000;
-            #canReconnect = true;
-            #sendingStateTimeout = undefined;
+
+            constructor(pageController) {
+                super(pageController);
+                this._active = false;
+                this._attempts = 0;
+                this._timeout = 2000;
+                this._canReconnect = true;
+                this._sendingStateTimeout = undefined;
+            }
 
             get active() {
-                return this.#active && this.ws.readyState === WebSocket.OPEN;
+                return this._active && this.ws.readyState === WebSocket.OPEN;
             }
 
             set active(v) {
-                this.#active = typeof v == "boolean" && v;
+                this._active = typeof v == "boolean" && v;
             }
 
             run() {
@@ -464,8 +468,8 @@
             }
 
             initWebsocket() {
-                this.#attempts++;
-                console.debug("[Websocket] connect attempt %d...", this.#attempts);
+                this._attempts++;
+                console.debug("[Websocket] connect attempt %d...", this._attempts);
                 this.ws = new WebSocket(this.url);
                 this.addListeners()
                 return this;
@@ -494,7 +498,7 @@
             }
 
             close() {
-                this.#canReconnect = false;
+                this._canReconnect = false;
                 this.ws.close();
             }
 
@@ -511,12 +515,12 @@
                 this.pageController.sending = false;
                 this.removeListeners();
                 delete this.ws;
-                if (this.#canReconnect) {
+                if (this._canReconnect) {
                     this.connect();
                 }
             }
 
-            handleMessage = function (result) {
+            handleMessage(result) {
                 console.debug("[Websocket] incoming message");
                 if (this.wsTimeout) {
                     clearTimeout(this.wsTimeout);
@@ -530,7 +534,7 @@
             };
 
             handleTimeout() {
-                console.debug("[Websocket] closing after timeout of %dms", this.#timeout);
+                console.debug("[Websocket] closing after timeout of %dms", this._timeout);
                 this.ws.close();
                 delete this.wsTimeout;
                 this.pageController.active = false;
@@ -553,9 +557,9 @@
                     method: "keyup",
                     params: btn.dataset
                 }));
-                if (this.#sendingStateTimeout) {
-                    clearTimeout(this.#sendingStateTimeout);
-                    this.#sendingStateTimeout = undefined;
+                if (this._sendingStateTimeout) {
+                    clearTimeout(this._sendingStateTimeout);
+                    this._sendingStateTimeout = undefined;
                 }
                 this.pageController.sending = false;
             }
@@ -583,17 +587,17 @@
                     console.debug("[Websocket] send");
                     this.ws.send(message);
                     if ("undefined" === typeof this.wsTimeout) {
-                        this.wsTimeout = setTimeout(this.timeoutHandler, this.#timeout);
+                        this.wsTimeout = setTimeout(this.timeoutHandler, this._timeout);
                     }
                 }
             }
         }
 
-        class ButtonsAbstract extends PageHandler {
-            _container = null;
+        class ButtonsAbstract extends PageHandler {            
 
             constructor(pageController, parent) {
                 super(pageController);
+                this._container = null;
                 this.parent = parent;
                 this.keyDownHandler = this.handleKeydown.bind(this);
                 this.keyUpHandler = this.handleKeyup.bind(this);
@@ -623,12 +627,12 @@
                 });
             }
 
-            handleKeydown = function (e) {
+            handleKeydown(e) {
                 if (this.pageController.page === "learn" || !this.pageController.ws.active) return;
                 this.pageController.ws.keydown(e.currentTarget)
             }
 
-            handleKeyup = function (e) {
+            handleKeyup (e) {
                 if (this.pageController.page === "learn") {
                     this.pageController.ws.learn(e.currentTarget)
                 } else {
@@ -654,7 +658,6 @@
         }
 
         class Upper extends ButtonsAbstract {
-            _container = null;
             get container() {
                 return this.parent
                         .insertBefore(document.createElement('div'), document.querySelector('.dpad'));
