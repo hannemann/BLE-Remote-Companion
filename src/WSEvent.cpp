@@ -261,12 +261,12 @@ void WSEvent::sendButtons(uint8_t num, const char *type)
  * @param key 
  * @param method 
  */
-void WSEvent::broadcastKey(uint8_t type, uint16_t key, const char *method)
+void WSEvent::broadcastKey(uint8_t type, uint16_t key, const char *method, uint8_t irProtocol, uint64_t irKey)
 {
     const char *keyName = HIDUsageKeys::getKeyName(type, key);
     const char *keyType = HIDUsageKeys::getKeyType(type);
     char message[255];
-    snprintf(message, 255, "{\"id\":1,\"jsonrpc\":\"2.0\",\"method\":\"%s\",\"params\":{\"type\":\"%s\",\"key\":\"%s\"}}", method, keyType, keyName);
+    snprintf(message, 255, "{\"id\":1,\"jsonrpc\":\"2.0\",\"method\":\"%s\",\"params\":{\"type\":\"%s\",\"key\":\"%s\",\"raw\":{\"protocol\":%d,\"key\":%llu}}}", method, keyType, keyName, irProtocol, irKey);
     broadcastTXT(message);
 }
 

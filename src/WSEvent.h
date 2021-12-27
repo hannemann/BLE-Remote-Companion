@@ -21,7 +21,7 @@ public:
     }
     void init();
     void run();
-    void broadcastKey(uint8_t type, uint16_t key, const char *method);
+    void broadcastKey(uint8_t type, uint16_t key, const char *method, uint8_t irProtocol = 0, uint64_t irKey = 0);
     static void webSocketEvent(uint8_t num, WStype_t type, uint8_t *payload, size_t length);
 
 private:
