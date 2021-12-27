@@ -64,7 +64,7 @@ const HID_USAGE_KEY HIDUsageKeys::layoutRemoteFunctionalLower[]{
     {TYPE_NONE, -1, "", 0},
     {TYPE_CONSUMER, HIDUsageKeys::getKeyIndex(TYPE_CONSUMER, "KEYCODE_VOLUME_MUTE"), "&#x1f507;", 0},
     {TYPE_NONE, -1, "", 0},
-    {TYPE_CONSUMER, HIDUsageKeys::getKeyIndex(TYPE_CONSUMER, "KEYCODE_LAST_CHANNEL"), "&#x1f504;", 0},
+    {TYPE_CONSUMER, HIDUsageKeys::getKeyIndex(TYPE_CONSUMER, "KEYCODE_LAST_CHANNEL"), "&#x2940;", 0},
     {TYPE_NONE, -1, "", 0},
 };
 
@@ -87,8 +87,8 @@ const HID_USAGE_KEY HIDUsageKeys::layoutRemoteMedia[] {
 
 const HID_USAGE_KEY HIDUsageKeys::layoutRemoteFunctional[]{
     {TYPE_KEYBOARD, HIDUsageKeys::getKeyIndex(TYPE_KEYBOARD, "KEYCODE_ESCAPE"), "&#x21b0;", 0},
-    {TYPE_CONSUMER, HIDUsageKeys::getKeyIndex(TYPE_CONSUMER, "KEYCODE_HOME"), "Home", 0},
-    {TYPE_CONSUMER, HIDUsageKeys::getKeyIndex(TYPE_CONSUMER, "KEYCODE_MENU"), "M", 0},
+    {TYPE_CONSUMER, HIDUsageKeys::getKeyIndex(TYPE_CONSUMER, "KEYCODE_HOME"), "&#x2302", 0},
+    {TYPE_CONSUMER, HIDUsageKeys::getKeyIndex(TYPE_CONSUMER, "KEYCODE_MENU"), "&#x2630;", 0},
 };
 
 const HID_USAGE_KEY HIDUsageKeys::layoutRemoteTop[]{

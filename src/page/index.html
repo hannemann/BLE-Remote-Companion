@@ -31,6 +31,35 @@
         --dpad-gap: 1em;
         --dpad-ok-width: 40%;
         --clr-dpad-gap: var(--clr-bg);
+        --bs-remote-btn: 
+            inset hsla(var(--hue-bg) var(--sat-bg) 15% / 1) 0 0px 0px 4px,
+            inset hsla(var(--hue-bg) var(--sat-bg) 15% / .8) 0 -1px 5px 4px,
+            inset hsla(var(--hue-bg) var(--sat-bg)  0% / .25) 0 -1px 0px 7px,
+            inset hsla(var(--hue-bg) var(--sat-bg) 32% / .7) 0 2px 1px 7px,
+            hsla(var(--hue-bg) var(--sat-bg) 0% / .15) 0 -5px 6px 4px,
+            var(--clr-bg) 0 5px 6px 4px;
+        /* --ts-remote-btn: 
+            hsla(var(--hue-bg) var(--sat-bg) 40% / .5) 0 -1px 0,
+            hsla(var(--hue-bg) var(--sat-bg) 100% /.6) 0 2px 1px; */
+        --ts-remote-btn: none;
+        --bg-remote-btn: linear-gradient(
+            to bottom,
+            hsl(var(--hue-bg) var(--sat-bg) 35%) 0%,
+            hsl(var(--hue-bg) var(--sat-bg) 15%) 46%,
+            hsl(var(--hue-bg) var(--sat-bg) 10%) 50%,
+            hsl(var(--hue-bg) var(--sat-bg) 14%) 53%,
+            hsl(var(--hue-bg) var(--sat-bg) 5%) 76%,
+            hsl(var(--hue-bg) var(--sat-bg) 14%) 87%,
+            hsl(var(--hue-bg) var(--sat-bg) 7%) 100%);
+        --bg-remote-dpad-btn: linear-gradient(
+            135deg,
+            hsl(var(--hue-bg) var(--sat-bg) 35%) 0%,
+            hsl(var(--hue-bg) var(--sat-bg) 15%) 46%,
+            hsl(var(--hue-bg) var(--sat-bg) 10%) 50%,
+            hsl(var(--hue-bg) var(--sat-bg) 14%) 53%,
+            hsl(var(--hue-bg) var(--sat-bg) 5%) 76%,
+            hsl(var(--hue-bg) var(--sat-bg) 14%) 87%,
+            hsl(var(--hue-bg) var(--sat-bg) 7%) 100%);
         font-size: var(--font-size);
         line-height: var(--line-height);
     }
@@ -66,6 +95,7 @@
         position: sticky;
         inset: 0 0 auto;
         z-index: 1;
+        overflow: hidden;
     }
     nav a {
         display: inline-block;
@@ -74,6 +104,34 @@
     }
     nav:not(.menu) a:last-of-type {
         margin-left: auto;
+    }
+    .sending nav:not(.menu):before,
+    .sending nav:not(.menu):after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        margin: auto;
+        border-radius: 50%;
+        border: 10px solid hsla(0 0% 50% / .5);
+        animation-name: nav-ripple;
+        animation-duration: 2s;
+        animation-iteration-count: infinite;
+        animation-timing-function: cubic-bezier(0,.72,.62,.95);
+        filter: drop-shadow(0 0 30px hsla(0 100% 50% / .5));
+        transform: scale(0);
+    }
+    .sending nav:not(.menu):after {
+        animation-delay: 0.5s;
+    }
+    @keyframes nav-ripple {
+        from {
+            opacity: 1;
+            transform: scale(0);
+        }
+        to {
+            opacity: 0;
+            transform: scale(1.5);
+        }
     }
     nav.menu {
         position: fixed;
@@ -93,7 +151,9 @@
         padding: var(--gap) var(--gap) 0;
     }
     button {
-        background: hsl(var(--hue-bg), var(--sat-bg), calc(var(--lit-bg) + 10%));
+        background: var(--bg-remote-btn);
+        box-shadow: var(--bs-remote-btn);
+        text-shadow: var(--ts-remote-btn);
         border: 1px solid var(--clr-btn-border);
         color: var(--clr-fg);
     }
@@ -137,12 +197,25 @@
         grid-template-columns: 1fr;
         place-items: center;
         gap: var(--gap);
+        position: relative;
+        z-index: 0;
+    }
+    section.remote:before {
+        /* content: ""; */
+        position: absolute;
+        inset-block: calc(-1 * var(--gap));
+        width: 19em;
+        background: var(--bg-remote-btn);
+        z-index: 0;
+        border-radius: 1em;
+    }
+    section.remote > * {
+        z-index: 1;
     }
     section.keyboard {
         display: grid;
         gap: var(--gap-minimal);
-        width: calc(100% - 2 * var(--gap-minimal));
-        padding-inline: var(--gap-minimal);
+        width: 100%;
     }
     main:not([data-page="learn"]) section.keyboard {
         position: fixed;
@@ -175,6 +248,8 @@
             place-items: center;
             border-radius: 50%;
             overflow: hidden;
+            box-shadow: var(--bs-remote-btn);
+            text-shadow: var(--ts-remote-btn);
         }
         .dpad .background .directions {
             grid-area: dpad-background;
@@ -187,7 +262,9 @@
         }
         .dpad .dir, .dpad .ok {
             aspect-ratio: 1;
-            background-color: var(--clr-btn-bg);
+            background: var(--bg-remote-dpad-btn);
+            box-shadow: var(--bs-remote-btn);
+            text-shadow: var(--ts-remote-btn);
         }
         .dpad .ok {
             grid-area: dpad-background;
@@ -206,12 +283,15 @@
         }
         .dpad button {
             border: none;
-            background: none;
             color: var(--clr-fg);
             font-size: 1.6em;
             min-width: 1.3em;
             height: revert;
             aspect-ratio: revert;
+        }
+        .dpad .buttons button {
+            background: none;
+            box-shadow: none;
         }
         .dpad .volume {
             grid-area: volume;
@@ -357,6 +437,7 @@
             #attempts = 0;
             #timeout = 2000;
             #canReconnect = true;
+            #sendingStateTimeout = undefined;
 
             get active() {
                 return this.#active && this.ws.readyState === WebSocket.OPEN;
@@ -427,6 +508,7 @@
                 console.debug("[Websocket] closed");
                 this.active = false;
                 this.pageController.active = false;
+                this.pageController.sending = false;
                 this.removeListeners();
                 delete this.ws;
                 if (this.#canReconnect) {
@@ -452,6 +534,7 @@
                 this.ws.close();
                 delete this.wsTimeout;
                 this.pageController.active = false;
+                this.pageController.sending = false;
             }
 
             keydown(btn) {
@@ -461,6 +544,7 @@
                     method: "keydown",
                     params: btn.dataset
                 }));
+                this.pageController.sending = true;
             }
 
             keyup(btn) {
@@ -469,6 +553,11 @@
                     method: "keyup",
                     params: btn.dataset
                 }));
+                if (this.#sendingStateTimeout) {
+                    clearTimeout(this.#sendingStateTimeout);
+                    this.#sendingStateTimeout = undefined;
+                }
+                this.pageController.sending = false;
             }
 
             learn(btn) {
@@ -540,7 +629,11 @@
             }
 
             handleKeyup = function (e) {
-                this.pageController.ws.keyup(e.currentTarget)
+                if (this.pageController.page === "learn") {
+                    this.pageController.ws.learn(e.currentTarget)
+                } else {
+                    this.pageController.ws.keyup(e.currentTarget)
+                }
             }
 
             get container() {
@@ -570,7 +663,7 @@
                 return {
                     top: {"classes":["col-3"],"buttons":[{"key":0,"type":2,"label":".power"},{"key":-1,"type":0,"label":""},{"key":-1,"type":0,"label":""}]},
                     numbers: {"classes":["col-3"],"buttons":[{"key":26,"type":1,"label":"1"},{"key":27,"type":1,"label":"2"},{"key":28,"type":1,"label":"3"},{"key":29,"type":1,"label":"4"},{"key":30,"type":1,"label":"5"},{"key":31,"type":1,"label":"6"},{"key":32,"type":1,"label":"7"},{"key":33,"type":1,"label":"8"},{"key":34,"type":1,"label":"9"},{"key":-1,"type":0,"label":""},{"key":35,"type":1,"label":"0"},{"key":-1,"type":0,"label":""}]},
-                    functional: {"classes":["col-3"],"buttons":[{"key":37,"type":1,"label":"&#x21b0;"},{"key":41,"type":2,"label":"&#x2302"},{"key":1,"type":2,"label":"M"}]}
+                    functional: {"classes":["col-3"],"buttons":[{"key":37,"type":1,"label":"&#x21b0;"},{"key":41,"type":2,"label":"&#x2302"},{"key":1,"type":2,"label":"&#x2630;"}]}
                 }
             }
         }
@@ -622,7 +715,7 @@
         class Lower extends ButtonsAbstract {
             get buttons() {
                 return {
-                    functionalLower: {"classes":["col-3"],"buttons":[{"key":26,"type":2,"label":"&#x1f507;"},{"key":-1,"type":0,"label":""},{"key":7,"type":2,"label":"&#x1f504;"}]},
+                    functionalLower: {"classes":["col-3"],"buttons":[{"key":26,"type":2,"label":"&#x1f507;"},{"key":-1,"type":0,"label":""},{"key":7,"type":2,"label":"&#x2940;"}]},
                     media: {"classes":["col-4"],"buttons":[{"key":22,"type":2,"label":"&#x23EE;"},{"key":20,"type":2,"label":"&#x23EA;"},{"key":19,"type":2,"label":"&#x23E9;"},{"key":21,"type":2,"label":"&#x23ED;"},{"key":18,"type":2,"label":"&#x23FA;"},{"key":23,"type":2,"label":"&#x23f9;"},{"key":25,"type":2,"label":"&#x23EF;"}]},
                     colors: {"classes":["col-4"],"buttons":[{"key":3,"type":2,"label":"&#128997;"},{"key":4,"type":2,"label":"&#129001;"},{"key":6,"type":2,"label":"&#129000;"},{"key":5,"type":2,"label":"&#128998;"}]}
                 }
@@ -661,6 +754,7 @@
         class Nav extends PageHandler {
             constructor(pageController) {
                 super(pageController);
+                this.topNav = document.querySelector('nav:not(.menu)');
                 this.btns = document.querySelectorAll("nav a");
                 this.btns.forEach((b) => {
                     b.addEventListener("click", this.handlePointerEvent.bind(this));
@@ -752,6 +846,16 @@
 
             set active(v) {
                 document.body.classList.toggle("ws-off", !v);
+            }
+
+            set sending(v) {
+                if (v) {
+                    document.body.classList.add("sending");
+                } else {
+                    this.nav.topNav.addEventListener('animationiteration', () => {
+                        document.body.classList.remove("sending");
+                    }, {once: true});
+                }
             }
         }
 
