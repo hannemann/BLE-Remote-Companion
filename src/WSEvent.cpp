@@ -50,7 +50,10 @@ void WSEvent::webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size
     case WStype_FRAGMENT:
     case WStype_FRAGMENT_FIN:
     case WStype_PING:
+        log_d("WEBSOCKET: [%u] ping\n", num);
+        WSEvent::instance().pong(num);
     case WStype_PONG:
+        log_d("WEBSOCKET: [%u] pong\n", num);
         break;
     }
 }
@@ -342,4 +345,14 @@ void WSEvent::resultOK(uint8_t num)
 void WSEvent::resultError(uint8_t num)
 {
     sendTXT(num, "{\"id\":1,\"jsonrpc\":\"2.0\",\"result\":\"Error\"}");
+}
+
+void WSEvent::pong(uint8_t num)
+{
+    WSclient_t *client = &_clients[num];
+    if (clientIsConnected(client))
+    {
+        String payload = "pong";
+        sendFrame(client, WSop_pong, (uint8_t *)payload.c_str(), payload.length());
+    }
 }

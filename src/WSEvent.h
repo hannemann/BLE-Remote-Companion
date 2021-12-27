@@ -35,6 +35,7 @@ private:
     void btKeyup(uint8_t num, JSONVar &params);
     void resultOK(uint8_t num);
     void resultError(uint8_t num);
+    void pong(uint8_t num);
 };
 
 #endif // WSEVENT_H
