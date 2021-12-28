@@ -38,29 +38,66 @@
             inset hsla(var(--hue-bg) var(--sat-bg)  0% / .25) 0 -1px 0px 7px,
             inset hsla(var(--hue-bg) var(--sat-bg) 32% / .7) 0 2px 1px 7px,
             hsla(var(--hue-bg) var(--sat-bg) 0% / .15) 0 -5px 6px 4px,
-            var(--clr-bg) 0 5px 6px 4px;
+            hsla(var(--hue-bg) var(--sat-bg) 30% / .3) 0 5px 6px 4px;
         /* --ts-remote-btn: 
             hsla(var(--hue-bg) var(--sat-bg) 40% / .5) 0 -1px 0,
             hsla(var(--hue-bg) var(--sat-bg) 100% /.6) 0 2px 1px; */
         --ts-remote-btn: none;
-        --bg-remote-btn: linear-gradient(
-            to bottom,
-            hsl(var(--hue-bg) var(--sat-bg) 35%) 0%,
-            hsl(var(--hue-bg) var(--sat-bg) 15%) 46%,
-            hsl(var(--hue-bg) var(--sat-bg) 10%) 50%,
-            hsl(var(--hue-bg) var(--sat-bg) 14%) 53%,
-            hsl(var(--hue-bg) var(--sat-bg) 5%) 76%,
-            hsl(var(--hue-bg) var(--sat-bg) 14%) 87%,
-            hsl(var(--hue-bg) var(--sat-bg) 7%) 100%);
-        --bg-remote-dpad-btn: linear-gradient(
-            135deg,
-            hsl(var(--hue-bg) var(--sat-bg) 35%) 0%,
-            hsl(var(--hue-bg) var(--sat-bg) 15%) 46%,
-            hsl(var(--hue-bg) var(--sat-bg) 10%) 50%,
-            hsl(var(--hue-bg) var(--sat-bg) 14%) 53%,
-            hsl(var(--hue-bg) var(--sat-bg) 5%) 76%,
-            hsl(var(--hue-bg) var(--sat-bg) 14%) 87%,
-            hsl(var(--hue-bg) var(--sat-bg) 7%) 100%);
+        --brush-metal-dark: 
+            repeating-linear-gradient(0deg,
+                hsla(0,0%,50%,0) 0%,
+                hsla(0,0%,50%,0) 3%,
+                hsla(0,0%,50%,.02) 4.5%),
+            repeating-linear-gradient(0deg, 
+                hsla(0,0%,0%,0) 0%,
+                hsla(0,0%,0%,0) 2%,
+                hsla(0,0%,0%,.01) 2.5%),
+            repeating-linear-gradient(0deg,
+                hsla(0,0%,50%,0) 0%,
+                hsla(0,0%,50%,0) 0.6%,
+                hsla(0,0%,50%,.03) 1.2%),
+            repeating-linear-gradient(0deg, 
+                hsla(0,0%,0%,0) 0%,
+                hsla(0,0%,0%,0) 2%,
+                hsla(0,0%,0%,.02) 2.5%),
+            repeating-linear-gradient(0deg, 
+                hsla(0,0%,0%,0) 0%,
+                hsla(0,0%,0%,0) 2%,
+                hsla(0,0%,0%,.01) 2.5%);
+        --gradient-btn:
+            linear-gradient(
+                to bottom,
+                hsl(var(--hue-bg) var(--sat-bg) 35%) 0%,
+                hsl(var(--hue-bg) var(--sat-bg) 15%) 46%,
+                hsl(var(--hue-bg) var(--sat-bg) 10%) 50%,
+                hsl(var(--hue-bg) var(--sat-bg) 14%) 53%,
+                hsl(var(--hue-bg) var(--sat-bg) 5%) 76%,
+                hsl(var(--hue-bg) var(--sat-bg) 14%) 87%,
+                hsl(var(--hue-bg) var(--sat-bg) 7%) 100%);
+        --bg-remote-btn: 
+            var(--brush-metal-dark),
+            var(--gradient-btn);
+        --bg-remote-dpad-btn:
+            var(--brush-metal-dark),
+            var(--gradient-btn);
+        --bg-black-metal: 
+            var(--brush-metal-dark),
+            linear-gradient(80deg,
+                var(--clr-bg) 0%,
+                hsl(var(--hue-bg) var(--sat-bg) 4%) 40%,
+                hsl(var(--hue-bg) var(--sat-bg) 12%) 55%,
+                hsl(var(--hue-bg) var(--sat-bg) 12%) 65%,
+                hsl(var(--hue-bg) var(--sat-bg) 4%) 75%,
+                var(--clr-bg) 100%);
+        --bg-dark-metal: 
+            var(--brush-metal-dark),
+            linear-gradient(80deg,
+                var(--clr-bg) 0%,
+                hsl(var(--hue-bg) var(--sat-bg) 8%) 40%,
+                hsl(var(--hue-bg) var(--sat-bg) 9%) 55%,
+                hsl(var(--hue-bg) var(--sat-bg) 9%) 65%,
+                hsl(var(--hue-bg) var(--sat-bg) 8%) 75%,
+                var(--clr-bg) 100%);
         font-size: var(--font-size);
         line-height: var(--line-height);
     }
@@ -72,10 +109,11 @@
         user-select: none;
     }
     body {
-        background: var(--clr-bg);
+        background-image: var(--bg-black-metal);
         color: var(--clr-fg);
-        margin: 0;
         overflow-x: hidden;
+        width: 100vw;
+        min-height: 100vh;
     }
     .nav-shadow {
         position: absolute;
@@ -84,7 +122,7 @@
         box-shadow: var(--nav-shadow);
     }
     nav {
-        background: var(--clr-btn-bg);
+        background: var(--bg-dark-metal);
         padding: var(--gap-small);
         color: var(--clr-fg);
     }
@@ -118,7 +156,6 @@
         animation-duration: 2s;
         animation-iteration-count: infinite;
         animation-timing-function: cubic-bezier(0,.72,.62,.95);
-        filter: drop-shadow(0 0 30px hsla(0 100% 50% / .5));
         transform: scale(0);
     }
     .sending nav:not(.menu):after {
@@ -263,7 +300,7 @@
             grid-template-columns: repeat(2, 1fr);
             grid-template-rows: repeat(2, 1fr);
             transform: rotate(45deg);
-            background-color: var(--clr-dpad-gap);
+            background-image: var(--bg-black-metal);
         }
         .dpad .dir, .dpad .ok {
             aspect-ratio: 1;
@@ -271,11 +308,18 @@
             box-shadow: var(--bs-remote-btn);
             text-shadow: var(--ts-remote-btn);
         }
+        .dpad .ok-outline {
+            grid-area: dpad-background;
+            width: calc(var(--dpad-ok-width) + var(--dpad-gap));
+            border-radius: 50%;
+            transform: rotate(0deg);
+            aspect-ratio: 1;
+            background: var(--bg-black-metal);
+        }
         .dpad .ok {
             grid-area: dpad-background;
             width: var(--dpad-ok-width);
             border-radius: 50%;
-            outline: var(--dpad-gap) solid var(--clr-dpad-gap);
             transform: rotate(0deg);
         }
         /** Buttons */
@@ -440,6 +484,7 @@
                         <div class="dir" data-dir="down"></div>
                         <div class="dir" data-dir="left"></div>
                     </div>
+                    <div class="ok-outline"></div>
                     <div class="ok"></div>
                 </div>
                 <div class="buttons">

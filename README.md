@@ -117,7 +117,7 @@ android_tv_enter_longpress:
 * [Keyboard Codes 0x0c (Type: APP_CONTROL / 4)](/doc/keycodes/app-control.md)
 ## TODO
 * documentation
-* feedback if key was learned (send result), indicate key learn, cancel lear/delete
+* handle ir errors when learning
 * load all keycodes for configuration
 * configurable ws timeout
 * case for d1 Mini style with TSOP (reset button)
