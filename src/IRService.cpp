@@ -42,7 +42,8 @@ void IRService::loop() {
                 Serial.printf("IR Protocol: %d, Button: ", results.decode_type);
                 Serial.print(current);
                 Serial.println(" pressed");
-                if (!learning.hasOwnProperty("key")) {
+                if (!learning.hasOwnProperty("key") && !forgetRemoteBtn)
+                {
                     press();
                 }
             }
@@ -54,7 +55,13 @@ void IRService::loop() {
             Serial.println("Button released");
             if (learning.hasOwnProperty("key")) {
                 storeLearned();
-            } else {
+            }
+            else if (forgetRemoteBtn)
+            {
+                deleteLearned();
+            }
+            else
+            {
                 release();
             }
             current = 0;
@@ -77,6 +84,22 @@ void IRService::storeLearned() {
     Serial.printf("Learned %s - %s", key.c_str(), value.c_str());
     Serial.println(preferences.getString(key.c_str()));
     learning = JSON.parse("{}");
+}
+
+void IRService::deleteLearned()
+{
+    String key = getConfigKeyFromIr();
+    Serial.printf("Attempt to delete %s from IR config\n", key.c_str());
+    if (config.hasOwnProperty(key))
+    {
+        config[key] = undefined;
+    }
+
+    Serial.printf("Config %s\n", JSON.stringify(config).c_str());
+    preferences.begin("ir", false);
+    preferences.putString("config", JSON.stringify(config));
+    preferences.end();
+    forgetRemoteBtn = false;
 }
 
 String IRService::getConfigKeyFromIr() {

@@ -14,8 +14,10 @@ class IRService {
         IRService& init();
         void run();
         void loop();
-        void learn(JSONVar params) {learning = params;};
+        void learn(JSONVar params) { learning = params; };
+        void forget() { forgetRemoteBtn = true; };
         JSONVar learning = JSON.parse("{}");
+        bool forgetRemoteBtn = false;
         JSONVar getConfig();
         void clearConfig();
     private:
@@ -31,6 +33,7 @@ class IRService {
         void press();
         void release();
         void storeLearned();
+        void deleteLearned();
         String getConfigKeyFromIr();
         int16_t getHidUsageFromIr();
         uint8_t getTypeId();

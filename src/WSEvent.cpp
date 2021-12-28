@@ -92,7 +92,7 @@ bool WSEvent::validatePayload(uint8_t num, JSONVar &payload)
         }
         Serial.printf("WEBSOCKET: [%u] %s params invalid\n", num, (const char *)payload["method"]);
     }
-    if (strcmp(payload["method"], "clear") == 0 || strcmp(payload["method"], "reboot") == 0)
+    if (strcmp(payload["method"], "forget") == 0 || strcmp(payload["method"], "clear") == 0 || strcmp(payload["method"], "reboot") == 0)
     {
         return true;
     }
@@ -154,6 +154,11 @@ void WSEvent::callMethod(uint8_t num, const char *method)
     {
         resultOK(num);
         ESP.restart();
+    }
+    if (strcmp(method, "forget") == 0)
+    {
+        IRService::instance().forget();
+        resultOK(num);
     }
     if (strcmp(method, "clear") == 0)
     {

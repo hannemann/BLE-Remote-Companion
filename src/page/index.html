@@ -18,6 +18,7 @@
         --clr-fg: hsl(var(--hue-fg), var(--sat-fg), var(--lit-fg));
         --clr-btn-bg: hsl(var(--hue-bg), var(--sat-bg), calc(var(--lit-bg) + 10%));
         --clr-btn-border: hsl(var(--hue-bg), var(--sat-bg), calc(var(--lit-bg) + 50%));
+        --clr-alert: red;
         --gap: 1rem;
         --gap-small: calc(var(--gap) / 2);
         --gap-big: calc(var(--gap) + var(--gap) / 4);
@@ -192,6 +193,10 @@
     .p-inline {
         padding-inline: var(--gap);
     }
+    main {
+        display: grid;
+        gap: var(--gap);
+    }
     section.remote {
         display: grid;
         grid-template-columns: 1fr;
@@ -338,7 +343,7 @@
     /* Specials */
     .power {
         display: block;
-        border: 4px solid red;
+        border: 4px solid var(--clr-alert);
         height: .8em;
         aspect-ratio: 1;
         border-radius: 50%;
@@ -351,9 +356,24 @@
         top: -5px;
         height: 10px;
         width: 4px;
-        background: red;
+        background: var(--clr-alert);
         outline: 3px solid var(--clr-btn-bg);
         transform: translateX(-50%);
+    }
+    .config {
+        display: grid;
+        gap: var(--gap-small);
+    }
+    .config p {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .config button {
+        border: none;
+        padding: .75rem 1.5rem;
+        color: var(--clr-alert);
+        font-size: 1.2em;
     }
     @media (max-width: 30rem) {
         :root {
@@ -377,8 +397,9 @@
     <main data-page="home">
         <section class="config p-inline">
             <h1>Configure</h1>
+            <p>Delete the entire configuration <button name="clear">&times;</button></p>
+            <p>Forget a single button <button name="forget">&times;</button></p>
             <p>Hit the button you want learn and press the button on your IR remote.</p>
-            <p>To delete the entire configuration hit &quot;Clear Configuration&quot; at the bottom of the page.</p>
         </section>
         <section class="remote">
             <div class="dpad">
@@ -417,9 +438,6 @@
             </div>
         </section>
         <section class="keyboard"></section>
-        <section class="config p-block p-inline">
-            <button name="clear">Clear Configuration</button>
-        </section>
     </main>
     <nav class="menu" data-state="closed">
         <a href="/learn">Learn IR Codes</a>
@@ -570,6 +588,11 @@
                     method: "learn",
                     params: btn.dataset
                 }));
+            }
+
+            forget() {
+                console.debug("[Websocket] forget");
+                this.send(JSON.stringify({ method: "forget" }));
             }
 
             clear() {
@@ -798,7 +821,7 @@
                 this.keyboard = new Keyboard(this, document.querySelector("section.keyboard"));
                 try {
                     this.ws = new WebsocketHandler(this).run();
-                    return this.initBody().initClear().initVisibility();
+                    return this.initBody().initForget().initClear().initVisibility();
                 } catch (error) {
                     console.error(error);
                 }
@@ -821,6 +844,16 @@
                     const p = e.composedPath();
                     if (p.indexOf(this.menu.node) < 0 && p.indexOf(this.nav.node) < 0) {
                         this.menu.open = false;
+                    }
+                });
+                return this;
+            }
+
+            initForget() {
+                document.querySelector('button[name="forget"]')
+                .addEventListener("pointerup", (e) => {
+                    if (confirm("Forget button? Press OK and then the button to be forgotten on your remote.")) {
+                        this.ws.forget();
                     }
                 });
                 return this;
