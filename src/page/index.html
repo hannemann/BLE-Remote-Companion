@@ -141,6 +141,13 @@
         color: inherit;
         text-decoration: none;
     }
+    nav a svg {
+        width: 1.5em !important;
+        height: 1.5em !important;
+    }
+    nav:not(.menu) a {
+        opacity: .5;
+    }
     nav:not(.menu) a:last-of-type {
         margin-left: auto;
     }
@@ -179,6 +186,8 @@
         transition: transform 250ms ease-out; 
         transform: translateX(calc(var(--menu-width) + var(--nav-shadow-width) + 2 * var(--gap-small)));
         box-shadow: var(--nav-shadow);
+        display: flex;
+        flex-direction: column;
     }
     nav.menu[data-open="true"] {
         transform: translateX(0);
@@ -187,6 +196,9 @@
         display: block;
         text-align: right;
         padding: var(--gap) var(--gap) 0;
+    }
+    nav.menu a:last-of-type {
+        margin-top: auto;
     }
     button {
         background: var(--bg-remote-btn);
@@ -213,6 +225,7 @@
         height: 1.4em;
         border: none;
         border-radius: .2em;
+        position: relative;
     }
     .col-3 {
         grid-template-columns: repeat(3, 1fr);
@@ -384,26 +397,34 @@
     .keyboard > div:last-child button:nth-child(2) {
         flex-grow: 1;
     }
-    /* Specials */
-    .power {
-        display: block;
-        border: 4px solid var(--clr-alert);
-        height: .8em;
-        aspect-ratio: 1;
-        border-radius: 50%;
-        margin-inline: auto;
-        position: relative;
-    }
-    .power:after {
-        content: "";
+    /* icons */
+    button span.svg-icon {
+        display: grid;
+        place-items: center;
         position: absolute;
-        top: -5px;
-        height: 10px;
-        width: 4px;
-        background: var(--clr-alert);
-        outline: 3px solid var(--clr-btn-bg);
-        transform: translateX(-50%);
+        inset: 0;
+        color: var(--clr-fg);
+        font-size: .5em;
     }
+    button span.svg-icon.power {
+        color: var(--clr-alert);
+    }
+    button span.svg-icon.red {
+        color: var(--clr-alert);
+    }
+    button span.svg-icon.green {
+        color: greenyellow;
+    }
+    button span.svg-icon.yellow {
+        color: yellow;
+    }
+    button span.svg-icon.blue {
+        color: blue;
+    }
+    .dpad .buttons button > span {
+        position: static;
+    }
+    /* /icons */
     .config {
         display: grid;
         gap: var(--gap-small);
@@ -459,9 +480,9 @@
 <body class="ws-off">
     <div class="nav-shadow"></div>
     <nav>
-        <a href="/remote">&#x1f4fa;</a>
-        <a href="/keyboard">&#x2328;</a>
-        <a href="/menu">&#x2630;</a>
+        <a href="/remote"><svg xmlns="http://www.w3.org/2000/svg" style="width: 24px; height: 24px;" viewBox="0 0 24 24"><path fill="currentColor" d="M8.16,3L6.75,4.41L9.34,7H4C2.89,7 2,7.89 2,9V19C2,20.11 2.89,21 4,21H20C21.11,21 22,20.11 22,19V9C22,7.89 21.11,7 20,7H14.66L17.25,4.41L15.84,3L12,6.84L8.16,3M4,9H17V19H4V9M19.5,9A1,1 0 0,1 20.5,10A1,1 0 0,1 19.5,11A1,1 0 0,1 18.5,10A1,1 0 0,1 19.5,9M19.5,12A1,1 0 0,1 20.5,13A1,1 0 0,1 19.5,14A1,1 0 0,1 18.5,13A1,1 0 0,1 19.5,12Z" /></svg></a>
+        <a href="/keyboard"><svg xmlns="http://www.w3.org/2000/svg" style="width: 24px; height: 24px;" viewBox="0 0 24 24"><path fill="currentColor" d="M7,22H9V24H7V22M11,22H13V24H11V22M15,22H17V24H15V22M4,5A2,2 0 0,0 2,7V17A2,2 0 0,0 4,19H20A2,2 0 0,0 22,17V7A2,2 0 0,0 20,5H4M4,7H20V17H4V7M5,8V10H7V8H5M8,8V10H10V8H8M11,8V10H13V8H11M14,8V10H16V8H14M17,8V10H19V8H17M5,11V13H7V11H5M8,11V13H10V11H8M11,11V13H13V11H11M14,11V13H16V11H14M17,11V13H19V11H17M8,14V16H16V14H8Z" /></svg></a>
+        <a href="/menu"><svg xmlns="http://www.w3.org/2000/svg" style="width: 24px; height: 24px;" viewBox="0 0 24 24"><path fill="currentColor" d="M3,6H21V8H3V6M3,11H21V13H3V11M3,16H21V18H3V16Z" /></svg></a>
     </nav>
     <main data-page="home">
         <section class="config p-inline">
@@ -522,6 +543,36 @@
         <p><span>Now press the button on your remote to be forgotten.</span></p>
     </div>
     <script>
+
+        const icons = {
+            empty: '<svg xmlns="http://www.w3.org/2000/svg" style="width: 24px; height: 24px;" viewBox="0 0 24 24"><path fill="currentColor" d="" /></svg>',
+            power: '<svg xmlns="http://www.w3.org/2000/svg" style="width: 24px; height: 24px;" viewBox="0 0 24 24"><path fill="currentColor" d="M16.56,5.44L15.11,6.89C16.84,7.94 18,9.83 18,12A6,6 0 0,1 12,18A6,6 0 0,1 6,12C6,9.83 7.16,7.94 8.88,6.88L7.44,5.44C5.36,6.88 4,9.28 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12C20,9.28 18.64,6.88 16.56,5.44M13,3H11V13H13" /></svg>',
+            mute: '<svg xmlns="http://www.w3.org/2000/svg" style="width: 24px; height: 24px;" viewBox="0 0 24 24"><path fill="currentColor" d="M12,4L9.91,6.09L12,8.18M4.27,3L3,4.27L7.73,9H3V15H7L12,20V13.27L16.25,17.53C15.58,18.04 14.83,18.46 14,18.7V20.77C15.38,20.45 16.63,19.82 17.68,18.96L19.73,21L21,19.73L12,10.73M19,12C19,12.94 18.8,13.82 18.46,14.64L19.97,16.15C20.62,14.91 21,13.5 21,12C21,7.72 18,4.14 14,3.23V5.29C16.89,6.15 19,8.83 19,12M16.5,12C16.5,10.23 15.5,8.71 14,7.97V10.18L16.45,12.63C16.5,12.43 16.5,12.21 16.5,12Z" /></svg>',
+            ["skip-backward"]: '<svg xmlns="http://www.w3.org/2000/svg" style="width: 24px; height: 24px;" viewBox="0 0 24 24"><path fill="currentColor" d="M20,5V19L13,12M6,5V19H4V5M13,5V19L6,12" /></svg>',
+            rew: '<svg xmlns="http://www.w3.org/2000/svg" style="width: 24px; height: 24px;" viewBox="0 0 24 24"><path fill="currentColor" d="M11.5,12L20,18V6M11,18V6L2.5,12L11,18Z" /></svg>',
+            ffw:'<svg xmlns="http://www.w3.org/2000/svg" style="width: 24px; height: 24px;" viewBox="0 0 24 24"><path fill="currentColor" d="M13,6V18L21.5,12M4,18L12.5,12L4,6V18Z" /></svg>',
+            ["skip-forward"]:'<svg xmlns="http://www.w3.org/2000/svg" style="width: 24px; height: 24px;" viewBox="0 0 24 24"><path fill="currentColor" d="M4,5V19L11,12M18,5V19H20V5M11,5V19L18,12" /></svg>',
+            rec: '<svg xmlns="http://www.w3.org/2000/svg" style="width: 24px; height: 24px;" viewBox="0 0 24 24"><path fill="currentColor" d="M19,12C19,15.86 15.86,19 12,19C8.14,19 5,15.86 5,12C5,8.14 8.14,5 12,5C15.86,5 19,8.14 19,12Z" /></svg>',
+            stop: '<svg xmlns="http://www.w3.org/2000/svg" style="width: 24px; height: 24px;" viewBox="0 0 24 24"><path fill="currentColor" d="M18,18H6V6H18V18Z" /></svg>',
+            ["play-pause"]:'<svg xmlns="http://www.w3.org/2000/svg" style="width: 24px; height: 24px;" viewBox="0 0 24 24"><path fill="currentColor" d="M3,5V19L11,12M13,19H16V5H13M18,5V19H21V5" /></svg>',
+            back: '<svg xmlns="http://www.w3.org/2000/svg" style="width: 24px; height: 24px;" viewBox="0 0 24 24"><path fill="currentColor" d="M20 13.5V20H18V13.5C18 11 16 9 13.5 9H7.83L10.91 12.09L9.5 13.5L4 8L9.5 2.5L10.92 3.91L7.83 7H13.5C17.09 7 20 9.91 20 13.5Z" /></svg>',
+            menu: '<svg xmlns="http://www.w3.org/2000/svg" style="width: 24px; height: 24px;" viewBox="0 0 24 24"><path fill="currentColor" d="M3,6H21V8H3V6M3,11H21V13H3V11M3,16H21V18H3V16Z" /></svg>',
+            previous: '<svg xmlns="http://www.w3.org/2000/svg" style="width: 24px; height: 24px;" viewBox="0 0 24 24"><path fill="currentColor" d="M20 13.5C20 17.09 17.09 20 13.5 20H6V18H13.5C16 18 18 16 18 13.5S16 9 13.5 9H7.83L10.91 12.09L9.5 13.5L4 8L9.5 2.5L10.92 3.91L7.83 7H13.5C17.09 7 20 9.91 20 13.5Z" /></svg>',
+            up: '<svg xmlns="http://www.w3.org/2000/svg" style="width: 24px; height: 24px;" viewBox="0 0 24 24"><path fill="currentColor" d="M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z" /></svg>',
+            down: '<svg xmlns="http://www.w3.org/2000/svg" style="width: 24px; height: 24px;" viewBox="0 0 24 24"><path fill="currentColor" d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z" /></svg>',
+            left: '<svg xmlns="http://www.w3.org/2000/svg" style="width: 24px; height: 24px;" viewBox="0 0 24 24"><path fill="currentColor" d="M15.41,16.58L10.83,12L15.41,7.41L14,6L8,12L14,18L15.41,16.58Z" /></svg>',
+            right: '<svg xmlns="http://www.w3.org/2000/svg" style="width: 24px; height: 24px;" viewBox="0 0 24 24"><path fill="currentColor" d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" /></svg>',
+            plus: '<svg xmlns="http://www.w3.org/2000/svg" style="width: 24px; height: 24px;" viewBox="0 0 24 24"><path fill="currentColor" d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" /></svg>',
+            minus: '<svg xmlns="http://www.w3.org/2000/svg" style="width: 24px; height: 24px;" viewBox="0 0 24 24"><path fill="currentColor" d="M19,13H5V11H19V13Z" /></svg>',
+            red: '<svg xmlns="http://www.w3.org/2000/svg" style="width: 24px; height: 24px;" viewBox="0 0 24 24"><path fill="currentColor" d="M12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z" /></svg>',
+            green: '<svg xmlns="http://www.w3.org/2000/svg" style="width: 24px; height: 24px;" viewBox="0 0 24 24"><path fill="currentColor" d="M12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z" /></svg>',
+            yellow: '<svg xmlns="http://www.w3.org/2000/svg" style="width: 24px; height: 24px;" viewBox="0 0 24 24"><path fill="currentColor" d="M12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z" /></svg>',
+            blue: '<svg xmlns="http://www.w3.org/2000/svg" style="width: 24px; height: 24px;" viewBox="0 0 24 24"><path fill="currentColor" d="M12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z" /></svg>',
+            keyboard: '<svg xmlns="http://www.w3.org/2000/svg" style="width: 24px; height: 24px;" viewBox="0 0 24 24"><path fill="currentColor" d="M4,5A2,2 0 0,0 2,7V17A2,2 0 0,0 4,19H20A2,2 0 0,0 22,17V7A2,2 0 0,0 20,5H4M4,7H20V17H4V7M5,8V10H7V8H5M8,8V10H10V8H8M11,8V10H13V8H11M14,8V10H16V8H14M17,8V10H19V8H17M5,11V13H7V11H5M8,11V13H10V11H8M11,11V13H13V11H11M14,11V13H16V11H14M17,11V13H19V11H17M8,14V16H16V14H8Z" /></svg>',
+            remote: '<svg xmlns="http://www.w3.org/2000/svg" style="width: 24px; height: 24px;" viewBox="0 0 24 24"><path fill="currentColor" d="M8.16,3L6.75,4.41L9.34,7H4C2.89,7 2,7.89 2,9V19C2,20.11 2.89,21 4,21H20C21.11,21 22,20.11 22,19V9C22,7.89 21.11,7 20,7H14.66L17.25,4.41L15.84,3L12,6.84L8.16,3M4,9H17V19H4V9M19.5,9A1,1 0 0,1 20.5,10A1,1 0 0,1 19.5,11A1,1 0 0,1 18.5,10A1,1 0 0,1 19.5,9M19.5,12A1,1 0 0,1 20.5,13A1,1 0 0,1 19.5,14A1,1 0 0,1 18.5,13A1,1 0 0,1 19.5,12Z" /></svg>',
+            home: '<svg xmlns="http://www.w3.org/2000/svg" style="width: 24px; height: 24px;" viewBox="0 0 24 24"><path fill="currentColor" d="M12 5.69L17 10.19V18H15V12H9V18H7V10.19L12 5.69M12 3L2 12H5V20H11V14H13V20H19V12H22L12 3Z" /></svg>',
+        
+        };
 
         class PageHandler {
             constructor(pageController) {
@@ -746,9 +797,15 @@
                     } else {
                         btn = container.appendChild(document.createElement("span"));
                     }
-                    let label = b.label[0] === "." ? `<span class="${b.label.replace(/^\./, "")}"></span>` : b.label;
+                    let label = b.label[0] === "." ? this.getSvgIcon(b.label) : b.label;
                     btn.innerHTML = label;
                 });
+            }
+
+            getSvgIcon(def) {
+                const className = def.replace(/^\./, ""); 
+                const icon = icons[className];
+                return `<span class="svg-icon ${className}">${icon}</span>`;
             }
 
             get container() {
@@ -777,7 +834,7 @@
                 return {
                     top: {"classes":["col-3"],"buttons":[{"key":0,"type":2,"label":".power"},{"key":-1,"type":0,"label":""},{"key":-1,"type":0,"label":""}]},
                     numbers: {"classes":["col-3"],"buttons":[{"key":26,"type":1,"label":"1"},{"key":27,"type":1,"label":"2"},{"key":28,"type":1,"label":"3"},{"key":29,"type":1,"label":"4"},{"key":30,"type":1,"label":"5"},{"key":31,"type":1,"label":"6"},{"key":32,"type":1,"label":"7"},{"key":33,"type":1,"label":"8"},{"key":34,"type":1,"label":"9"},{"key":-1,"type":0,"label":""},{"key":35,"type":1,"label":"0"},{"key":-1,"type":0,"label":""}]},
-                    functional: {"classes":["col-3"],"buttons":[{"key":37,"type":1,"label":"&#x21b0;"},{"key":41,"type":2,"label":"&#x2302"},{"key":1,"type":2,"label":"&#x2630;"}]}
+                    functional: {"classes":["col-3"],"buttons":[{"key":37,"type":1,"label":".back"},{"key":41,"type":2,"label":".home"},{"key":1,"type":2,"label":".menu"}]}
                 }
             }
         }
@@ -793,7 +850,8 @@
                         buttons[i].addEventListener("pointerdown", this.keyDownHandler);
                         buttons[i].addEventListener("pointerup", this.keyUpHandler);
                     }
-                    buttons[i].innerHTML = b.label;
+                    let label = b.label[0] === "." ? this.getSvgIcon(b.label) : b.label;
+                    buttons[i].innerHTML = label;
                 });
             }
 
@@ -801,25 +859,25 @@
                 return {
                     dpad: {
                         "buttons":[
-                            {"key":27,"type":2,"label":"&plus;"},
+                            {"key":27,"type":2,"label":".plus"},
                             {"key":-1,"type":0,"label":"Vol"},
-                            {"key":28,"type":2,"label":"&minus;"},                            
+                            {"key":28,"type":2,"label":".minus"},                            
                             
                             {"key":-1,"type":0,"label":""},
-                            {"key":77,"type":1,"label":"&utrif;"},
+                            {"key":77,"type":1,"label":".up"},
                             {"key":-1,"type":0,"label":""},
 
-                            {"key":75,"type":1,"label":"&ltrif;"},
+                            {"key":75,"type":1,"label":".left"},
                             {"key":36,"type":1,"label":"OK"},
-                            {"key":74,"type":1,"label":"&rtrif;"},
+                            {"key":74,"type":1,"label":".right"},
 
                             {"key":-1,"type":0,"label":""},
-                            {"key":76,"type":1,"label":"&dtrif;"},
+                            {"key":76,"type":1,"label":".down"},
                             {"key":-1,"type":0,"label":""},                            
                             
-                            {"key":70,"type":1,"label":"&plus;"},
+                            {"key":70,"type":1,"label":".plus"},
                             {"key":-1,"type":0,"label":"CH"},
-                            {"key":73,"type":1,"label":"&minus;"}
+                            {"key":73,"type":1,"label":".minus"}
                         ]
                     }
                 }
@@ -829,9 +887,9 @@
         class Lower extends ButtonsAbstract {
             get buttons() {
                 return {
-                    functionalLower: {"classes":["col-3"],"buttons":[{"key":26,"type":2,"label":"&#x1f507;"},{"key":-1,"type":0,"label":""},{"key":7,"type":2,"label":"&#x2940;"}]},
-                    media: {"classes":["col-4"],"buttons":[{"key":22,"type":2,"label":"&#x23EE;"},{"key":20,"type":2,"label":"&#x23EA;"},{"key":19,"type":2,"label":"&#x23E9;"},{"key":21,"type":2,"label":"&#x23ED;"},{"key":18,"type":2,"label":"&#x23FA;"},{"key":23,"type":2,"label":"&#x23f9;"},{"key":25,"type":2,"label":"&#x23EF;"}]},
-                    colors: {"classes":["col-4"],"buttons":[{"key":3,"type":2,"label":"&#128997;"},{"key":4,"type":2,"label":"&#129001;"},{"key":6,"type":2,"label":"&#129000;"},{"key":5,"type":2,"label":"&#128998;"}]}
+                    functionalLower: {"classes":["col-3"],"buttons":[{"key":26,"type":2,"label":".mute"},{"key":-1,"type":0,"label":""},{"key":7,"type":2,"label":".previous"}]},
+                    media: {"classes":["col-4"],"buttons":[{"key":22,"type":2,"label":".skip-backward"},{"key":20,"type":2,"label":".rew"},{"key":19,"type":2,"label":".ffw"},{"key":21,"type":2,"label":".skip-forward"},{"key":18,"type":2,"label":".rec"},{"key":23,"type":2,"label":".stop"},{"key":25,"type":2,"label":".play-pause"}]},
+                    colors: {"classes":["col-4"],"buttons":[{"key":3,"type":2,"label":".red"},{"key":4,"type":2,"label":".green"},{"key":6,"type":2,"label":".yellow"},{"key":5,"type":2,"label":".blue"}]}
                 }
             }
         }
