@@ -20,7 +20,7 @@ class IRService {
         JSONVar forgetRemoteBtn = JSON.parse("{}");
         JSONVar getConfig();
         void clearConfig();
-        void endConfig(uint8_t client);
+        void endConfig();
 
     private:
         decode_results results;

@@ -375,6 +375,31 @@
         color: var(--clr-alert);
         font-size: 1.2em;
     }
+    .overlay {
+        position: fixed;
+        inset: 0;
+        background: hsla(0 0% 0% / .8);
+        place-items: center;
+        display: none;
+        z-index: 1;
+        padding: var(--gap);
+    }
+    .overlay.active {
+        display: grid;
+    }
+    .overlay > button {
+        color: var(--clr-alert);
+        position: absolute;
+        inset: var(--gap-big) var(--gap-big) auto auto;
+        border: none;
+        font-size: 2em;
+    }
+    .overlay p {
+        text-align: center;
+    }
+    .overlay p > span {
+        font-size: 2em;
+    }
     @media (max-width: 30rem) {
         :root {
             --gap: .85rem;
@@ -439,10 +464,18 @@
         </section>
         <section class="keyboard"></section>
     </main>
-    <nav class="menu" data-state="closed">
+    <nav class="menu">
         <a href="/learn">Learn IR Codes</a>
         <a href="/reboot">Reboot</a>
     </nav>
+    <div class="overlay learn">
+        <button class="cancelIr">&times;</button>
+        <p class="buttons"><span>Now press the button on your remote to learn</span> <button data-key>&times;</button></p>
+    </div>
+    <div class="overlay forget">
+        <button class="cancelIr">&times;</button>
+        <p><span>Now press the button on your remote to be forgotten.</span></p>
+    </div>
     <script>
 
         class PageHandler {
@@ -460,6 +493,7 @@
                 this._canReconnect = true;
                 this._sendingStateTimeout = undefined;
                 this._requestId = -1;
+                this._callbacks = {};
             }
 
             get active() {
@@ -551,7 +585,11 @@
                         clearTimeout(this.wsTimeout);
                         delete this.wsTimeout;
                     }
-                    if (data.result === "OK") {
+                    if (data.result === "OK" || data.result?.result === "OK") {
+                        if (data.result.method && "function" === typeof this._callbacks[data.id]) {
+                            this._callbacks[data.id](data.result);
+                            delete this._callbacks[data.id];
+                        }
                         this.active = true;
                         console.debug("[Websocket] OK");
                     }
@@ -589,17 +627,22 @@
                 this.pageController.sending = false;
             }
 
-            learn(btn) {
+            learn(btn, cb) {
                 console.debug("[Websocket] learn", btn);
                 this.send({
                     method: "learn",
                     params: btn.dataset
-                });
+                }, cb);
             }
 
-            forget() {
+            forget(cb) {
                 console.debug("[Websocket] forget");
-                this.send({ method: "forget" });
+                this.send({ method: "forget" }, cb);
+            }
+
+            cancelIr(cb) {
+                console.debug("[Websocket] cancelIr");
+                this.send({ method: "cancelIr" }, cb);
             }
 
             clear() {
@@ -612,10 +655,14 @@
                 this.send({ method: "reboot" });
             }
 
-            send(message) {
+            send(message, cb) {
                 if (this.pageController.active) {
+                    const id = this.requestId;
+                    if ("function" === typeof cb) {
+                        this._callbacks[id] = cb;
+                    }
                     message.jsonrpc = "2.0";
-                    message.id = this.requestId;
+                    message.id = id;
                     console.debug("[Websocket] send", message);
                     this.ws.send(JSON.stringify(message));
                     if ("undefined" === typeof this.wsTimeout) {
@@ -631,8 +678,8 @@
                 super(pageController);
                 this._container = null;
                 this.parent = parent;
-                this.keyDownHandler = this.handleKeydown.bind(this);
-                this.keyUpHandler = this.handleKeyup.bind(this);
+                this.keyDownHandler = this.pageController.handleKeydown.bind(this.pageController);
+                this.keyUpHandler = this.pageController.handleKeyup.bind(this.pageController);
                 for (let i of this) {
                     this.render(this.buttons[i], i);
                 }
@@ -657,19 +704,6 @@
                     let label = b.label[0] === "." ? `<span class="${b.label.replace(/^\./, "")}"></span>` : b.label;
                     btn.innerHTML = label;
                 });
-            }
-
-            handleKeydown(e) {
-                if (this.pageController.page === "learn" || !this.pageController.ws.active) return;
-                this.pageController.ws.keydown(e.currentTarget)
-            }
-
-            handleKeyup (e) {
-                if (this.pageController.page === "learn") {
-                    this.pageController.ws.learn(e.currentTarget)
-                } else {
-                    this.pageController.ws.keyup(e.currentTarget)
-                }
             }
 
             get container() {
@@ -789,7 +823,7 @@
         class Nav extends PageHandler {
             constructor(pageController) {
                 super(pageController);
-                this.topNav = document.querySelector('nav:not(.menu)');
+                this.node = document.querySelector('nav:not(.menu)');
                 this.btns = document.querySelectorAll("nav a");
                 this.btns.forEach((b) => {
                     b.addEventListener("click", this.handlePointerEvent.bind(this));
@@ -819,6 +853,27 @@
             }
         }
 
+        class Overlay extends PageHandler {
+            constructor(pageController, node) {
+                super(pageController);
+                this.node = node;
+                this.node.querySelector(".cancelIr")
+                    .addEventListener("pointerup", () => {
+                        this.pageController.ws.cancelIr(() => {this.show = false;});
+                    });
+            }
+            set show(v) {
+                this.node.classList.toggle("active", v);
+            }
+
+            set button(label) {
+                const btn = this.node.querySelector("p button");
+                if (btn) {
+                    btn.innerHTML = label;
+                }
+            }
+        }
+
         class PageController {
             run() {
                 this.main = document.querySelector("main");
@@ -828,9 +883,14 @@
                 this.dpad = new Dpad(this, document.querySelector("section.remote"));
                 this.lower = new Lower(this, document.querySelector("section.remote"));
                 this.keyboard = new Keyboard(this, document.querySelector("section.keyboard"));
+                this.learnOverlay = new Overlay(this, document.querySelector(".overlay.learn"));
+                this.forgetOverlay = new Overlay(this, document.querySelector(".overlay.forget"));
                 try {
                     this.ws = new WebsocketHandler(this).run();
-                    return this.initBody().initForget().initClear().initVisibility();
+                    return this.initBody()
+                        .initForget()
+                        .initClear()
+                        .initVisibility();
                 } catch (error) {
                     console.error(error);
                 }
@@ -858,12 +918,17 @@
                 return this;
             }
 
+            invokeLearn(btn) {
+                this.learnOverlay.button = btn.innerHTML;
+                this.ws.learn(btn, () => {this.learnOverlay.show = false;});
+                this.learnOverlay.show = true;
+            }
+
             initForget() {
                 document.querySelector('button[name="forget"]')
                 .addEventListener("pointerup", (e) => {
-                    if (confirm("Forget button? Press OK and then the button to be forgotten on your remote.")) {
-                        this.ws.forget();
-                    }
+                    this.ws.forget(() => {this.forgetOverlay.show = false;});
+                    this.forgetOverlay.show = true;
                 });
                 return this;
             }
@@ -876,6 +941,19 @@
                     }
                 });
                 return this;
+            }
+
+            handleKeydown(e) {
+                if (this.page === "learn" || !this.ws.active) return;
+                this.ws.keydown(e.currentTarget)
+            }
+
+            handleKeyup (e) {
+                if (this.page === "learn") {
+                    this.invokeLearn(e.currentTarget)
+                } else {
+                    this.ws.keyup(e.currentTarget)
+                }
             }
 
             get page() {
@@ -897,7 +975,7 @@
                 if (v) {
                     document.body.classList.add("sending");
                 } else {
-                    this.nav.topNav.addEventListener('animationiteration', () => {
+                    this.nav.node.addEventListener('animationiteration', () => {
                         document.body.classList.remove("sending");
                     }, {once: true});
                 }

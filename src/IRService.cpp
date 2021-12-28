@@ -79,9 +79,10 @@ void IRService::storeLearned()
     config[key] = value;
     saveConfig();
     printConfig();
-    Serial.printf("Learned %s - %s\n", key.c_str(), preferences.getString(key.c_str()).c_str());
+    Serial.printf("Learned %s - %s\n", key.c_str(), value.c_str());
     uint8_t client = int(learning["client"]);
-    endConfig(client);
+    endConfig();
+    WSEvent::instance().resultOK(client, "{\"method\":\"learn\",\"result\":\"OK\"}");
 }
 
 void IRService::deleteLearned()
@@ -95,14 +96,14 @@ void IRService::deleteLearned()
     }
     printConfig();
     uint8_t client = int(forgetRemoteBtn["client"]);
-    endConfig(client);
+    endConfig();
+    WSEvent::instance().resultOK(client, "{\"method\":\"forget\",\"result\":\"OK\"}");
 }
 
-void IRService::endConfig(uint8_t client)
+void IRService::endConfig()
 {
     forgetRemoteBtn = JSON.parse("{}");
     learning = JSON.parse("{}");
-    WSEvent::instance().resultOK(client);
 }
 
 String IRService::getConfigKeyFromIr() {

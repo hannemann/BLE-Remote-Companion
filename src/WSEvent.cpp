@@ -93,7 +93,7 @@ bool WSEvent::validatePayload(uint8_t num, JSONVar &payload)
         }
         Serial.printf("WEBSOCKET: [%u] %s params invalid\n", num, (const char *)payload["method"]);
     }
-    if (strcmp(payload["method"], "forget") == 0 || strcmp(payload["method"], "clear") == 0 || strcmp(payload["method"], "reboot") == 0)
+    if (strcmp(payload["method"], "cancelIr") == 0 || strcmp(payload["method"], "forget") == 0 || strcmp(payload["method"], "clear") == 0 || strcmp(payload["method"], "reboot") == 0)
     {
         return true;
     }
@@ -164,10 +164,15 @@ void WSEvent::callMethod(uint8_t num, const char *method)
         IRService::instance().forget(params);
         resultOK(num);
     }
+    if (strcmp(method, "cancelIr") == 0)
+    {
+        IRService::instance().endConfig();
+        resultOK(num, "{\"method\":\"cancelIr\",\"result\":\"OK\"}");
+    }
     if (strcmp(method, "clear") == 0)
     {
         IRService::instance().clearConfig();
-        resultOK(num);
+        resultOK(num, "{\"method\":\"clear\",\"result\":\"OK\"}");
     }
 }
 
@@ -344,7 +349,7 @@ void WSEvent::btKeyup(uint8_t num, JSONVar &params)
  * @param num
  * @param message
  */
-void WSEvent::resultOK(uint8_t num, char *message)
+void WSEvent::resultOK(uint8_t num, const char *message)
 {
     char payload[255];
     if (message == nullptr)
@@ -354,7 +359,7 @@ void WSEvent::resultOK(uint8_t num, char *message)
     }
     else
     {
-        snprintf(payload, 255, "{\"id\":%llu,\"jsonrpc\":\"2.0\",\"result\":\"%s\"}", requestId, message);
+        snprintf(payload, 255, "{\"id\":%llu,\"jsonrpc\":\"2.0\",\"result\":%s}", requestId, message);
         sendTXT(num, payload);
     }
 }
