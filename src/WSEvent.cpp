@@ -71,6 +71,7 @@ bool WSEvent::validatePayload(uint8_t num, JSONVar &payload)
     if (!payload.hasOwnProperty("method"))
     {
         Serial.printf("WEBSOCKET: [%u] no method requested\n", num);
+        resultError(num, METHOD_NOT_FOUND);
         return false;
     }
     if (payload.hasOwnProperty("params"))
@@ -97,6 +98,7 @@ bool WSEvent::validatePayload(uint8_t num, JSONVar &payload)
         return true;
     }
     Serial.printf("WEBSOCKET: [%u] method %s invalid\n", num, (const char *)payload["method"]);
+    resultError(num, INVALID_PARAMS);
     return false;
 }
 
@@ -116,15 +118,15 @@ void WSEvent::handlePayload(uint8_t num, uint8_t *payload)
     if (JSON.typeof(jsonBody) == "undefined")
     {
         Serial.printf("WEBSOCKET: [%u] jsonBody missing\n", num);
-        resultError(num);
+        resultError(num, PARSE_ERROR);
         return;
     }
     if (!validatePayload(num, jsonBody))
     {
         Serial.printf("WEBSOCKET: [%u] input invalid\n", num);
-        resultError(num);
         return;
     }
+    requestId = long(jsonBody["id"]);
     if (!jsonBody.hasOwnProperty("params"))
     {
         callMethod(num, jsonBody["method"]);
@@ -266,15 +268,16 @@ void WSEvent::sendButtons(uint8_t num, const char *type)
  * @brief send ws broadcast
  * 
  * @param type 
- * @param key 
- * @param method 
+ * @param key  
+ * @param irProtocol  
+ * @param irKey 
  */
 void WSEvent::broadcastKey(uint8_t type, uint16_t key, const char *method, uint8_t irProtocol, uint64_t irKey)
 {
     const char *keyName = HIDUsageKeys::getKeyName(type, key);
     const char *keyType = HIDUsageKeys::getKeyType(type);
     char message[255];
-    snprintf(message, 255, "{\"id\":1,\"jsonrpc\":\"2.0\",\"method\":\"%s\",\"params\":{\"type\":\"%s\",\"key\":\"%s\",\"raw\":{\"protocol\":%d,\"key\":%llu}}}", method, keyType, keyName, irProtocol, irKey);
+    snprintf(message, 255, "{\"event\":\"irbroadcast\",\"type\":\"%s\",\"data\":{\"type\":\"%s\",\"key\":\"%s\",\"raw\":{\"protocol\":%d,\"key\":%llu}}}", method, keyType, keyName, irProtocol, irKey);
     broadcastTXT(message);
 }
 
@@ -292,7 +295,7 @@ void WSEvent::btKeypress(uint8_t num, JSONVar &params)
         resultOK(num);
         return;
     }
-    resultError(num);
+    resultError(num, BLE_NOT_CONNECTED);
 }
 
 /**
@@ -312,7 +315,7 @@ void WSEvent::btKeydown(uint8_t num, JSONVar &params)
         resultOK(num);
         return;
     }
-    resultError(num);
+    resultError(num, BLE_NOT_CONNECTED);
 }
 
 /**
@@ -332,27 +335,48 @@ void WSEvent::btKeyup(uint8_t num, JSONVar &params)
         resultOK(num);
         return;
     }
-    resultError(num);
+    resultError(num, BLE_NOT_CONNECTED);
 }
 
 /**
  * @brief send ok message to ws client
  * 
- * @param num 
+ * @param num
+ * @param message
  */
-void WSEvent::resultOK(uint8_t num)
+void WSEvent::resultOK(uint8_t num, char *message)
 {
-    sendTXT(num, "{\"id\":1,\"jsonrpc\":\"2.0\",\"result\":\"OK\"}");
+    char payload[255];
+    if (message == nullptr)
+    {
+        snprintf(payload, 255, "{\"id\":%llu,\"jsonrpc\":\"2.0\",\"result\":\"OK\"}", requestId);
+        sendTXT(num, payload);
+    }
+    else
+    {
+        snprintf(payload, 255, "{\"id\":%llu,\"jsonrpc\":\"2.0\",\"result\":\"%s\"}", requestId, message);
+        sendTXT(num, payload);
+    }
 }
 
 /**
  * @brief send error message to ws client
  * 
- * @param num 
+ * @param num
+ * @param error
  */
-void WSEvent::resultError(uint8_t num)
+void WSEvent::resultError(uint8_t num, int32_t error)
 {
-    sendTXT(num, "{\"id\":1,\"jsonrpc\":\"2.0\",\"result\":\"Error\"}");
+    char message[255];
+    if (error == PARSE_ERROR || error == INVALID_REQUEST)
+    {
+        snprintf(message, 255, "{\"id\":null,\"jsonrpc\":\"2.0\",\"error\":%d}", error);
+    }
+    else
+    {
+        snprintf(message, 255, "{\"id\":%llu,\"jsonrpc\":\"2.0\",\"error\":%d}", requestId, error);
+    }
+    sendTXT(num, message);
 }
 
 void WSEvent::pong(uint8_t num)

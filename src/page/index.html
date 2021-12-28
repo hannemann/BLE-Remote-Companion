@@ -459,6 +459,7 @@
                 this._timeout = 2000;
                 this._canReconnect = true;
                 this._sendingStateTimeout = undefined;
+                this._requestId = -1;
             }
 
             get active() {
@@ -467,6 +468,10 @@
 
             set active(v) {
                 this._active = typeof v == "boolean" && v;
+            }
+
+            get requestId() {
+                return ++this._requestId;
             }
 
             run() {
@@ -539,15 +544,17 @@
             }
 
             handleMessage(result) {
-                console.debug("[Websocket] incoming message");
-                if (this.wsTimeout) {
-                    clearTimeout(this.wsTimeout);
-                    delete this.wsTimeout;
-                }
                 const data = JSON.parse(result.data);
-                if (data.result && data.result === "OK") {
-                    this.active = true;
-                    console.debug("[Websocket] OK");
+                if (data.jsonrpc === "2.0") {
+                    console.debug("[Websocket] incoming message", data);
+                    if (this.wsTimeout) {
+                        clearTimeout(this.wsTimeout);
+                        delete this.wsTimeout;
+                    }
+                    if (data.result === "OK") {
+                        this.active = true;
+                        console.debug("[Websocket] OK");
+                    }
                 }
             };
 
@@ -562,19 +569,19 @@
             keydown(btn) {
                 console.debug("[Websocket] keydown", btn);
                 this.active = false;
-                this.send(JSON.stringify({
+                this.send({
                     method: "keydown",
                     params: btn.dataset
-                }));
+                });
                 this.pageController.sending = true;
             }
 
             keyup(btn) {
                 console.debug("[Websocket] keyup", btn);
-                this.send(JSON.stringify({
+                this.send({
                     method: "keyup",
                     params: btn.dataset
-                }));
+                });
                 if (this._sendingStateTimeout) {
                     clearTimeout(this._sendingStateTimeout);
                     this._sendingStateTimeout = undefined;
@@ -584,31 +591,33 @@
 
             learn(btn) {
                 console.debug("[Websocket] learn", btn);
-                this.send(JSON.stringify({
+                this.send({
                     method: "learn",
                     params: btn.dataset
-                }));
+                });
             }
 
             forget() {
                 console.debug("[Websocket] forget");
-                this.send(JSON.stringify({ method: "forget" }));
+                this.send({ method: "forget" });
             }
 
             clear() {
                 console.debug("[Websocket] clear");
-                this.send(JSON.stringify({ method: "clear" }));
+                this.send({ method: "clear" });
             }
 
             reboot() {
                 console.debug("[Websocket] reboot");
-                this.send(JSON.stringify({method: "reboot"}));
+                this.send({ method: "reboot" });
             }
 
             send(message) {
                 if (this.pageController.active) {
-                    console.debug("[Websocket] send");
-                    this.ws.send(message);
+                    message.jsonrpc = "2.0";
+                    message.id = this.requestId;
+                    console.debug("[Websocket] send", message);
+                    this.ws.send(JSON.stringify(message));
                     if ("undefined" === typeof this.wsTimeout) {
                         this.wsTimeout = setTimeout(this.timeoutHandler, this._timeout);
                     }
