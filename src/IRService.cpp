@@ -42,7 +42,7 @@ void IRService::loop() {
                 Serial.printf("IR Protocol: %d, Button: ", results.decode_type);
                 Serial.print(current);
                 Serial.println(" pressed");
-                if (!learning.hasOwnProperty("key") && !forgetRemoteBtn)
+                if (!learning.hasOwnProperty("client") && !forgetRemoteBtn.hasOwnProperty("client"))
                 {
                     press();
                 }
@@ -53,10 +53,11 @@ void IRService::loop() {
     } else {
         if ((millis() - lastDebounceTime) > debounce && current > 0) {
             Serial.println("Button released");
-            if (learning.hasOwnProperty("key")) {
+            if (learning.hasOwnProperty("client"))
+            {
                 storeLearned();
             }
-            else if (forgetRemoteBtn)
+            else if (forgetRemoteBtn.hasOwnProperty("client"))
             {
                 deleteLearned();
             }
@@ -70,20 +71,17 @@ void IRService::loop() {
     }
 }
 
-void IRService::storeLearned() {
+void IRService::storeLearned()
+{
     Serial.printf("Learning %s\n", JSON.stringify(learning).c_str());
     String key = getConfigKeyFromIr();
     String value = getConfigValue();
     config[key] = value;
-
-    Serial.printf("Config %s\n", JSON.stringify(config).c_str());
-    preferences.begin("ir", false);
-    preferences.putString("config", JSON.stringify(config));
-    preferences.end();
-
-    Serial.printf("Learned %s - %s", key.c_str(), value.c_str());
-    Serial.println(preferences.getString(key.c_str()));
-    learning = JSON.parse("{}");
+    saveConfig();
+    printConfig();
+    Serial.printf("Learned %s - %s\n", key.c_str(), preferences.getString(key.c_str()).c_str());
+    uint8_t client = int(learning["client"]);
+    endConfig(client);
 }
 
 void IRService::deleteLearned()
@@ -93,13 +91,18 @@ void IRService::deleteLearned()
     if (config.hasOwnProperty(key))
     {
         config[key] = undefined;
+        saveConfig();
     }
+    printConfig();
+    uint8_t client = int(forgetRemoteBtn["client"]);
+    endConfig(client);
+}
 
-    Serial.printf("Config %s\n", JSON.stringify(config).c_str());
-    preferences.begin("ir", false);
-    preferences.putString("config", JSON.stringify(config));
-    preferences.end();
-    forgetRemoteBtn = false;
+void IRService::endConfig(uint8_t client)
+{
+    forgetRemoteBtn = JSON.parse("{}");
+    learning = JSON.parse("{}");
+    WSEvent::instance().resultOK(client);
 }
 
 String IRService::getConfigKeyFromIr() {
@@ -118,6 +121,18 @@ String IRService::getConfigValue() {
     String key = (const char*)learning["key"];
 
     return type + "-" + key;
+}
+
+void IRService::saveConfig()
+{
+    preferences.begin("ir", false);
+    preferences.putString("config", JSON.stringify(config));
+    preferences.end();
+}
+
+void IRService::printConfig()
+{
+    Serial.printf("Config %s\n", JSON.stringify(config).c_str());
 }
 
 void IRService::press() {

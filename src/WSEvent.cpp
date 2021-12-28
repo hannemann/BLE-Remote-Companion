@@ -157,7 +157,9 @@ void WSEvent::callMethod(uint8_t num, const char *method)
     }
     if (strcmp(method, "forget") == 0)
     {
-        IRService::instance().forget();
+        JSONVar params;
+        params["client"] = num;
+        IRService::instance().forget(params);
         resultOK(num);
     }
     if (strcmp(method, "clear") == 0)
@@ -178,6 +180,7 @@ void WSEvent::callMethod(uint8_t num, const char *method, JSONVar &params)
 {
     if (strcmp(method, "learn") == 0)
     {
+        params["client"] = num;
         IRService::instance().learn(params);
         resultOK(num);
     }

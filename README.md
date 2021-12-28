@@ -977,7 +977,7 @@ android_tv_enter_longpress:
 |136|AC Distribute Horizontally|0x029b|
 |137|AC Distribute Vertically|0x029|
 ## TODO
-* feedback if key was learned, indicate key learn, cancel lear/delete
+* feedback if key was learned (send result), indicate key learn, cancel lear/delete
 * load all keycodes for configuration
 * configurable ws timeout
 * case for d1 Mini style with TSOP (reset button)

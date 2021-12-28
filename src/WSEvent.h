@@ -22,6 +22,8 @@ public:
     void init();
     void run();
     void broadcastKey(uint8_t type, uint16_t key, const char *method, uint8_t irProtocol = 0, uint64_t irKey = 0);
+    void resultOK(uint8_t num);
+    void resultError(uint8_t num);
     static void webSocketEvent(uint8_t num, WStype_t type, uint8_t *payload, size_t length);
 
 private:
@@ -33,8 +35,6 @@ private:
     void btKeypress(uint8_t num, JSONVar &params);
     void btKeydown(uint8_t num, JSONVar &params);
     void btKeyup(uint8_t num, JSONVar &params);
-    void resultOK(uint8_t num);
-    void resultError(uint8_t num);
     void pong(uint8_t num);
 };
 
