@@ -118,7 +118,6 @@ android_tv_enter_longpress:
 ## 
 * change Wifi MAC als changes BT MAC? Test... this could solve issues if device is connected to an unknown bt client
 * documentation
-* OTA Update
 * Mouse Mode?
 * handle ir errors when learning
 * load all keycodes for configuration
