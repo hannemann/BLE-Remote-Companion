@@ -8,6 +8,8 @@ BLECharacteristic* Bluetooth::input;
 BLECharacteristic* Bluetooth::output;
 BLECharacteristic* Bluetooth::inputMedia;
 BLECharacteristic* Bluetooth::outputMedia;
+BLECharacteristic *Bluetooth::inputMouse;
+BLECharacteristic *Bluetooth::outputMouse;
 BLEServer *Bluetooth::pServer;
 BLEAdvertising *Bluetooth::pAdvertising;
 BLESecurity *Bluetooth::pSecurity;
@@ -112,6 +114,47 @@ void Bluetooth::keyup(JSONVar &params)
     typeId == TYPE_KEYBOARD ? keyup() : mediaup();
   }
 }
+void Bluetooth::mouseClick(uint8_t b)
+{
+  _mouseButtons = b;
+  mouseMove(0, 0, 0, 0);
+  _mouseButtons = 0;
+  mouseMove(0, 0, 0, 0);
+}
+
+void Bluetooth::mouseButtons(uint8_t b)
+{
+  if (b != _mouseButtons)
+  {
+    _mouseButtons = b;
+    mouseMove(0, 0, 0, 0);
+  }
+}
+
+void Bluetooth::mouseDown(uint8_t b)
+{
+  mouseButtons(_mouseButtons | b);
+}
+
+void Bluetooth::mouseUp(uint8_t b)
+{
+  mouseButtons(_mouseButtons & ~b);
+}
+
+void Bluetooth::mouseMove(signed char x, signed char y, signed char wheel, signed char hWheel)
+{
+  if (BLEconnected)
+  {
+    uint8_t m[5];
+    m[0] = _mouseButtons;
+    m[1] = x;
+    m[2] = y;
+    m[3] = wheel;
+    m[4] = hWheel;
+    inputMouse->setValue(m, 5);
+    inputMouse->notify();
+  }
+}
 
 void Bluetooth::disconnect()
 {
@@ -139,20 +182,28 @@ void BLECallback::onConnect(BLEServer *pServer, esp_ble_gatts_cb_param_t *param)
     BLE2902* desc = (BLE2902*)Bluetooth::input->getDescriptorByUUID(BLEUUID((uint16_t)0x2902));
     desc->setNotifications(true);
 
-    BLE2902* descv = (BLE2902*)Bluetooth::inputMedia->getDescriptorByUUID(BLEUUID((uint16_t)0x2902));
-    descv->setNotifications(true);
+    // desc = (BLE2902 *)Bluetooth::inputMedia->getDescriptorByUUID(BLEUUID((uint16_t)0x2902));
+    // desc->setNotifications(true);
+
+    desc = (BLE2902 *)Bluetooth::inputMouse->getDescriptorByUUID(BLEUUID((uint16_t)0x2902));
+    desc->setNotifications(true);
+
     Bluetooth::connId = pServer->getConnId();
     Bluetooth::bdParams = param;
 }
 
 void BLECallback::onDisconnect(BLEServer* pServer) {
     Bluetooth::BLEconnected = false;
-    Serial.println("BLE Disonnected");
+    Serial.println("Bluetooth Disonnected");
     BLE2902* desc = (BLE2902*)Bluetooth::input->getDescriptorByUUID(BLEUUID((uint16_t)0x2902));
     desc->setNotifications(false);
 
-    BLE2902* descv = (BLE2902*)Bluetooth::inputMedia->getDescriptorByUUID(BLEUUID((uint16_t)0x2902));
-    descv->setNotifications(false);
+    // desc = (BLE2902 *)Bluetooth::inputMedia->getDescriptorByUUID(BLEUUID((uint16_t)0x2902));
+    // desc->setNotifications(false);
+
+    desc = (BLE2902 *)Bluetooth::inputMouse->getDescriptorByUUID(BLEUUID((uint16_t)0x2902));
+    desc->setNotifications(false);
+
     Bluetooth::pAdvertising->start();
     Bluetooth::connId = 0;
 }
@@ -163,17 +214,20 @@ void keyTaskServer(void*) {
     Bluetooth::pServer->setCallbacks(new BLECallback());
 
     Bluetooth::hid = new BLEHIDDevice(Bluetooth::pServer);
-    Bluetooth::inputMedia = Bluetooth::hid->inputReport(1);   // <-- input REPORTID from report map
-    Bluetooth::outputMedia = Bluetooth::hid->outputReport(1); // <-- output REPORTID from report map
 
-    Bluetooth::input = Bluetooth::hid->inputReport(2);   // <-- input REPORTID from report map
-    Bluetooth::output = Bluetooth::hid->outputReport(2); // <-- output REPORTID from report map
+    Bluetooth::input = Bluetooth::hid->inputReport(0x01);   // <-- input REPORTID from report map
+    Bluetooth::output = Bluetooth::hid->outputReport(0x01); // <-- output REPORTID from report map
+
+    Bluetooth::inputMedia = Bluetooth::hid->inputReport(0x02); // <-- input REPORTID from report map
+    // Bluetooth::outputMedia = Bluetooth::hid->outputReport(0x02); // <-- output REPORTID from report map
+
+    Bluetooth::inputMouse = Bluetooth::hid->inputReport(0x03); // <-- input REPORTID from report map
 
     std::string name = "Example Inc. (TM)";
     Bluetooth::hid->manufacturer()->setValue(name);
 
     Bluetooth::hid->pnp(0x02, 0xe502, 0xa111, 0x0210);
-    Bluetooth::hid->hidInfo(0x00, 0x02);
+    Bluetooth::hid->hidInfo(0x00, 0x01);
 
     Bluetooth::hid->reportMap((uint8_t *)HidDescriptor, sizeof(HidDescriptor));
     Bluetooth::hid->startServices();

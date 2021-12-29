@@ -118,9 +118,11 @@ android_tv_enter_longpress:
 ## 
 * change Wifi MAC als changes BT MAC? Test... this could solve issues if device is connected to an unknown bt client
 * documentation
-* Mouse Mode?
+* Mouse Mode? (https://github.com/T-vK/ESP32-BLE-Mouse, https://githu b.com/olegos76/nimble_kbdhid_example/blob/main/main/gatt_vars.c)
 * handle ir errors when learning
 * load all keycodes for configuration
 * configurable ws timeout
 * case for d1 Mini style with TSOP (reset button)
 * case for Node MCU style with TSOP (reset button)
+* start BLE Advertising via tactile button longpress
+* Basic Auth

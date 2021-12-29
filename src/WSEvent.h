@@ -14,6 +14,7 @@ public:
         static WSEvent instance(WS_PORT);
         return instance;
     }
+    static const char *LOG_TAG;
     void init();
     void run();
     void broadcastKey(uint8_t type, uint16_t key, const char *method, uint8_t irProtocol = 0, uint64_t irKey = 0);

@@ -1,5 +1,7 @@
 #include "WSEvent.h"
 
+const char *WSEvent::LOG_TAG = "WebSocket";
+
 WSEvent::WSEvent(uint16_t port)
     : WebSocketsServer(port){};
 
@@ -34,7 +36,7 @@ void WSEvent::webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size
         if (strcmp((const char *)payload, "/jsonrpc") != 0)
         {
             WSEvent::instance().disconnect(num);
-            Serial.println("WEBSOCKET: [%u] pathname does not match /jsonrpc");
+            ESP_LOGE(LOG_TAG, "[%u] pathname does not match /jsonrpc", num);
             return;
         }
         Serial.printf("WEBSOCKET: [%u] Connected from %d.%d.%d.%d url: %s\n", num, ip[0], ip[1], ip[2], ip[3], payload);
@@ -50,10 +52,10 @@ void WSEvent::webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size
     case WStype_FRAGMENT:
     case WStype_FRAGMENT_FIN:
     case WStype_PING:
-        log_d("WEBSOCKET: [%u] ping\n", num);
+        ESP_LOGD(LOG_TAG, "[%u] ping", num);
         WSEvent::instance().pong(num);
     case WStype_PONG:
-        log_d("WEBSOCKET: [%u] pong\n", num);
+        ESP_LOGD(LOG_TAG, "[%u] pong", num);
         break;
     }
 }
@@ -70,7 +72,7 @@ bool WSEvent::validatePayload(uint8_t num, JSONVar &payload)
 {
     if (!payload.hasOwnProperty("method"))
     {
-        Serial.printf("WEBSOCKET: [%u] no method requested\n", num);
+        ESP_LOGE(LOG_TAG, "[%u] no method requested", num);
         resultError(num, METHOD_NOT_FOUND);
         return false;
     }
@@ -91,13 +93,27 @@ bool WSEvent::validatePayload(uint8_t num, JSONVar &payload)
                 return true;
             }
         }
-        Serial.printf("WEBSOCKET: [%u] %s params invalid\n", num, (const char *)payload["method"]);
+        if (strcmp(payload["method"], "mouseup") == 0 || strcmp(payload["method"], "mousedown") == 0 || strcmp(payload["method"], "mouseclick") == 0)
+        {
+            if (params.hasOwnProperty("button"))
+            {
+                return true;
+            }
+        }
+        if (strcmp(payload["method"], "mousemove") == 0)
+        {
+            if (params.hasOwnProperty("x") && params.hasOwnProperty("y"))
+            {
+                return true;
+            }
+        }
+        ESP_LOGE(LOG_TAG, "[%u] %s params invalid", num, (const char *)payload["method"]);
     }
     if (strcmp(payload["method"], "btDisconnect") == 0 || strcmp(payload["method"], "cancelIr") == 0 || strcmp(payload["method"], "forget") == 0 || strcmp(payload["method"], "clear") == 0 || strcmp(payload["method"], "reboot") == 0)
     {
         return true;
     }
-    Serial.printf("WEBSOCKET: [%u] method %s invalid\n", num, (const char *)payload["method"]);
+    ESP_LOGE(LOG_TAG, "[%u] method %s invalid", num, (const char *)payload["method"]);
     resultError(num, INVALID_PARAMS);
     return false;
 }
@@ -112,18 +128,18 @@ void WSEvent::handlePayload(uint8_t num, uint8_t *payload)
 {
     unsigned long startTime;
     startTime = millis();
-    Serial.printf("WEBSOCKET: [%u] Payload: %s\n", num, payload);
+    ESP_LOGD(LOG_TAG, "[%u] Payload: %s", num, payload);
     JSONVar jsonBody = JSON.parse((const char *)payload);
 
     if (JSON.typeof(jsonBody) == "undefined")
     {
-        Serial.printf("WEBSOCKET: [%u] jsonBody missing\n", num);
+        ESP_LOGE(LOG_TAG, "[%u] jsonBody missing", num);
         resultError(num, PARSE_ERROR);
         return;
     }
     if (!validatePayload(num, jsonBody))
     {
-        Serial.printf("WEBSOCKET: [%u] input invalid\n", num);
+        ESP_LOGE(LOG_TAG, "[%u] input invalid", num);
         return;
     }
     requestId = long(jsonBody["id"]);
@@ -136,7 +152,7 @@ void WSEvent::handlePayload(uint8_t num, uint8_t *payload)
         JSONVar params = jsonBody["params"];
         callMethod(num, jsonBody["method"], params);
     }
-    Serial.printf("Function time was %d\n", (int)(millis() - startTime));
+    ESP_LOGD(LOG_TAG, "Function time was %d", (int)(millis() - startTime));
 }
 
 /**
@@ -208,6 +224,22 @@ void WSEvent::callMethod(uint8_t num, const char *method, JSONVar &params)
     {
         btKeyup(num, params);
     }
+    if (strcmp(method, "mousedown") == 0)
+    {
+        bluetooth.mouseDown(int(params["button"]));
+    }
+    if (strcmp(method, "mouseup") == 0)
+    {
+        bluetooth.mouseUp(int(params["button"]));
+    }
+    if (strcmp(method, "mouseclick") == 0)
+    {
+        bluetooth.mouseClick(int(params["button"]));
+    }
+    if (strcmp(method, "mousemove") == 0)
+    {
+        bluetooth.mouseMove(int(params["x"]), int(params["y"]));
+    }
 }
 
 /**
@@ -259,8 +291,6 @@ void WSEvent::sendButtons(uint8_t num, const char *type)
         {
             fin = i + chunksize >= len;
             String chunk = fin ? strBtns.substring(i) : strBtns.substring(i, i + chunksize);
-            // Serial.println(chunk.c_str());
-            // Serial.printf("Final? %s, Start: %d, Length: %d, Size: %d =========\n", (fin ? "yes" : "no"), i, chunk.length(), chunksize);
             char *payload = (char *)chunk.c_str();
             sendFrame(client, opcode, (uint8_t *)payload, strlen(payload), fin, false);
             opcode = WSop_continuation;
