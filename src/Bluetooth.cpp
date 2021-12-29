@@ -115,9 +115,21 @@ void Bluetooth::keyup(JSONVar &params)
 
 void Bluetooth::disconnect()
 {
+    esp_ble_gap_disconnect(bdParams->connect.remote_bda);
+    // esp_ble_remove_bond_device(bdParams->connect.remote_bda);
+    esp_ble_gap_update_whitelist(false, bdParams->connect.remote_bda);
     pServer->disconnect(bdParams->connect.conn_id);
     pServer->removePeerDevice(bdParams->connect.conn_id, false);
-    esp_ble_remove_bond_device(bdParams->connect.remote_bda);
+    int dev_num = esp_ble_get_bond_device_num();
+
+    esp_ble_bond_dev_t *dev_list = (esp_ble_bond_dev_t *)malloc(sizeof(esp_ble_bond_dev_t) * dev_num);
+    esp_ble_get_bond_device_list(&dev_num, dev_list);
+    for (int i = 0; i < dev_num; i++)
+    {
+        esp_ble_remove_bond_device(dev_list[i].bd_addr);
+    }
+
+    free(dev_list);
 }
 
 void BLECallback::onConnect(BLEServer *pServer, esp_ble_gatts_cb_param_t *param)
@@ -146,36 +158,45 @@ void BLECallback::onDisconnect(BLEServer* pServer) {
 }
 
 void keyTaskServer(void*) {
-  BLEDevice::init("BLE Remote Companion");
-  Bluetooth::pServer = BLEDevice::createServer();
-  Bluetooth::pServer->setCallbacks(new BLECallback());
+    BLEDevice::init("BLE Remote Companion");
+    Bluetooth::pServer = BLEDevice::createServer();
+    Bluetooth::pServer->setCallbacks(new BLECallback());
 
-  Bluetooth::hid = new BLEHIDDevice(Bluetooth::pServer);
-  Bluetooth::inputMedia = Bluetooth::hid->inputReport(1);   // <-- input REPORTID from report map
-  Bluetooth::outputMedia = Bluetooth::hid->outputReport(1); // <-- output REPORTID from report map
+    Bluetooth::hid = new BLEHIDDevice(Bluetooth::pServer);
+    Bluetooth::inputMedia = Bluetooth::hid->inputReport(1);   // <-- input REPORTID from report map
+    Bluetooth::outputMedia = Bluetooth::hid->outputReport(1); // <-- output REPORTID from report map
 
-  Bluetooth::input = Bluetooth::hid->inputReport(2);   // <-- input REPORTID from report map
-  Bluetooth::output = Bluetooth::hid->outputReport(2); // <-- output REPORTID from report map
+    Bluetooth::input = Bluetooth::hid->inputReport(2);   // <-- input REPORTID from report map
+    Bluetooth::output = Bluetooth::hid->outputReport(2); // <-- output REPORTID from report map
 
-  std::string name = "Example Inc. (TM)";
-  Bluetooth::hid->manufacturer()->setValue(name);
+    std::string name = "Example Inc. (TM)";
+    Bluetooth::hid->manufacturer()->setValue(name);
 
-  Bluetooth::hid->pnp(0x02, 0xe502, 0xa111, 0x0210);
-  Bluetooth::hid->hidInfo(0x00, 0x02);
+    Bluetooth::hid->pnp(0x02, 0xe502, 0xa111, 0x0210);
+    Bluetooth::hid->hidInfo(0x00, 0x02);
 
-  Bluetooth::hid->reportMap((uint8_t *)HidDescriptor, sizeof(HidDescriptor));
-  Bluetooth::hid->startServices();
+    Bluetooth::hid->reportMap((uint8_t *)HidDescriptor, sizeof(HidDescriptor));
+    Bluetooth::hid->startServices();
 
-  Bluetooth::pSecurity = new BLESecurity();
-  //  pSecurity->setKeySize();
-  Bluetooth::pSecurity->setAuthenticationMode(ESP_LE_AUTH_BOND);
+    // @see https://github.com/espressif/esp-idf/blob/6fe853a2c73437f74c0e6e79f9b15db68b231d32/examples/bluetooth/bluedroid/ble/gatt_security_server/tutorial/Gatt_Security_Server_Example_Walkthrough.md
+    Bluetooth::pSecurity = new BLESecurity();
+    // we want the client to enter a pin
+    Bluetooth::pSecurity->setStaticPIN(123456);
+    // setStaticPin also enables secure connection an encryption
+    // since this does not work atm (the client wants us to enter the key... ??)
+    // we disable it again by setting the capability to none
+    Bluetooth::pSecurity->setCapability(ESP_IO_CAP_NONE);
+    // Bluetooth::pSecurity->setKeySize();
+    // Bluetooth::pSecurity->setInitEncryptionKey(ESP_BLE_ENC_KEY_MASK | ESP_BLE_ID_KEY_MASK);
+    // Bluetooth::pSecurity->setRespEncryptionKey(ESP_BLE_ENC_KEY_MASK | ESP_BLE_ID_KEY_MASK);
+    // Bluetooth::pSecurity->setAuthenticationMode(ESP_LE_AUTH_REQ_SC_MITM_BOND);
 
-  Bluetooth::pAdvertising = Bluetooth::pServer->getAdvertising();
-  Bluetooth::pAdvertising->setAppearance(HID_KEYBOARD);
-  Bluetooth::pAdvertising->addServiceUUID(Bluetooth::hid->hidService()->getUUID());
-  Bluetooth::pAdvertising->start();
-  Bluetooth::hid->setBatteryLevel(100);
-  Serial.println("Waiting for Bluetooth connection...");
-  yield();
-  delay(portMAX_DELAY);
+    Bluetooth::pAdvertising = Bluetooth::pServer->getAdvertising();
+    Bluetooth::pAdvertising->setAppearance(HID_KEYBOARD);
+    Bluetooth::pAdvertising->addServiceUUID(Bluetooth::hid->hidService()->getUUID());
+    Bluetooth::pAdvertising->start();
+    Bluetooth::hid->setBatteryLevel(100);
+    Serial.println("Waiting for Bluetooth connection...");
+    yield();
+    delay(portMAX_DELAY);
 }

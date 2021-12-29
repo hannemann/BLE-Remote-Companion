@@ -93,7 +93,7 @@ bool WSEvent::validatePayload(uint8_t num, JSONVar &payload)
         }
         Serial.printf("WEBSOCKET: [%u] %s params invalid\n", num, (const char *)payload["method"]);
     }
-    if (strcmp(payload["method"], "cancelIr") == 0 || strcmp(payload["method"], "forget") == 0 || strcmp(payload["method"], "clear") == 0 || strcmp(payload["method"], "reboot") == 0)
+    if (strcmp(payload["method"], "btDisconnect") == 0 || strcmp(payload["method"], "cancelIr") == 0 || strcmp(payload["method"], "forget") == 0 || strcmp(payload["method"], "clear") == 0 || strcmp(payload["method"], "reboot") == 0)
     {
         return true;
     }
