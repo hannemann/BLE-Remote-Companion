@@ -179,17 +179,19 @@ void keyTaskServer(void*) {
     Bluetooth::hid->startServices();
 
     // @see https://github.com/espressif/esp-idf/blob/6fe853a2c73437f74c0e6e79f9b15db68b231d32/examples/bluetooth/bluedroid/ble/gatt_security_server/tutorial/Gatt_Security_Server_Example_Walkthrough.md
-    Bluetooth::pSecurity = new BLESecurity();
+    // Bluetooth::pSecurity = new BLESecurity();
     // we want the client to enter a pin
-    Bluetooth::pSecurity->setStaticPIN(123456);
+    // Bluetooth::pSecurity->setStaticPIN(123456);
     // setStaticPin also enables secure connection an encryption
     // since this does not work atm (the client wants us to enter the key... ??)
     // we disable it again by setting the capability to none
-    Bluetooth::pSecurity->setCapability(ESP_IO_CAP_NONE);
-    // Bluetooth::pSecurity->setKeySize();
-    // Bluetooth::pSecurity->setInitEncryptionKey(ESP_BLE_ENC_KEY_MASK | ESP_BLE_ID_KEY_MASK);
-    // Bluetooth::pSecurity->setRespEncryptionKey(ESP_BLE_ENC_KEY_MASK | ESP_BLE_ID_KEY_MASK);
+    // Bluetooth::pSecurity->setCapability(ESP_IO_CAP_NONE);
     // Bluetooth::pSecurity->setAuthenticationMode(ESP_LE_AUTH_REQ_SC_MITM_BOND);
+
+    // Just Works mode....
+    Bluetooth::pSecurity = new BLESecurity();
+    Bluetooth::pSecurity->setCapability(ESP_IO_CAP_NONE);
+    Bluetooth::pSecurity->setAuthenticationMode(ESP_LE_AUTH_BOND);
 
     Bluetooth::pAdvertising = Bluetooth::pServer->getAdvertising();
     Bluetooth::pAdvertising->setAppearance(HID_KEYBOARD);

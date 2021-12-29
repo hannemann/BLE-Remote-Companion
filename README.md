@@ -115,8 +115,11 @@ android_tv_enter_longpress:
 * [Keyboard Codes 0x0c (Type: APP_LAUNCHER / 3)](/doc/keycodes/app-launcher.md)
 
 * [Keyboard Codes 0x0c (Type: APP_CONTROL / 4)](/doc/keycodes/app-control.md)
-## TODO
+## 
+* change Wifi MAC als changes BT MAC? Test... this could solve issues if device is connected to an unknown bt client
 * documentation
+* OTA Update
+* Mouse Mode?
 * handle ir errors when learning
 * load all keycodes for configuration
 * configurable ws timeout
