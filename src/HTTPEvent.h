@@ -19,6 +19,8 @@ class HTTPEvent {
         static void home();
         static void captivePortal();
         static void captiveSave();
+        static void ota();
+        static void update();
         static void learn();
         static void keyboard();
         static void fourOFour();

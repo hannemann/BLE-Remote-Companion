@@ -29,6 +29,7 @@
 #include <ESPmDNS.h>
 #include <WiFi.h>
 #include <WiFiClient.h>
+#include <Update.h>
 #include <iterator>
 
 #include <BLEDevice.h>

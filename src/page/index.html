@@ -100,6 +100,8 @@
                 var(--clr-bg) 100%);
         font-size: var(--font-size);
         line-height: var(--line-height);
+        --accent-color: dodgerblue;
+        accent-color: var(--accent-color);
     }
     * {
         box-sizing: border-box;
@@ -107,6 +109,10 @@
         margin: 0;
         font-family: sans-serif;
         user-select: none;
+    }
+    ::selection {
+        background-color: var(--accent-color);
+        color: white;
     }
     body {
         background-image: var(--bg-black-metal);
@@ -197,7 +203,7 @@
         text-align: right;
         padding: var(--gap) var(--gap) 0;
     }
-    nav.menu a:last-of-type {
+    nav.menu a[data-bottom="true"] {
         margin-top: auto;
     }
     button {
@@ -276,108 +282,117 @@
         position: fixed;
         bottom: var(--gap-minimal);
     }
-    main[data-page="home"] section.keyboard,
+
+    /* Router */
+    main:not([data-page="remote"]):not([data-page="learn"]) section.remote > div,
+    main:not([data-page="keyboard"]):not([data-page="learn"]) section.keyboard,
     main:not([data-page="learn"]) section.config,
-    main[data-page="keyboard"] section.remote > div:not(.dpad):not(.functional) {
+    main:not([data-page="ota"]) section.ota {
         display: none;
     }
+    main[data-page="keyboard"] section.remote > div:is(.dpad),
+    main[data-page="keyboard"] section.remote > div:is(.functional) {
+        display: grid;
+    }
+    /* /Router */
+
     /* DPAD */
-        .dpad {
-            display: grid;
-            place-items: center;
-            grid-template-areas: "volume dpad channels";
-            grid-template-columns: 20% 60% 20%;
-            width: 18rem;
-            aspect-ratio: 14 / 10;
-        }
-        .dpad > div {
-            grid-area: dpad;
-        }
-        .dpad .background, .dpad .directions, .dpad .buttons {
-            width: 100%;
-            aspect-ratio: 1;
-        }
-        .dpad .background {
-            display: grid;
-            grid-template-areas: "dpad-background";
-            place-items: center;
-            border-radius: 50%;
-            overflow: hidden;
-            box-shadow: var(--bs-remote-btn);
-            text-shadow: var(--ts-remote-btn);
-        }
-        .dpad .background .directions {
-            grid-area: dpad-background;
-            display: grid;
-            gap: var(--dpad-gap);
-            grid-template-columns: repeat(2, 1fr);
-            grid-template-rows: repeat(2, 1fr);
-            transform: rotate(45deg);
-            background-image: var(--bg-black-metal);
-        }
-        .dpad .dir, .dpad .ok {
-            aspect-ratio: 1;
-            background: var(--bg-remote-dpad-btn);
-            box-shadow: var(--bs-remote-btn);
-            text-shadow: var(--ts-remote-btn);
-        }
-        .dpad .ok-outline {
-            grid-area: dpad-background;
-            width: calc(var(--dpad-ok-width) + var(--dpad-gap));
-            border-radius: 50%;
-            transform: rotate(0deg);
-            aspect-ratio: 1;
-            background: var(--bg-black-metal);
-        }
-        .dpad .ok {
-            grid-area: dpad-background;
-            width: var(--dpad-ok-width);
-            border-radius: 50%;
-            transform: rotate(0deg);
-        }
-        /** Buttons */
-        .dpad .buttons {
-            display: grid;
-            grid-template-columns: 1fr calc(var(--dpad-ok-width) + 2 * var(--dpad-gap)) 1fr;
-            grid-template-rows: 1fr calc(var(--dpad-ok-width) + 2 * var(--dpad-gap)) 1fr;
-            gap: revert;
-            transform: rotate(0deg);
-        }
-        .dpad button {
-            border: none;
-            color: var(--clr-fg);
-            font-size: 1.6em;
-            min-width: 1.3em;
-            height: revert;
-            aspect-ratio: revert;
-        }
-        .dpad .buttons button {
-            background: none;
-            box-shadow: none;
-        }
-        .dpad .volume {
-            grid-area: volume;
-        }
-        .dpad .channels {
-            grid-area: channels;
-        }
-        .dpad .volume, .dpad .channels {
-            display: grid;
-            grid-template-columns: 1fr;
-            place-content: space-around;
-            height: 100%;
-            justify-self: stretch;
-            padding: var(--gap-small);
-        }
-        .dpad .volume button, .dpad .channels button {
-            width: 100%;
-            aspect-ratio: 1;
-            border-radius: 50%;
-            background-color: var(--clr-btn-bg);
-        }
-        .dpad .volume span, .dpad .channels span {
-            text-align: center;
-        }
+    .dpad {
+        display: grid;
+        place-items: center;
+        grid-template-areas: "volume dpad channels";
+        grid-template-columns: 20% 60% 20%;
+        width: 18rem;
+        aspect-ratio: 14 / 10;
+    }
+    .dpad > div {
+        grid-area: dpad;
+    }
+    .dpad .background, .dpad .directions, .dpad .buttons {
+        width: 100%;
+        aspect-ratio: 1;
+    }
+    .dpad .background {
+        display: grid;
+        grid-template-areas: "dpad-background";
+        place-items: center;
+        border-radius: 50%;
+        overflow: hidden;
+        box-shadow: var(--bs-remote-btn);
+        text-shadow: var(--ts-remote-btn);
+    }
+    .dpad .background .directions {
+        grid-area: dpad-background;
+        display: grid;
+        gap: var(--dpad-gap);
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: repeat(2, 1fr);
+        transform: rotate(45deg);
+        background-image: var(--bg-black-metal);
+    }
+    .dpad .dir, .dpad .ok {
+        aspect-ratio: 1;
+        background: var(--bg-remote-dpad-btn);
+        box-shadow: var(--bs-remote-btn);
+        text-shadow: var(--ts-remote-btn);
+    }
+    .dpad .ok-outline {
+        grid-area: dpad-background;
+        width: calc(var(--dpad-ok-width) + var(--dpad-gap));
+        border-radius: 50%;
+        transform: rotate(0deg);
+        aspect-ratio: 1;
+        background: var(--bg-black-metal);
+    }
+    .dpad .ok {
+        grid-area: dpad-background;
+        width: var(--dpad-ok-width);
+        border-radius: 50%;
+        transform: rotate(0deg);
+    }
+    /** Buttons */
+    .dpad .buttons {
+        display: grid;
+        grid-template-columns: 1fr calc(var(--dpad-ok-width) + 2 * var(--dpad-gap)) 1fr;
+        grid-template-rows: 1fr calc(var(--dpad-ok-width) + 2 * var(--dpad-gap)) 1fr;
+        gap: revert;
+        transform: rotate(0deg);
+    }
+    .dpad button {
+        border: none;
+        color: var(--clr-fg);
+        font-size: 1.6em;
+        min-width: 1.3em;
+        height: revert;
+        aspect-ratio: revert;
+    }
+    .dpad .buttons button {
+        background: none;
+        box-shadow: none;
+    }
+    .dpad .volume {
+        grid-area: volume;
+    }
+    .dpad .channels {
+        grid-area: channels;
+    }
+    .dpad .volume, .dpad .channels {
+        display: grid;
+        grid-template-columns: 1fr;
+        place-content: space-around;
+        height: 100%;
+        justify-self: stretch;
+        padding: var(--gap-small);
+    }
+    .dpad .volume button, .dpad .channels button {
+        width: 100%;
+        aspect-ratio: 1;
+        border-radius: 50%;
+        background-color: var(--clr-btn-bg);
+    }
+    .dpad .volume span, .dpad .channels span {
+        text-align: center;
+    }
     /* /DPAD */
     .keyboard > div {
         display: flex;
@@ -465,6 +480,72 @@
     .overlay p > span {
         font-size: 2em;
     }
+
+    /* Form */
+    form {
+        margin: var(--gap-small);
+    }
+    form > * {
+        margin-bottom: var(--gap);
+    }
+    fieldset {
+        padding: var(--gap-small);
+        border-color: var(--clr-border);
+    }
+    h1,
+    legend,
+    label {
+        user-select: none;
+    }
+    form button[type="submit"] {
+        background: var(--accent-color);
+        color: var(--clr-fg);
+        font-size: 1.5em;
+        padding: .75rem 1.5rem;
+        border: none;
+        border-radius: .25rem;
+        box-shadow: none;
+    }
+    form button[type="submit"]:disabled {
+        opacity: .5;
+    }
+    input:not([type="checkbox"]) {
+        font-size: 1.5em;
+        width: 100%;
+        padding: var(--gap-minimal);
+        border: 1px solid var(--clr-border);
+    }
+    input[type="file"] {
+        font-size: 1em;
+    }
+    input {
+        accent-color: var(--accent-color);
+        background-color: inherit;
+        color: inherit;
+    }
+    label {
+        padding-top: var(--gap-small);
+        display: block;
+    }
+    form > p.cta {
+        text-align: right;
+    }
+    form p.result, form p.reload {
+        text-align: center;
+    }
+    form p.result[data-error="true"] {
+        color: var(--clr-alert);
+    }
+    form progress {
+        display: block;
+        margin-inline: auto;
+    }
+    form progress[data-show="false"],
+    form p.reload[data-show="false"] {
+        display: none;
+    }
+    /* /Form */
+
     @media (max-width: 30rem) {
         :root {
             --gap: .85rem;
@@ -484,7 +565,7 @@
         <a href="/keyboard"><svg xmlns="http://www.w3.org/2000/svg" style="width: 24px; height: 24px;" viewBox="0 0 24 24"><path fill="currentColor" d="M7,22H9V24H7V22M11,22H13V24H11V22M15,22H17V24H15V22M4,5A2,2 0 0,0 2,7V17A2,2 0 0,0 4,19H20A2,2 0 0,0 22,17V7A2,2 0 0,0 20,5H4M4,7H20V17H4V7M5,8V10H7V8H5M8,8V10H10V8H8M11,8V10H13V8H11M14,8V10H16V8H14M17,8V10H19V8H17M5,11V13H7V11H5M8,11V13H10V11H8M11,11V13H13V11H11M14,11V13H16V11H14M17,11V13H19V11H17M8,14V16H16V14H8Z" /></svg></a>
         <a href="/menu"><svg xmlns="http://www.w3.org/2000/svg" style="width: 24px; height: 24px;" viewBox="0 0 24 24"><path fill="currentColor" d="M3,6H21V8H3V6M3,11H21V13H3V11M3,16H21V18H3V16Z" /></svg></a>
     </nav>
-    <main data-page="home">
+    <main data-page="remote">
         <section class="config p-inline">
             <h1>Configure</h1>
             <p>Delete the entire configuration <button name="clear">&times;</button></p>
@@ -529,9 +610,25 @@
             </div>
         </section>
         <section class="keyboard"></section>
+        <section class="ota">
+            <form action="/update" method="post" enctype='multipart/form-data'>
+                <h1>Over The Air update</h1>
+                <fieldset>
+                    <legend>Choose File:</legend>
+                    <input type="file">
+                    <progress value="0" max="100" data-show="false"></progress>
+                    <p class="result"></p>
+                    <p class="reload" data-show="false">Reload in <span></span> seconds...</p>
+                </fieldset>
+                <p class="cta">
+                    <button type="submit" disabled="disabled">Upload</button>
+                </p>
+            </form>
+        </section>
     </main>
     <nav class="menu">
         <a href="/learn">Learn IR Codes</a>
+        <a href="/ota" data-bottom="true">OTA Update</a>
         <a href="/reboot">Reboot</a>
     </nav>
     <div class="overlay learn">
@@ -606,7 +703,7 @@
 
             run() {
                 this.url = `ws://${location.host}:[%WS_PORT%]/jsonrpc`
-                // this.url = `ws://192.168.178.218:81/jsonrpc`;
+                this.url = `ws://192.168.178.218:81/jsonrpc`;
                 this.initHandler()
                     .initWebsocket();
                 return this;
@@ -938,13 +1035,10 @@
                 e.currentTarget.pathname !== '/menu' && (this.pageController.menu.open = false);
                 switch (e.currentTarget.pathname) {
                     case "/remote":
-                        this.pageController.page = "home";
-                        break;
                     case "/keyboard":
-                        this.pageController.page = "keyboard";
-                        break;
                     case "/learn":
-                        this.pageController.page = "learn";
+                    case "/ota":
+                        this.pageController.page = e.currentTarget.pathname.replace(/^\//, "");
                         break;
                     case "/menu":
                         this.pageController.menu.toggle();
@@ -977,11 +1071,131 @@
             }
         }
 
+        class Ota extends PageHandler {
+            constructor(pageController) {
+                super(PageController);
+                this.initElements().initListeners().addListeners();
+            }
+            initElements() {
+                this.node = document.querySelector('.ota form');
+                this.inputFile = this.node.querySelector('input[type="file"]');
+                this.trigger = this.node.querySelector('button[type="submit"]');
+                this.progressBar = this.node.querySelector('progress');
+                this.result = this.node.querySelector('p.result');
+                this.reload = this.node.querySelector('p.reload');
+                this.reloadCountdown = this.reload.querySelector('span');
+                this.disabled = !this.hasFile;
+                return this;
+            }
+            initListeners() {
+                this.handleSubmit = this.submitHandler.bind(this);
+                this.handleXhrReadyState = this.xhrReadyStateHandler.bind(this);
+                this.handleXhrProgress = this.xhrProgressHandler.bind(this);
+                return this;
+            }
+            addListeners() {
+                this.inputFile.addEventListener('change', e => {
+                    this.disabled = !this.hasFile;
+                });
+                this.node.addEventListener('submit', this.handleSubmit);
+                return this;
+            }
+            submitHandler(e) {
+                e.preventDefault();
+                const file = this.inputFile.files[0];
+                this.disabled = true;
+                this.error = false;
+                if (file.name.match(/.*\.bin/)) {
+                    let data = new FormData();
+                    data.append('file', file, file.name);
+                    try {
+                        this.initXhr();
+                        this.xhr.send(data);
+                        this.showProgress = true;
+                    } catch (error) {
+                        this.result.dataset.error = "true";
+                        this.resultText = error.toString();
+                        this.showProgress = false;
+                    }
+                } else {
+                    this.inputFile.value = "";
+                }
+            }
+            initXhr() {
+                this.xhr = new XMLHttpRequest();
+                this.xhr.open('POST', '/ota', true);
+                this.xhr.addEventListener('readystatechange', this.handleXhrReadyState);
+                this.xhr.upload.addEventListener('progress', this.handleXhrProgress);
+            }
+            xhrReadyStateHandler() {
+                if (this.xhr.readyState === XMLHttpRequest.DONE) {
+                    if (this.xhr.status === 200) {
+                        this.resultText = this.xhr.responseText;
+                        this.startReload();
+                    } else {
+                        this.error = this.xhr.statusText;
+                    }
+                    this.xhr.removeEventListener('readystatechange', this.handleXhrReadyState);
+                    this.xhr.upload.removeEventListener('progress', this.handleXhrProgress);
+                    delete this.xhr;
+                    this.showProgress = false;
+                }
+            }
+            xhrProgressHandler(e) {
+                if (e.lengthComputable) {
+                    const p = Math.floor(100 * e.loaded / e.total);
+                    this.progress = p;
+                }
+            }
+            startReload() {
+                this.showReload = true;
+                let countdown = 20;
+                this.reloadCountdown.innerHTML = countdown.toString();
+                const interval = setInterval(() => {
+                    countdown -= 1;
+                    this.reloadCountdown.innerHTML = countdown.toString();
+                    if (countdown <= 0) {
+                        clearInterval(interval);
+                        location.reload();
+                    }
+                }, 1000);
+            }
+            set disabled(v) {
+                this.trigger.disabled = "boolean" == typeof v && v;
+            }
+            get hasFile() {
+                return !!this.inputFile.value;
+            }
+            set showProgress(v) {
+                this.progressBar.dataset.show = ("boolean" == typeof v && v).toString();
+            }
+            set showReload(v) {
+                this.reload.dataset.show = ("boolean" == typeof v && v).toString();
+            }
+            set progress(v) {
+                this.progressBar.value = parseInt(v, 10);
+                this.progressBar.innerHTML = `${v}%`;
+            }
+            set resultText(t) {
+                this.result.innerHTML = t;
+            }
+            set error(e) {
+                if (e instanceof Error) {
+                    this.resultText = e.toString();
+                }
+                if ("string" === typeof e) {
+                    this.resultText = e;
+                }
+                this.result.dataset.error = "boolean" === typeof e ? e.toString() : true;
+            }
+        }
+
         class PageController {
             run() {
                 this.main = document.querySelector("main");
                 this.nav = new Nav(this);
                 this.menu = new Menu(this);
+                this.ota = new Ota(this);
                 this.upper = new Upper(this, document.querySelector("section.remote"));
                 this.dpad = new Dpad(this, document.querySelector("section.remote"));
                 this.lower = new Lower(this, document.querySelector("section.remote"));
@@ -1001,7 +1215,7 @@
 
             initVisibility() {
                 document.addEventListener("visibilitychange", () => {
-                    console.log("Visibility: is hidden %s", document.hidden);
+                    console.debug("Visibility: is hidden %s", document.hidden);
                     if (document.hidden) {
                         this.ws.close();
                     } else {

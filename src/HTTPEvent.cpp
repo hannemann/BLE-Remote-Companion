@@ -14,7 +14,8 @@ void HTTPEvent::run()
     if (!WebService::captiveMode)
     {
         Serial.println("Init routes...");
-        server.on("/", home);
+        server.on("/", HTTP_GET, home);
+        server.on("/ota", HTTP_POST, ota, update);
     }
     else
     {
@@ -40,6 +41,57 @@ void HTTPEvent::home() {
     instance().server.sendHeader("Content-Encoding", "gzip");
     instance().server.send_P(200, "text/html", indexHTML, indexHTML_L);
     Serial.println(ESP.getFreeHeap());
+}
+
+void HTTPEvent::ota()
+{
+    instance().server.sendHeader("Connection", "close");
+    if (Update.hasError())
+    {
+        if (Update.canRollBack())
+        {
+            Update.rollBack();
+        }
+        instance().server.send(500, "text/plain", Update.errorString());
+    }
+    else
+    {
+        instance().server.send(200, "text/plain", "OK");
+        delay(1000);
+        ESP.restart();
+    }
+}
+
+void HTTPEvent::update()
+{
+    HTTPUpload &upload = instance().server.upload();
+    if (upload.status == UPLOAD_FILE_START)
+    {
+        Serial.printf("Update: %s\n", upload.filename.c_str());
+        if (!Update.begin(UPDATE_SIZE_UNKNOWN))
+        { //start with max available size
+            Update.printError(Serial);
+        }
+    }
+    else if (upload.status == UPLOAD_FILE_WRITE)
+    {
+        /* flashing firmware to ESP*/
+        if (Update.write(upload.buf, upload.currentSize) != upload.currentSize)
+        {
+            Update.printError(Serial);
+        }
+    }
+    else if (upload.status == UPLOAD_FILE_END)
+    {
+        if (Update.end(true))
+        { //true to set the size to the current progress
+            Serial.printf("Update Success: %u\nRebooting...\n", upload.totalSize);
+        }
+        else
+        {
+            Update.printError(Serial);
+        }
+    }
 }
 
 void HTTPEvent::fourOFour() {
