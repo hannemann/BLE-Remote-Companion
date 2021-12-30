@@ -757,7 +757,7 @@
 
             run() {
                 this.url = `ws://${location.host}:[%WS_PORT%]/jsonrpc`
-                // this.url = `ws://192.168.178.218:81/jsonrpc`;
+                this.url = `ws://192.168.178.218:81/jsonrpc`;
                 this.initHandler()
                     .initWebsocket();
                 return this;
@@ -1011,11 +1011,13 @@
                         y: e.layerY
                     };
                 }
+                this.buttonDownHandler({currentTarget: this.left});
             }
             handlePadUp(e) {
                 if ("mouse" === e.pointerType) {
                     this.mouseIsDown = false;
                 }
+                this.buttonUpHandler({currentTarget: this.left});
             }
             handlePadMove(e) {
                 if ("mouse" === e.pointerType && !this.mouseIsDown) {
