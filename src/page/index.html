@@ -16,6 +16,7 @@
         --lit-fg: 80%;
         --clr-bg: hsl(var(--hue-bg), var(--sat-bg), var(--lit-bg));
         --clr-fg: hsl(var(--hue-fg), var(--sat-fg), var(--lit-fg));
+        --clr-mousepad-bg: hsl(var(--hue-bg), var(--sat-bg), calc(var(--lit-bg) + 5%));
         --clr-btn-bg: hsl(var(--hue-bg), var(--sat-bg), calc(var(--lit-bg) + 10%));
         --clr-btn-border: hsl(var(--hue-bg), var(--sat-bg), calc(var(--lit-bg) + 50%));
         --clr-alert: red;
@@ -37,6 +38,13 @@
             inset hsla(var(--hue-bg) var(--sat-bg) 15% / .8) 0 -1px 5px 4px,
             inset hsla(var(--hue-bg) var(--sat-bg)  0% / .25) 0 -1px 0px 7px,
             inset hsla(var(--hue-bg) var(--sat-bg) 32% / .7) 0 2px 1px 7px,
+            hsla(var(--hue-bg) var(--sat-bg) 0% / .15) 0 -5px 6px 4px,
+            hsla(var(--hue-bg) var(--sat-bg) 30% / .3) 0 5px 6px 4px;
+        --bs-mousepad: 
+            /* inset hsla(var(--hue-bg) var(--sat-bg) 15% / 1) 0 0px 0px 4px,
+            inset hsla(var(--hue-bg) var(--sat-bg) 15% / .8) 0 -1px 5px 4px,
+            inset hsla(var(--hue-bg) var(--sat-bg)  0% / .25) 0 -1px 0px 7px,
+            inset hsla(var(--hue-bg) var(--sat-bg) 32% / .7) 0 2px 1px 7px, */
             hsla(var(--hue-bg) var(--sat-bg) 0% / .15) 0 -5px 6px 4px,
             hsla(var(--hue-bg) var(--sat-bg) 30% / .3) 0 5px 6px 4px;
         /* --ts-remote-btn: 
@@ -262,7 +270,6 @@
         z-index: 0;
     }
     section.remote:before {
-        /* content: ""; */
         position: absolute;
         inset-block: calc(-1 * var(--gap));
         width: 19em;
@@ -282,10 +289,48 @@
         position: fixed;
         bottom: var(--gap-minimal);
     }
-
+    section.mouse {
+        width: calc(100vw - 2 * var(--gap));
+        position: fixed;
+        inset: auto var(--gap) var(--gap);
+        display: grid;
+        grid-template-areas: 
+            "mouse mouse mouse"
+            "left middle right";
+        grid-template-columns: 1.25fr .5fr 1.25fr;
+        grid-template-rows: 3fr 1fr;
+    }
+    section.mouse .pad {
+        width: 100%;
+        aspect-ratio: 4 / 3;
+        background: var(--clr-mousepad-bg);
+        margin-inline: auto;
+        border-top-left-radius: .75rem;
+        border-top-right-radius: .75rem;
+        border: 2px inset var(--clr-btn-bg);
+        box-shadow: var(--bs-mousepad);
+        grid-area: mouse;
+    }
+    section.mouse .mouse-btn {
+        background: var(--clr-mousepad-bg);
+        border: 2px outset var(--clr-btn-bg);
+        box-shadow: var(--bs-mousepad);
+    }
+    section.mouse .left {
+        grid-area: left;
+        border-bottom-left-radius: .75rem;
+    }
+    section.mouse .middle {
+        grid-area: middle;
+    }
+    section.mouse .right {
+        grid-area: right;
+        border-bottom-right-radius: .75rem;
+    }
     /* Router */
     main:not([data-page="remote"]):not([data-page="learn"]) section.remote > div,
     main:not([data-page="keyboard"]):not([data-page="learn"]) section.keyboard,
+    main:not([data-page="mouse"]) section.mouse,
     main:not([data-page="learn"]) section.config,
     main:not([data-page="ota"]) section.ota {
         display: none;
@@ -563,6 +608,7 @@
     <nav>
         <a href="/remote"><svg xmlns="http://www.w3.org/2000/svg" style="width: 24px; height: 24px;" viewBox="0 0 24 24"><path fill="currentColor" d="M8.16,3L6.75,4.41L9.34,7H4C2.89,7 2,7.89 2,9V19C2,20.11 2.89,21 4,21H20C21.11,21 22,20.11 22,19V9C22,7.89 21.11,7 20,7H14.66L17.25,4.41L15.84,3L12,6.84L8.16,3M4,9H17V19H4V9M19.5,9A1,1 0 0,1 20.5,10A1,1 0 0,1 19.5,11A1,1 0 0,1 18.5,10A1,1 0 0,1 19.5,9M19.5,12A1,1 0 0,1 20.5,13A1,1 0 0,1 19.5,14A1,1 0 0,1 18.5,13A1,1 0 0,1 19.5,12Z" /></svg></a>
         <a href="/keyboard"><svg xmlns="http://www.w3.org/2000/svg" style="width: 24px; height: 24px;" viewBox="0 0 24 24"><path fill="currentColor" d="M7,22H9V24H7V22M11,22H13V24H11V22M15,22H17V24H15V22M4,5A2,2 0 0,0 2,7V17A2,2 0 0,0 4,19H20A2,2 0 0,0 22,17V7A2,2 0 0,0 20,5H4M4,7H20V17H4V7M5,8V10H7V8H5M8,8V10H10V8H8M11,8V10H13V8H11M14,8V10H16V8H14M17,8V10H19V8H17M5,11V13H7V11H5M8,11V13H10V11H8M11,11V13H13V11H11M14,11V13H16V11H14M17,11V13H19V11H17M8,14V16H16V14H8Z" /></svg></a>
+        <a href="/mouse"><svg xmlns="http://www.w3.org/2000/svg" style="width: 24px; height: 24px;" viewBox="0 0 24 24"><path fill="currentColor" d="M11,1.07C7.05,1.56 4,4.92 4,9H11M4,15A8,8 0 0,0 12,23A8,8 0 0,0 20,15V11H4M13,1.07V9H20C20,4.92 16.94,1.56 13,1.07Z" /></svg></a>
         <a href="/menu"><svg xmlns="http://www.w3.org/2000/svg" style="width: 24px; height: 24px;" viewBox="0 0 24 24"><path fill="currentColor" d="M3,6H21V8H3V6M3,11H21V13H3V11M3,16H21V18H3V16Z" /></svg></a>
     </nav>
     <main data-page="remote">
@@ -610,6 +656,12 @@
             </div>
         </section>
         <section class="keyboard"></section>
+        <section class="mouse">
+            <div class="pad"></div>
+            <div class="mouse-btn left" data-button="1"></div>
+            <div class="mouse-btn middle" data-button="4"></div>
+            <div class="mouse-btn right" data-button="2"></div>
+        </section>
         <section class="ota">
             <form action="/update" method="post" enctype='multipart/form-data'>
                 <h1>Over The Air update</h1>
@@ -703,7 +755,7 @@
 
             run() {
                 this.url = `ws://${location.host}:[%WS_PORT%]/jsonrpc`
-                this.url = `ws://192.168.178.218:81/jsonrpc`;
+                // this.url = `ws://192.168.178.218:81/jsonrpc`;
                 this.initHandler()
                     .initWebsocket();
                 return this;
@@ -820,6 +872,34 @@
                 this.pageController.sending = false;
             }
 
+            mouseDown(btn) {
+                console.debug("[Websocket] mouseDown", btn);
+                this.send({
+                    method: "mousedown", skipResponse: true,
+                    params: {
+                        button: parseInt(btn.dataset.button, 10)
+                    }
+                });
+            }
+
+            mouseUp(btn) {
+                console.debug("[Websocket] mouseUp", btn);
+                this.send({
+                    method: "mouseup", skipResponse: true,
+                    params: {
+                        button: parseInt(btn.dataset.button, 10)
+                    }
+                });
+            }
+
+            mouseMove(x, y) {
+                console.debug("[Websocket] mousemove", x, y);
+                this.send({
+                    method: "mousemove", skipResponse: true,
+                    params: {x, y}
+                });
+            }
+
             learn(btn, cb) {
                 console.debug("[Websocket] learn", btn);
                 this.send({
@@ -858,10 +938,61 @@
                     message.id = id;
                     console.debug("[Websocket] send", message);
                     this.ws.send(JSON.stringify(message));
-                    if ("undefined" === typeof this.wsTimeout) {
+                    if ("undefined" === typeof message.skipResponse && "undefined" === typeof this.wsTimeout) {
                         this.wsTimeout = setTimeout(this.timeoutHandler, this._timeout);
                     }
                 }
+            }
+        }
+
+        class Mouse extends PageHandler {
+            constructor(pageController, node) {
+                super(pageController);
+                this.node = node;
+                this.moving = false;
+                this.throttletimeout = 50;
+                this.throttle = false;
+                this.initElements().initListeners().addListeners();
+            }
+            initElements() {
+                this.pad = this.node.querySelector('.pad');
+                this.left = this.node.querySelector('.left');
+                this.middle = this.node.querySelector('.middle');
+                this.right = this.node.querySelector('.right');
+                return this;
+            }
+            initListeners() {
+                this.padDownHandler = this.handlePadDown.bind(this);
+                this.padUpHandler = this.handlePadUp.bind(this);
+                this.padMoveHandler = this.handlePadMove.bind(this);
+                this.buttonDownHandler = e => this.pageController.ws.mouseDown(e.currentTarget);
+                this.buttonUpHandler = e => this.pageController.ws.mouseUp(e.currentTarget);
+                return this;
+            }
+            addListeners() {
+                this.pad.addEventListener('pointerdown', this.padDownHandler);
+                this.pad.addEventListener('pointerup', this.padUpHandler);
+                this.pad.addEventListener('pointermove', this.padMoveHandler);
+                this.left.addEventListener('pointerdown', this.buttonDownHandler);
+                this.middle.addEventListener('pointerdown', this.buttonDownHandler);
+                this.right.addEventListener('pointerdown', this.buttonDownHandler);
+                this.left.addEventListener('pointerup', this.buttonUpHandler);
+                this.middle.addEventListener('pointerup', this.buttonUpHandler);
+                this.right.addEventListener('pointerup', this.buttonUpHandler);
+                return this;
+            }
+            handlePadDown() {
+                this.moving = true;
+            }
+            handlePadMove(e) {
+                if (!this.throttle) {
+                    this.pageController.ws.mouseMove(e.movementX, e.movementY);
+                    this.throttle = true;
+                    setTimeout(() => this.throttle = false, this.throttletimeout);
+                }
+            }
+            handlePadUp() {
+                this.moving = false;
             }
         }
 
@@ -1036,6 +1167,7 @@
                 switch (e.currentTarget.pathname) {
                     case "/remote":
                     case "/keyboard":
+                    case "/mouse":
                     case "/learn":
                     case "/ota":
                         this.pageController.page = e.currentTarget.pathname.replace(/^\//, "");
@@ -1200,6 +1332,7 @@
                 this.dpad = new Dpad(this, document.querySelector("section.remote"));
                 this.lower = new Lower(this, document.querySelector("section.remote"));
                 this.keyboard = new Keyboard(this, document.querySelector("section.keyboard"));
+                this.mouse = new Mouse(this, document.querySelector("section.mouse"));
                 this.learnOverlay = new Overlay(this, document.querySelector(".overlay.learn"));
                 this.forgetOverlay = new Overlay(this, document.querySelector(".overlay.forget"));
                 try {
