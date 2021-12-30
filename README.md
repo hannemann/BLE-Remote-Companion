@@ -126,3 +126,4 @@ android_tv_enter_longpress:
 * case for Node MCU style with TSOP (reset button)
 * start BLE Advertising via tactile button longpress
 * Basic Auth
+* configurable device name/room visible in frontend
