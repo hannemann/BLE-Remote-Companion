@@ -152,7 +152,7 @@ void WSEvent::handlePayload(uint8_t num, uint8_t *payload)
         JSONVar params = jsonBody["params"];
         callMethod(num, jsonBody["method"], params);
     }
-    ESP_LOGD(LOG_TAG, "Function time was %d", (int)(millis() - startTime));
+    Serial.printf("[%s] Function time was %d", LOG_TAG, (int)(millis() - startTime));
 }
 
 /**

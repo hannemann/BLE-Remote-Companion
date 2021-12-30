@@ -290,9 +290,10 @@
         bottom: var(--gap-minimal);
     }
     section.mouse {
-        width: calc(100vw - 2 * var(--gap));
+        width: min(40rem, calc(100vw - 2 * var(--gap)));
         position: fixed;
         inset: auto var(--gap) var(--gap);
+        margin-inline: auto;
         display: grid;
         grid-template-areas: 
             "mouse mouse mouse"
@@ -310,6 +311,7 @@
         border: 2px inset var(--clr-btn-bg);
         box-shadow: var(--bs-mousepad);
         grid-area: mouse;
+        touch-action: none; /* improves mouse action @see https://stackoverflow.com/questions/16348031/disable-scrolling-when-touch-moving-certain-element */ 
     }
     section.mouse .mouse-btn {
         background: var(--clr-mousepad-bg);
@@ -949,9 +951,12 @@
             constructor(pageController, node) {
                 super(pageController);
                 this.node = node;
-                this.moving = false;
-                this.throttletimeout = 50;
+                this.mouseIsDown = false;
+                this.throttletimeout = 20;
                 this.throttle = false;
+                this.current = {
+                    x:0,y:0
+                }
                 this.initElements().initListeners().addListeners();
             }
             initElements() {
@@ -965,6 +970,8 @@
                 this.padDownHandler = this.handlePadDown.bind(this);
                 this.padUpHandler = this.handlePadUp.bind(this);
                 this.padMoveHandler = this.handlePadMove.bind(this);
+                this.padEnterHandler = this.handlePadEnter.bind(this);
+                this.padLeaveHandler = this.handlePadLeave.bind(this);
                 this.buttonDownHandler = e => this.pageController.ws.mouseDown(e.currentTarget);
                 this.buttonUpHandler = e => this.pageController.ws.mouseUp(e.currentTarget);
                 return this;
@@ -973,6 +980,8 @@
                 this.pad.addEventListener('pointerdown', this.padDownHandler);
                 this.pad.addEventListener('pointerup', this.padUpHandler);
                 this.pad.addEventListener('pointermove', this.padMoveHandler);
+                this.pad.addEventListener('pointerenter', this.padEnterHandler);
+                this.pad.addEventListener('pointerleave', this.padLeaveHandler);
                 this.left.addEventListener('pointerdown', this.buttonDownHandler);
                 this.middle.addEventListener('pointerdown', this.buttonDownHandler);
                 this.right.addEventListener('pointerdown', this.buttonDownHandler);
@@ -981,18 +990,48 @@
                 this.right.addEventListener('pointerup', this.buttonUpHandler);
                 return this;
             }
-            handlePadDown() {
-                this.moving = true;
+            handlePadEnter(e) {
+                if ("touch" === e.pointerType) {
+                    this.current = {
+                        x: e.layerX,
+                        y: e.layerY
+                    };
+                }
+            }
+            handlePadLeave(e) {
+                if ("mouse" === e.pointerType) {
+                    this.mouseIsDown = false;
+                }
+            }
+            handlePadDown(e) {
+                if ("mouse" === e.pointerType) {
+                    this.mouseIsDown = true;
+                    this.current = {
+                        x: e.layerX,
+                        y: e.layerY
+                    };
+                }
+            }
+            handlePadUp(e) {
+                if ("mouse" === e.pointerType) {
+                    this.mouseIsDown = false;
+                }
             }
             handlePadMove(e) {
+                if ("mouse" === e.pointerType && !this.mouseIsDown) {
+                    return;
+                }
+                const movementX = e.layerX - this.current.x;
+                const movementY = e.layerY - this.current.y;
                 if (!this.throttle) {
-                    this.pageController.ws.mouseMove(e.movementX, e.movementY);
+                    this.current = {
+                        x: e.layerX,
+                        y: e.layerY
+                    }
+                    this.pageController.ws.mouseMove(movementX, movementY);
                     this.throttle = true;
                     setTimeout(() => this.throttle = false, this.throttletimeout);
                 }
-            }
-            handlePadUp() {
-                this.moving = false;
             }
         }
 
