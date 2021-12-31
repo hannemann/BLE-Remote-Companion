@@ -116,14 +116,18 @@ android_tv_enter_longpress:
 
 * [Keyboard Codes 0x0c (Type: APP_CONTROL / 4)](/doc/keycodes/app-control.md)
 ## 
-* change Wifi MAC als changes BT MAC? Test... this could solve issues if device is connected to an unknown bt client
+* change Wifi MAC also changes BT MAC? Test... this could solve issues if device is connected to an unknown bt client
 * documentation
-* Mouse Mode? (https://github.com/T-vK/ESP32-BLE-Mouse, https://githu b.com/olegos76/nimble_kbdhid_example/blob/main/main/gatt_vars.c)
+* Mouse Mode -> needs testing
+  * https://github.com/T-vK/ESP32-BLE-Mouse
+  * https://githu b.com/olegos76/nimble_kbdhid_example/blob/main/main/gatt_vars.c)
+* swipe
 * handle ir errors when learning
-* load all keycodes for configuration
+* layout onfiguration
 * configurable ws timeout
 * case for d1 Mini style with TSOP (reset button)
 * case for Node MCU style with TSOP (reset button)
 * start BLE Advertising via tactile button longpress
 * Basic Auth
-* configurable device name/room visible in frontend
+* configurable device name/room visible in frontend/title
+* deeplinks to layouts for iframes
