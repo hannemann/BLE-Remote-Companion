@@ -183,8 +183,8 @@ void BLECallback::onConnect(BLEServer *pServer, esp_ble_gatts_cb_param_t *param)
     BLE2902* desc = (BLE2902*)Bluetooth::input->getDescriptorByUUID(BLEUUID((uint16_t)0x2902));
     desc->setNotifications(true);
 
-    // desc = (BLE2902 *)Bluetooth::inputMedia->getDescriptorByUUID(BLEUUID((uint16_t)0x2902));
-    // desc->setNotifications(true);
+    desc = (BLE2902 *)Bluetooth::inputMedia->getDescriptorByUUID(BLEUUID((uint16_t)0x2902));
+    desc->setNotifications(true);
 
     desc = (BLE2902 *)Bluetooth::inputMouse->getDescriptorByUUID(BLEUUID((uint16_t)0x2902));
     desc->setNotifications(true);
@@ -199,8 +199,8 @@ void BLECallback::onDisconnect(BLEServer* pServer) {
     BLE2902* desc = (BLE2902*)Bluetooth::input->getDescriptorByUUID(BLEUUID((uint16_t)0x2902));
     desc->setNotifications(false);
 
-    // desc = (BLE2902 *)Bluetooth::inputMedia->getDescriptorByUUID(BLEUUID((uint16_t)0x2902));
-    // desc->setNotifications(false);
+    desc = (BLE2902 *)Bluetooth::inputMedia->getDescriptorByUUID(BLEUUID((uint16_t)0x2902));
+    desc->setNotifications(false);
 
     desc = (BLE2902 *)Bluetooth::inputMouse->getDescriptorByUUID(BLEUUID((uint16_t)0x2902));
     desc->setNotifications(false);
@@ -220,7 +220,6 @@ void keyTaskServer(void*) {
     Bluetooth::output = Bluetooth::hid->outputReport(0x01); // <-- output REPORTID from report map
 
     Bluetooth::inputMedia = Bluetooth::hid->inputReport(0x02); // <-- input REPORTID from report map
-    // Bluetooth::outputMedia = Bluetooth::hid->outputReport(0x02); // <-- output REPORTID from report map
 
     Bluetooth::inputMouse = Bluetooth::hid->inputReport(0x03); // <-- input REPORTID from report map
 
@@ -228,7 +227,7 @@ void keyTaskServer(void*) {
     Bluetooth::hid->manufacturer()->setValue(name);
 
     Bluetooth::hid->pnp(0x02, 0xe502, 0xa111, 0x0210);
-    Bluetooth::hid->hidInfo(0x00, 0x01);
+    Bluetooth::hid->hidInfo(0x00, 0x02);
 
     Bluetooth::hid->reportMap((uint8_t *)HidDescriptor, sizeof(HidDescriptor));
     Bluetooth::hid->startServices();
