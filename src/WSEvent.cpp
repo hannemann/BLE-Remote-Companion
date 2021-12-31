@@ -102,7 +102,7 @@ bool WSEvent::validatePayload(uint8_t num, JSONVar &payload)
         }
         if (strcmp(payload["method"], "mousemove") == 0)
         {
-            if (params.hasOwnProperty("x") && params.hasOwnProperty("y"))
+            if (params.hasOwnProperty("x") && params.hasOwnProperty("y") && params.hasOwnProperty("wheel") && params.hasOwnProperty("hWheel"))
             {
                 return true;
             }
@@ -238,7 +238,7 @@ void WSEvent::callMethod(uint8_t num, const char *method, JSONVar &params)
     }
     if (strcmp(method, "mousemove") == 0)
     {
-        bluetooth.mouseMove(int(params["x"]), int(params["y"]));
+        bluetooth.mouseMove(int(params["x"]), int(params["y"]), int(params["wheel"]), int(params["hWheel"]));
     }
 }
 

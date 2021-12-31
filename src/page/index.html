@@ -298,10 +298,43 @@
         margin-inline: auto;
         display: grid;
         grid-template-areas: 
+            "wheel wheel wheel"
             "mouse mouse mouse"
             "left middle right";
         grid-template-columns: 1.25fr .5fr 1.25fr;
-        grid-template-rows: 3fr 1fr;
+        grid-template-rows: min-content 3fr 1fr;
+    }
+    section.mouse .wheel {
+        grid-area: wheel;
+        justify-self: center;
+        width: 2rem;
+        height: 100%;
+        display: grid;
+        grid-template-rows: min-content 2rem 2rem min-content;
+        align-items: center;
+        box-shadow: var(--bs-remote-btn);
+    }
+    section.mouse .wheel svg {
+        display: block;
+        margin-inline: auto;
+    }
+    section.mouse .wheel div {
+        width: 100%;
+        aspect-ratio: 1;
+        border-radius: .5em .5em 0 0;
+        background-image: 
+            linear-gradient(to bottom,
+                hsl(var(--hue-bg) var(--sat-bg) 7%) 0%,
+                hsl(var(--hue-bg) var(--sat-bg) 30%) 80%,
+                hsl(var(--hue-bg) var(--sat-bg) 50%) 100%);
+    }
+    section.mouse .wheel div:last-of-type {
+        border-radius: 0 0 .5em .5em;
+        background-image: 
+            linear-gradient(to top,
+                hsl(var(--hue-bg) var(--sat-bg) 7%) 0%,
+                hsl(var(--hue-bg) var(--sat-bg) 30%) 80%,
+                hsl(var(--hue-bg) var(--sat-bg) 50%) 100%);
     }
     section.mouse .pad {
         width: 100%;
@@ -397,7 +430,8 @@
         display: none;
     }
     main[data-page="keyboard"] section.remote > div:is(.dpad),
-    main[data-page="keyboard"] section.remote > div:is(.functional) {
+    main[data-page="keyboard"] section.remote > div:is(.functional),
+    main[data-page="mouse"] section.remote > div:is(.functional) {
         display: grid;
     }
     /* /Router */
@@ -718,6 +752,12 @@
         </section>
         <section class="keyboard"></section>
         <section class="mouse">
+            <div class="wheel">
+                <svg xmlns="http://www.w3.org/2000/svg" style="width: 24px; height: 24px;" viewBox="0 0 24 24"><path fill="currentColor" d="M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z" /></svg>
+                <div class="wheel-up"></div>
+                <div class="wheel-down"></div>
+                <svg xmlns="http://www.w3.org/2000/svg" style="width: 24px; height: 24px;" viewBox="0 0 24 24"><path fill="currentColor" d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z" /></svg>
+            </div>
             <div class="pad"></div>
             <div class="mouse-btn left" data-button="1"></div>
             <div class="mouse-btn middle" data-button="4"></div>
@@ -963,10 +1003,10 @@
                 });
             }
 
-            mouseMove(x, y) {
+            mouseMove(x = 0, y = 0, wheel = 0, hWheel = 0) {
                 this.send({
                     method: "mousemove", skipResponse: true,
-                    params: {x, y}
+                    params: {x, y, wheel, hWheel}
                 });
             }
 
@@ -1028,6 +1068,8 @@
                 this.left = this.node.querySelector('.left');
                 this.middle = this.node.querySelector('.middle');
                 this.right = this.node.querySelector('.right');
+                this.wheelUp = this.node.querySelector('.wheel-up');
+                this.wheelDown = this.node.querySelector('.wheel-down');
                 return this;
             }
             initListeners() {
@@ -1038,6 +1080,8 @@
                 this.padLeaveHandler = this.handlePadLeave.bind(this);
                 this.buttonDownHandler = e => this.pageController.ws.mouseDown(e.currentTarget);
                 this.buttonUpHandler = e => this.pageController.ws.mouseUp(e.currentTarget);
+                this.wheelDownHandler = e => this.pageController.ws.mouseMove(0, 0, -1);
+                this.wheelUpHandler = e => this.pageController.ws.mouseMove(0, 0, 1);
                 return this;
             }
             addListeners() {
@@ -1052,6 +1096,8 @@
                 this.left.addEventListener('pointerup', this.buttonUpHandler);
                 this.middle.addEventListener('pointerup', this.buttonUpHandler);
                 this.right.addEventListener('pointerup', this.buttonUpHandler);
+                this.wheelUp.addEventListener('pointerup', this.wheelUpHandler);
+                this.wheelDown.addEventListener('pointerup', this.wheelDownHandler);
                 return this;
             }
             handlePadEnter(e) {

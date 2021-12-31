@@ -120,7 +120,7 @@ android_tv_enter_longpress:
 * documentation
 * Mouse Mode -> needs testing
   * https://github.com/T-vK/ESP32-BLE-Mouse
-  * https://githu b.com/olegos76/nimble_kbdhid_example/blob/main/main/gatt_vars.c)
+  * https://github.com/olegos76/nimble_kbdhid_example/blob/main/main/gatt_vars.c)
 * swipe
 * handle ir errors when learning
 * layout onfiguration
