@@ -124,6 +124,7 @@
     }
     body {
         background-image: var(--bg-black-metal);
+        background-size: 100vw 200vh;
         color: var(--clr-fg);
         overflow-x: hidden;
         width: 100vw;
@@ -156,8 +157,8 @@
         text-decoration: none;
     }
     nav a svg {
-        width: 1.5em !important;
-        height: 1.5em !important;
+        width: 1em !important;
+        height: 1em !important;
     }
     nav:not(.menu) a {
         opacity: .5;
@@ -330,19 +331,46 @@
         border-bottom-right-radius: .75rem;
     }
     section.all-buttons {
-        padding-inline: var(--gap);
         display: grid;
         gap: var(--gap);
+    }
+    section.all-buttons h1,
+    section.all-buttons h2,
+    section.all-buttons > div > div {
+        padding-inline: var(--gap);
     }
     section.all-buttons > div {
         display: grid;
         grid-template-columns: 1fr;
     }
+    section.all-buttons .sticky-filter {
+        position: sticky;
+        top: var(--nav-height);
+        border: 1px solid var(--clr-btn-border);
+        background: var(--clr-bg);
+        display: flex;
+        padding: 0;
+        align-items: center;
+        z-index: 1;
+    }
+    section.all-buttons .sticky-filter:focus-within {
+        border-color: var(--accent-color);
+    }
+    section.all-buttons .sticky-filter input:focus-within {
+        outline: none;
+    }
+    section.all-buttons h2 {
+        position: sticky;
+        top: calc(var(--nav-height) + 1.5em + 2px);
+        background: var(--clr-bg);
+        padding-block: .25em;
+        z-index: 1;
+    }
     section.all-buttons > div > div {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: .75em;
+        padding-block: .75em;
     }
     @media (max-width: 26rem) {
         section.all-buttons > div > div {
@@ -711,6 +739,12 @@
         </section>
         <section class="all-buttons">
             <h1>All Buttons</h1>
+            <label class="sticky-filter">
+                <input>
+                <svg style="width:24px;height:24px" viewBox="0 0 24 24">
+                    <path fill="currentColor" d="M6,13H18V11H6M3,6V8H21V6M10,18H14V16H10V18Z" />
+                </svg>
+            </label>
         </section>
     </main>
     <nav class="menu">
@@ -1422,9 +1456,15 @@
         }
 
         class AllButtons extends ButtonsAbstract {
+            constructor(pageController, parent) {
+                super(pageController, parent);
+                this.search = this.parent.querySelector('input');
+                this.initSearch();
+            }
             render(config, part) {
+                this.items = this.items || [];
                 const container = document.createElement('div');
-                const header = document.createElement('H1');
+                const header = document.createElement('H2');
                 header.innerHTML = config.label;
                 this.parent.appendChild(header);
                 this.parent.appendChild(container);
@@ -1439,7 +1479,23 @@
                     btn.addEventListener("pointerup", this.keyUpHandler);
                     btn.innerHTML = 'Test';
                     wrapper.appendChild(btn);
+                    this.items.push(wrapper);
                 });
+            }
+            initSearch() {
+                this.search.addEventListener('focus', () => this.search.select());
+                this.search.addEventListener('keyup', this.handleSearch.bind(this));
+            }
+            handleSearch(e) {
+                const term = e.currentTarget.value.toLowerCase();
+                this.items.map(item => {
+                    item.style.display = item.firstChild.textContent.toLowerCase()
+                        .includes(term) ? '' : 'none';
+                });
+            }
+            onshow() {
+                this.search.focus();
+                this.handleSearch({currentTarget: this.search})
             }
         }
 
@@ -1457,6 +1513,9 @@
                 this.allButtons = new AllButtons(this, document.querySelector("section.all-buttons"));
                 this.learnOverlay = new Overlay(this, document.querySelector(".overlay.learn"));
                 this.forgetOverlay = new Overlay(this, document.querySelector(".overlay.forget"));
+                this.pages = {
+                    'all-buttons': this.allButtons
+                }
                 try {
                     this.ws = new WebsocketHandler(this).run();
                     return this.initBody()
@@ -1533,6 +1592,9 @@
             }
             set page(page) {
                 this.main.dataset.page = page;
+                if (typeof this.pages[page]?.onshow === 'function') {
+                    this.pages[page].onshow();
+                }
             }
 
             get active() {
