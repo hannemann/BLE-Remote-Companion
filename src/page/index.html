@@ -329,11 +329,41 @@
         grid-area: right;
         border-bottom-right-radius: .75rem;
     }
+    section.all-buttons {
+        padding-inline: var(--gap);
+        display: grid;
+        gap: var(--gap);
+    }
+    section.all-buttons > div {
+        display: grid;
+        grid-template-columns: 1fr;
+    }
+    section.all-buttons > div > div {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: .75em;
+    }
+    @media (max-width: 26rem) {
+        section.all-buttons > div > div {
+            font-size: .9em;
+        }
+    }
+    section.all-buttons > div > div:nth-child(odd) {
+        background-color: hsla(0 0% 100% / .07);
+    }
+    section.all-buttons button {
+        font-size: 1em;
+        padding: .75em;
+        aspect-ratio: revert;
+        height: revert;
+    }
     /* Router */
     main:not([data-page="remote"]):not([data-page="learn"]) section.remote > div,
     main:not([data-page="keyboard"]):not([data-page="learn"]) section.keyboard,
     main:not([data-page="mouse"]) section.mouse,
     main:not([data-page="learn"]) section.config,
+    main:not([data-page="all-buttons"]) section.all-buttons,
     main:not([data-page="ota"]) section.ota {
         display: none;
     }
@@ -679,9 +709,13 @@
                 </p>
             </form>
         </section>
+        <section class="all-buttons">
+            <h1>All Buttons</h1>
+        </section>
     </main>
     <nav class="menu">
         <a href="/learn">Learn IR Codes</a>
+        <a href="/all-buttons">All Buttons</a>
         <a href="/ota" data-bottom="true">OTA Update</a>
         <a href="/reboot">Reboot</a>
     </nav>
@@ -1233,6 +1267,7 @@
                     case "/keyboard":
                     case "/mouse":
                     case "/learn":
+                    case "/all-buttons":
                     case "/ota":
                         this.pageController.page = e.currentTarget.pathname.replace(/^\//, "");
                         break;
@@ -1386,6 +1421,28 @@
             }
         }
 
+        class AllButtons extends ButtonsAbstract {
+            render(config, part) {
+                const container = document.createElement('div');
+                const header = document.createElement('H1');
+                header.innerHTML = config.label;
+                this.parent.appendChild(header);
+                this.parent.appendChild(container);
+                config.buttons.forEach((b, i) => {
+                    const wrapper = document.createElement('div');
+                    wrapper.innerText = b.name;
+                    container.appendChild(wrapper);
+                    const btn = document.createElement('button');
+                    btn.dataset.key = i;
+                    btn.dataset.type = config.typeId;
+                    btn.addEventListener("pointerdown", this.keyDownHandler);
+                    btn.addEventListener("pointerup", this.keyUpHandler);
+                    btn.innerHTML = 'Test';
+                    wrapper.appendChild(btn);
+                });
+            }
+        }
+
         class PageController {
             run() {
                 this.main = document.querySelector("main");
@@ -1397,6 +1454,7 @@
                 this.lower = new Lower(this, document.querySelector("section.remote"));
                 this.keyboard = new Keyboard(this, document.querySelector("section.keyboard"));
                 this.mouse = new Mouse(this, document.querySelector("section.mouse"));
+                this.allButtons = new AllButtons(this, document.querySelector("section.all-buttons"));
                 this.learnOverlay = new Overlay(this, document.querySelector(".overlay.learn"));
                 this.forgetOverlay = new Overlay(this, document.querySelector(".overlay.forget"));
                 try {
@@ -1496,8 +1554,412 @@
             }
         }
 
-        pageController = (new PageController()).run();
+        const HIDKeyboard = [
+            {name: "KEYCODE_A", USBHID: 0x0004},
+            {name: "KEYCODE_B", USBHID: 0x0005},
+            {name: "KEYCODE_C", USBHID: 0x0006},
+            {name: "KEYCODE_D", USBHID: 0x0007},
+            {name: "KEYCODE_E", USBHID: 0x0008},
+            {name: "KEYCODE_F", USBHID: 0x0009},
+            {name: "KEYCODE_G", USBHID: 0x000a},
+            {name: "KEYCODE_H", USBHID: 0x000b},
+            {name: "KEYCODE_I", USBHID: 0x000c},
+            {name: "KEYCODE_J", USBHID: 0x000d},
+            {name: "KEYCODE_K", USBHID: 0x000e},
+            {name: "KEYCODE_L", USBHID: 0x000f},
+            {name: "KEYCODE_M", USBHID: 0x0010},
+            {name: "KEYCODE_N", USBHID: 0x0011},
+            {name: "KEYCODE_O", USBHID: 0x0012},
+            {name: "KEYCODE_P", USBHID: 0x0013},
+            {name: "KEYCODE_Q", USBHID: 0x0014},
+            {name: "KEYCODE_R", USBHID: 0x0015},
+            {name: "KEYCODE_S", USBHID: 0x0016},
+            {name: "KEYCODE_T", USBHID: 0x0017},
+            {name: "KEYCODE_U", USBHID: 0x0018},
+            {name: "KEYCODE_V", USBHID: 0x0019},
+            {name: "KEYCODE_W", USBHID: 0x001a},
+            {name: "KEYCODE_X", USBHID: 0x001b},
+            {name: "KEYCODE_Y", USBHID: 0x001c},
+            {name: "KEYCODE_Z", USBHID: 0x001d},
+            {name: "KEYCODE_1", USBHID: 0x001e},
+            {name: "KEYCODE_2", USBHID: 0x001f},
+            {name: "KEYCODE_3", USBHID: 0x0020},
+            {name: "KEYCODE_4", USBHID: 0x0021},
+            {name: "KEYCODE_5", USBHID: 0x0022},
+            {name: "KEYCODE_6", USBHID: 0x0023},
+            {name: "KEYCODE_7", USBHID: 0x0024},
+            {name: "KEYCODE_8", USBHID: 0x0025},
+            {name: "KEYCODE_9", USBHID: 0x0026},
+            {name: "KEYCODE_0", USBHID: 0x0027},
+            {name: "KEYCODE_ENTER", USBHID: 0x0028},
+            {name: "KEYCODE_ESCAPE", USBHID: 0x0029},
+            {name: "KEYCODE_DEL", USBHID: 0x002a},
+            {name: "KEYCODE_TAB", USBHID: 0x002b},
+            {name: "KEYCODE_SPACE", USBHID: 0x002c},
+            {name: "KEYCODE_MINUS", USBHID: 0x002d},
+            {name: "KEYCODE_EQUALS", USBHID: 0x002e},
+            {name: "KEYCODE_LEFT_BRACKET", USBHID: 0x002f},
+            {name: "KEYCODE_RIGHT_BRACKET", USBHID: 0x0030},
+            {name: "KEYCODE_BACKSLASH", USBHID: 0x0031},
+            {name: "KEYCODE_SEMICOLON", USBHID: 0x0033},
+            {name: "KEYCODE_APOSTROPHE", USBHID: 0x0034},
+            {name: "KEYCODE_GRAVE", USBHID: 0x0035},
+            {name: "KEYCODE_COMMA", USBHID: 0x0036},
+            {name: "KEYCODE_PERIOD", USBHID: 0x0037},
+            {name: "KEYCODE_SLASH", USBHID: 0x0038},
+            {name: "KEYCODE_CAPS_LOCK", USBHID: 0x0039},
+            {name: "KEYCODE_F1", USBHID: 0x003a},
+            {name: "KEYCODE_F2", USBHID: 0x003b},
+            {name: "KEYCODE_F3", USBHID: 0x003c},
+            {name: "KEYCODE_F4", USBHID: 0x003d},
+            {name: "KEYCODE_F5", USBHID: 0x003e},
+            {name: "KEYCODE_F6", USBHID: 0x003f},
+            {name: "KEYCODE_F7", USBHID: 0x0040},
+            {name: "KEYCODE_F8", USBHID: 0x0041},
+            {name: "KEYCODE_F9", USBHID: 0x0042},
+            {name: "KEYCODE_F10", USBHID: 0x0043},
+            {name: "KEYCODE_F11", USBHID: 0x0044},
+            {name: "KEYCODE_F12", USBHID: 0x0045},
+            {name: "KEYCODE_SYSRQ", USBHID: 0x0046},
+            {name: "KEYCODE_SCROLL_LOCK", USBHID: 0x0047},
+            {name: "KEYCODE_BREAK", USBHID: 0x0048},
+            {name: "KEYCODE_INSERT", USBHID: 0x0049},
+            {name: "KEYCODE_MOVE_HOME", USBHID: 0x004a},
+            {name: "KEYCODE_PAGE_UP", USBHID: 0x004b},
+            {name: "KEYCODE_FORWARD_DEL", USBHID: 0x004c},
+            {name: "KEYCODE_MOVE_END", USBHID: 0x004d},
+            {name: "KEYCODE_PAGE_DOWN", USBHID: 0x004e},
+            {name: "KEYCODE_DPAD_RIGHT", USBHID: 0x004f},
+            {name: "KEYCODE_DPAD_LEFT", USBHID: 0x0050},
+            {name: "KEYCODE_DPAD_DOWN", USBHID: 0x0051},
+            {name: "KEYCODE_DPAD_UP", USBHID: 0x0052},
+            {name: "KEYCODE_NUM_LOCK", USBHID: 0x0053},
+            {name: "KEYCODE_NUMPAD_DIVIDE", USBHID: 0x0054},
+            {name: "KEYCODE_NUMPAD_MULTIPLY", USBHID: 0x0055},
+            {name: "KEYCODE_NUMPAD_SUBTRACT", USBHID: 0x0056},
+            {name: "KEYCODE_NUMPAD_ADD", USBHID: 0x0057},
+            {name: "KEYCODE_NUMPAD_ENTER", USBHID: 0x0058},
+            {name: "KEYCODE_NUMPAD_1", USBHID: 0x0059},
+            {name: "KEYCODE_NUMPAD_2", USBHID: 0x005a},
+            {name: "KEYCODE_NUMPAD_3", USBHID: 0x005b},
+            {name: "KEYCODE_NUMPAD_4", USBHID: 0x005c},
+            {name: "KEYCODE_NUMPAD_5", USBHID: 0x005d},
+            {name: "KEYCODE_NUMPAD_6", USBHID: 0x005e},
+            {name: "KEYCODE_NUMPAD_7", USBHID: 0x005f},
+            {name: "KEYCODE_NUMPAD_8", USBHID: 0x0060},
+            {name: "KEYCODE_NUMPAD_9", USBHID: 0x0061},
+            {name: "KEYCODE_NUMPAD_0", USBHID: 0x0062},
+            {name: "KEYCODE_NUMPAD_DOT", USBHID: 0x0063},
+            {name: "KEYCODE_MENU", USBHID: 0x0065},
+            {name: "KEYCODE_POWER", USBHID: 0x0066},
+            {name: "KEYCODE_NUMPAD_EQUALS", USBHID: 0x0067},
+            {name: "KEYCODE_MEDIA_STOP", USBHID: 0x0078},
+            {name: "KEYCODE_VOLUME_MUTE", USBHID: 0x007f},
+            {name: "KEYCODE_VOLUME_UP", USBHID: 0x0080},
+            {name: "KEYCODE_VOLUME_DOWN", USBHID: 0x0081},
+            {name: "KEYCODE_NUMPAD_COMMA", USBHID: 0x0085},
+            {name: "KEYCODE_NUMPAD_LEFT_PAREN", USBHID: 0x00b6},
+            {name: "KEYCODE_NUMPAD_RIGHT_PAREN", USBHID: 0x00b7},
+            {name: "KEYCODE_CTRL_LEFT", USBHID: 0x00e0},
+            {name: "KEYCODE_SHIFT_LEFT", USBHID: 0x00e1},
+            {name: "KEYCODE_ALT_LEFT", USBHID: 0x00e2},
+            {name: "KEYCODE_META_LEFT", USBHID: 0x00e3},
+            {name: "KEYCODE_CTRL_RIGHT", USBHID: 0x00e4},
+            {name: "KEYCODE_SHIFT_RIGHT", USBHID: 0x00e5},
+            {name: "KEYCODE_ALT_RIGHT", USBHID: 0x00e6},
+            {name: "KEYCODE_META_RIGHT", USBHID: 0x00e7},
+            {name: "KEYCODE_MEDIA_PLAY_PAUSE", USBHID: 0x00e8},
+            {name: "KEYCODE_MEDIA_PREVIOUS", USBHID: 0x00ea},
+            {name: "KEYCODE_MEDIA_NEXT", USBHID: 0x00eb},
+            {name: "KEYCODE_MEDIA_EJECT", USBHID: 0x00ec},
+            {name: "KEYCODE_EXPLORER", USBHID: 0x00f0},
+            {name: "KEYCODE_BACK", USBHID: 0x00f1},
+            {name: "KEYCODE_FORWARD", USBHID: 0x00f2},
+            {name: "KEYCODE_CALCULATOR", USBHID: 0x00fb},
+        ];
 
+        const HIDConsumer = [
+            {name: "KEYCODE_POWER", USBHID: 0x0034},
+            {name: "KEYCODE_MENU", USBHID: 0x0040},
+            {name: "KEYCODE_WINDOW", USBHID: 0x0067},
+            {name: "KEYCODE_PROG_RED", USBHID: 0x0069},
+            {name: "KEYCODE_PROG_GREEN", USBHID: 0x006a},
+            {name: "KEYCODE_PROG_BLUE", USBHID: 0x006b}, // 5
+            {name: "KEYCODE_PROG_YELLOW", USBHID: 0x006c},
+            {name: "KEYCODE_LAST_CHANNEL", USBHID: 0x0083},
+            {name: "KEYCODE_TV", USBHID: 0x0089},
+            {name: "KEYCODE_EXPLORER", USBHID: 0x008a},
+            {name: "KEYCODE_CALL", USBHID: 0x008c}, // 10
+            {name: "KEYCODE_GUIDE", USBHID: 0x008d},
+            {name: "KEYCODE_DVR", USBHID: 0x009a},
+            {name: "KEYCODE_CAPTIONS", USBHID: 0x0061},
+            {name: "KEYCODE_CHANNEL_UP", USBHID: 0x009c},
+            {name: "KEYCODE_CHANNEL_DOWN", USBHID: 0x009d}, // 15
+            {name: "KEYCODE_MEDIA_PLAY", USBHID: 0x00b0},
+            {name: "KEYCODE_BREAK", USBHID: 0x00b1},
+            {name: "KEYCODE_MEDIA_RECORD", USBHID: 0x00b2},
+            {name: "KEYCODE_MEDIA_FAST_FORWARD", USBHID: 0x00b3},
+            {name: "KEYCODE_MEDIA_REWIND", USBHID: 0x00b4}, // 20
+            {name: "KEYCODE_MEDIA_NEXT", USBHID: 0x00b5},
+            {name: "KEYCODE_MEDIA_PREVIOUS", USBHID: 0x00b6},
+            {name: "KEYCODE_MEDIA_STOP", USBHID: 0x00b7},
+            {name: "KEYCODE_MEDIA_EJECT", USBHID: 0x00b8},
+            {name: "KEYCODE_MEDIA_PLAY_PAUSE", USBHID: 0x00cd}, // 25
+            {name: "KEYCODE_VOLUME_MUTE", USBHID: 0x00e2},
+            {name: "KEYCODE_VOLUME_UP", USBHID: 0x00e9},
+            {name: "KEYCODE_VOLUME_DOWN", USBHID: 0x00ea},
+            {name: "KEYCODE_MEDIA_AUDIO_TRACK", USBHID: 0x0173},
+            {name: "KEYCODE_BOOKMARK", USBHID: 0x0182}, // 30
+            {name: "KEYCODE_MUSIC", USBHID: 0x0183},
+            {name: "KEYCODE_ENVELOPE", USBHID: 0x018a},
+            {name: "KEYCODE_CONTACTS", USBHID: 0x018d},
+            {name: "KEYCODE_CALENDAR", USBHID: 0x018e},
+            {name: "KEYCODE_CALCULATOR", USBHID: 0x0192}, // 35
+            {name: "KEYCODE_EXPLORER", USBHID: 0x0196},
+            {name: "KEYCODE_POWER", USBHID: 0x019e},
+            {name: "KEYCODE_HEADSETHOOK", USBHID: 0x01b6},
+            {name: "KEYCODE_MUSIC", USBHID: 0x01b7},
+            {name: "KEYCODE_SEARCH", USBHID: 0x0221}, // 40
+            {name: "KEYCODE_HOME", USBHID: 0x0223},
+            {name: "KEYCODE_BACK", USBHID: 0x0224},
+            {name: "KEYCODE_FORWARD", USBHID: 0x0225},
+            {name: "KEYCODE_MEDIA_STOP", USBHID: 0x0226},
+            {name: "KEYCODE_BOOKMARK", USBHID: 0x022a}, // 45
+            {name: "KEYCODE_PAGE_UP", USBHID: 0x0233},
+            {name: "KEYCODE_PAGE_DOWN", USBHID: 0x0234},
+        ];
+
+        const HIDAppLauncher = [
+            {name: "AL Launch Button Config. Tool", USBHID: 0x0181},
+            {name: "AL Programmable Button Config.", USBHID: 0x0182},
+            {name: "AL Consumer Control Config.", USBHID: 0x0183},
+            {name: "AL Word Processor", USBHID: 0x0184},
+            {name: "AL Text Editor", USBHID: 0x0185},
+            {name: "AL Spreadsheet", USBHID: 0x0186},
+            {name: "AL Graphics Editor", USBHID: 0x0187},
+            {name: "AL Presentation App", USBHID: 0x0188},
+            {name: "AL Database App", USBHID: 0x0189},
+            {name: "AL Email Reader", USBHID: 0x018a},
+            {name: "AL Newsreader", USBHID: 0x018b},
+            {name: "AL Voicemail", USBHID: 0x018c},
+            {name: "AL Contacts / Address Book", USBHID: 0x018d},
+            {name: "AL Calendar / Schedule", USBHID: 0x018e},
+            {name: "AL Task / Project Manager", USBHID: 0x018f},
+            {name: "AL Log / Journal / Timecard", USBHID: 0x0190},
+            {name: "AL Checkbook / Finance", USBHID: 0x0191},
+            {name: "AL Calculator", USBHID: 0x0192},
+            {name: "AL A/V Capture / Playback", USBHID: 0x0193},
+            {name: "AL Local Machine Browser", USBHID: 0x0194},
+            {name: "AL LAN/WAN Browser", USBHID: 0x0195},
+            {name: "AL Internet Browser", USBHID: 0x0196},
+            {name: "AL Remote Networking/ISP Connect", USBHID: 0x0197},
+            {name: "AL Network Conference", USBHID: 0x0198},
+            {name: "AL Network Chat", USBHID: 0x0199},
+            {name: "AL Telephony / Dialer", USBHID: 0x019a},
+            {name: "AL Logon", USBHID: 0x019b},
+            {name: "AL Logoff", USBHID: 0x019c},
+            {name: "AL Logon / Logoff", USBHID: 0x019d},
+            {name: "AL Terminal Lock / Screensaver", USBHID: 0x019e},
+            {name: "AL Control Panel", USBHID: 0x019f},
+            {name: "AL Command Line Processor / Run", USBHID: 0x01a0},
+            {name: "AL Process / Task Manager", USBHID: 0x01a1},
+            {name: "AL Select Task / Application", USBHID: 0x01a2},
+            {name: "AL Next Task / Application", USBHID: 0x01a3},
+            {name: "AL Previous Task / Application", USBHID: 0x01a4},
+            {name: "AL Preemptive Halt Task / App.", USBHID: 0x01a5},
+            {name: "AL Integrated Help Center", USBHID: 0x01a6},
+            {name: "AL Documents", USBHID: 0x01a7},
+            {name: "AL Thesaurus", USBHID: 0x01a8},
+            {name: "AL Dictionary", USBHID: 0x01a9},
+            {name: "AL Desktop", USBHID: 0x01aa},
+            {name: "AL Spell Check", USBHID: 0x01ab},
+            {name: "AL Grammar Check", USBHID: 0x01ac},
+            {name: "AL Wireless Status", USBHID: 0x01ad},
+            {name: "AL Keyboard Layout", USBHID: 0x01ae},
+            {name: "AL Virus Protection", USBHID: 0x01af},
+            {name: "AL Encryption", USBHID: 0x01b0},
+            {name: "AL Screen Saver", USBHID: 0x01b1},
+            {name: "AL Alarms", USBHID: 0x01b2},
+            {name: "AL Clock", USBHID: 0x01b3},
+            {name: "AL File Browser", USBHID: 0x01b4},
+            {name: "AL Power Status", USBHID: 0x01b5},
+            {name: "AL Image Browser", USBHID: 0x01b6},
+            {name: "AL Audio Browser", USBHID: 0x01b7},
+            {name: "AL Movie Browser", USBHID: 0x01b8},
+            {name: "AL Digital Rights Manager", USBHID: 0x01b9},
+            {name: "AL Digital Wallet", USBHID: 0x01ba},
+            {name: "AL Instant Messaging", USBHID: 0x01bc},
+            {name: "AL OEM Features / Tips Browser", USBHID: 0x01bd},
+            {name: "AL OEM Help", USBHID: 0x01be},
+            {name: "AL Online Community", USBHID: 0x01bf},
+            {name: "AL Entertainment Content Browser", USBHID: 0x01c0},
+            {name: "AL Online Shopping Browser", USBHID: 0x01c1},
+            {name: "AL SmartCard Information / Help", USBHID: 0x01c2},
+            {name: "AL Market / Finance Browser", USBHID: 0x01c3},
+            {name: "AL Customized Corp. News Browser", USBHID: 0x01c4},
+            {name: "AL Online Activity Browser", USBHID: 0x01c5},
+            {name: "AL Research / Search Browser", USBHID: 0x01c6},
+            {name: "AL Audio Player", USBHID: 0x01c7},
+        ];
+
+        const HIDAppControl = [
+            {name: "AC New", USBHID: 0x0201},
+            {name: "AC Open", USBHID: 0x0202},
+            {name: "AC Close", USBHID: 0x0203},
+            {name: "AC Exit", USBHID: 0x0204},
+            {name: "AC Maximize", USBHID: 0x0205},
+            {name: "AC Minimize", USBHID: 0x0206},
+            {name: "AC Save", USBHID: 0x0207},
+            {name: "AC Print", USBHID: 0x0208},
+            {name: "AC Properties", USBHID: 0x0209},
+            {name: "AC Undo", USBHID: 0x021a},
+            {name: "AC Copy", USBHID: 0x021b},
+            {name: "AC Cut", USBHID: 0x021c},
+            {name: "AC Paste", USBHID: 0x021d},
+            {name: "AC Select All", USBHID: 0x021e},
+            {name: "AC Find", USBHID: 0x021f},
+            {name: "AC Find and Replace", USBHID: 0x0220},
+            {name: "AC Search", USBHID: 0x0221},
+            {name: "AC Go To", USBHID: 0x0222},
+            {name: "AC Home", USBHID: 0x0223},
+            {name: "AC Back", USBHID: 0x0224},
+            {name: "AC Forward", USBHID: 0x0225},
+            {name: "AC Stop", USBHID: 0x0226},
+            {name: "AC Refresh", USBHID: 0x0227},
+            {name: "AC Previous Link", USBHID: 0x0228},
+            {name: "AC Next Link", USBHID: 0x0229},
+            {name: "AC Bookmarks", USBHID: 0x022a},
+            {name: "AC History", USBHID: 0x022b},
+            {name: "AC Subscriptions", USBHID: 0x022c},
+            {name: "AC Zoom In", USBHID: 0x022d},
+            {name: "AC Zoom Out", USBHID: 0x022e},
+            {name: "AC Zoom", USBHID: 0x022f},
+            {name: "AC Full Screen View", USBHID: 0x0230},
+            {name: "AC Normal View", USBHID: 0x0231},
+            {name: "AC View Toggle", USBHID: 0x0232},
+            {name: "AC Scroll Up", USBHID: 0x0233},
+            {name: "AC Scroll Down", USBHID: 0x0234},
+            {name: "AC Pan Left", USBHID: 0x0236},
+            {name: "AC Pan Right", USBHID: 0x0237},
+            {name: "AC New Window", USBHID: 0x0239},
+            {name: "AC Tile Horizontally", USBHID: 0x023a},
+            {name: "AC Tile Vertically", USBHID: 0x023b},
+            {name: "AC Format", USBHID: 0x023c},
+            {name: "AC Edit", USBHID: 0x023d},
+            {name: "AC Bold", USBHID: 0x023e},
+            {name: "AC Italics", USBHID: 0x023f},
+            {name: "AC Underline", USBHID: 0x0240},
+            {name: "AC Strikethrough", USBHID: 0x0241},
+            {name: "AC Subscript", USBHID: 0x0242},
+            {name: "AC Superscript", USBHID: 0x0243},
+            {name: "AC All Caps", USBHID: 0x0244},
+            {name: "AC Rotate", USBHID: 0x0245},
+            {name: "AC Resize", USBHID: 0x0246},
+            {name: "AC Flip horizontal", USBHID: 0x0247},
+            {name: "AC Flip Vertical", USBHID: 0x0248},
+            {name: "AC Mirror Horizontal", USBHID: 0x0249},
+            {name: "AC Mirror Vertical", USBHID: 0x024a},
+            {name: "AC Font Select", USBHID: 0x024b},
+            {name: "AC Font Color", USBHID: 0x024c},
+            {name: "AC Font Size", USBHID: 0x024d},
+            {name: "AC Justify Left", USBHID: 0x024e},
+            {name: "AC Justify Center H", USBHID: 0x024f},
+            {name: "AC Justify Right", USBHID: 0x0250},
+            {name: "AC Justify Block H", USBHID: 0x0251},
+            {name: "AC Justify Top", USBHID: 0x0252},
+            {name: "AC Justify Center V", USBHID: 0x0253},
+            {name: "AC Justify Bottom", USBHID: 0x0254},
+            {name: "AC Justify Block V", USBHID: 0x0255},
+            {name: "AC Indent Decrease", USBHID: 0x0256},
+            {name: "AC Indent Increase", USBHID: 0x0257},
+            {name: "AC Numbered List", USBHID: 0x0258},
+            {name: "AC Restart Numbering", USBHID: 0x0259},
+            {name: "AC Bulleted List", USBHID: 0x025a},
+            {name: "AC Promote", USBHID: 0x025b},
+            {name: "AC Demote", USBHID: 0x025c},
+            {name: "AC Yes", USBHID: 0x025d},
+            {name: "AC No", USBHID: 0x025e},
+            {name: "AC Cancel", USBHID: 0x025f},
+            {name: "AC Catalog", USBHID: 0x0260},
+            {name: "AC Buy / Checkout", USBHID: 0x0261},
+            {name: "AC Add to Cart", USBHID: 0x0262},
+            {name: "AC Expand", USBHID: 0x0263},
+            {name: "AC Expand All", USBHID: 0x0264},
+            {name: "AC Collapse", USBHID: 0x0265},
+            {name: "AC Collapse All", USBHID: 0x0266},
+            {name: "AC Print Preview", USBHID: 0x0267},
+            {name: "AC Paste Special", USBHID: 0x0268},
+            {name: "AC Insert Mode", USBHID: 0x0269},
+            {name: "AC Delete", USBHID: 0x026a},
+            {name: "AC Lock", USBHID: 0x026b},
+            {name: "AC Unlock", USBHID: 0x026c},
+            {name: "AC Protect", USBHID: 0x026d},
+            {name: "AC Unprotect", USBHID: 0x026e},
+            {name: "AC Attach Comment", USBHID: 0x026f},
+            {name: "AC Delete Comment", USBHID: 0x0270},
+            {name: "AC View Comment", USBHID: 0x0271},
+            {name: "AC Select Word", USBHID: 0x0272},
+            {name: "AC Select Sentence", USBHID: 0x0273},
+            {name: "AC Select Paragraph", USBHID: 0x0274},
+            {name: "AC Select Column", USBHID: 0x0275},
+            {name: "AC Select Row", USBHID: 0x0276},
+            {name: "AC Select Table", USBHID: 0x0277},
+            {name: "AC Select Object", USBHID: 0x0278},
+            {name: "AC Redo / Repeat", USBHID: 0x0279},
+            {name: "AC Sort", USBHID: 0x027a},
+            {name: "AC Sort Ascending", USBHID: 0x027b},
+            {name: "AC Sort Descending", USBHID: 0x027c},
+            {name: "AC Filter", USBHID: 0x027d},
+            {name: "AC Set Clock", USBHID: 0x027e},
+            {name: "AC View Clock", USBHID: 0x027f},
+            {name: "AC Select Time Zone", USBHID: 0x0280},
+            {name: "AC Edit Time Zones", USBHID: 0x0281},
+            {name: "AC Set Alarm", USBHID: 0x0282},
+            {name: "AC Clear Alarm", USBHID: 0x0283},
+            {name: "AC Snooze Alarm", USBHID: 0x0284},
+            {name: "AC Reset Alarm", USBHID: 0x0285},
+            {name: "AC Synchronize", USBHID: 0x0286},
+            {name: "AC Send/Receive", USBHID: 0x0287},
+            {name: "AC Send To", USBHID: 0x0288},
+            {name: "AC Reply", USBHID: 0x0289},
+            {name: "AC Reply All", USBHID: 0x028a},
+            {name: "AC Forward Msg", USBHID: 0x028b},
+            {name: "AC Send", USBHID: 0x028c},
+            {name: "AC Attach File", USBHID: 0x028d},
+            {name: "AC Upload", USBHID: 0x028e},
+            {name: "AC Download (Save Target As)", USBHID: 0x028f},
+            {name: "AC Set Borders", USBHID: 0x0290},
+            {name: "AC Insert Row", USBHID: 0x0291},
+            {name: "AC Insert Column", USBHID: 0x0292},
+            {name: "AC Insert File", USBHID: 0x0293},
+            {name: "AC Insert Picture", USBHID: 0x0294},
+            {name: "AC Insert Object", USBHID: 0x0295},
+            {name: "AC Insert Symbol", USBHID: 0x0296},
+            {name: "AC Save and Close", USBHID: 0x0297},
+            {name: "AC Rename", USBHID: 0x0298},
+            {name: "AC Merge", USBHID: 0x0299},
+            {name: "AC Split", USBHID: 0x029a},
+            {name: "AC Distribute Horizontally", USBHID: 0x029b},
+            {name: "AC Distribute Vertically", USBHID: 0x029c},
+        ];
+
+        const TYPE_KEYBOARD = 1;
+        const TYPE_CONSUMER = 2;
+        const TYPE_APP_LAUNCHER = 3;
+        const TYPE_APP_CONTROL = 4;
+
+        const USBHIDType = {
+            keyboard: {typeId: TYPE_KEYBOARD, buttons: HIDKeyboard, label: "Keyboard 0x07"},
+            consumer: {typeId: TYPE_CONSUMER, buttons: HIDConsumer, label: "Consumer 0x0c"},
+            appLauncher: {typeId: TYPE_APP_LAUNCHER, buttons: HIDAppLauncher, label: "Consumer 0x0c (App Launcher)"},
+            appControl: {typeId: TYPE_APP_CONTROL, buttons: HIDAppControl, label: "Consumer 0x0c (App Control)"} 
+        };
+
+        Object.defineProperty(AllButtons.prototype, 'buttons', {
+            get() { return USBHIDType; }
+        });
+
+        pageController = (new PageController()).run();
     </script>
 </body>
 </html>
