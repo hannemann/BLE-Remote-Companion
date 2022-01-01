@@ -1690,15 +1690,43 @@
 
         class PageController {
             run() {
+                try {
+                    return this.initMain()
+                        .initWebsocket()
+                        .initKeys()
+                        .initPages()
+                        .initBody()
+                        .initForget()
+                        .initClear()
+                        .initVisibility();
+                } catch (error) {
+                    console.error(error);
+                }
+            }
+
+            initMain() {
                 this.main = document.querySelector("main");
+                this.config = new Config(this, document.querySelector("section.config"));
                 this.nav = new Nav(this);
                 this.menu = new Menu(this);
-                this.ota = new Ota(this);
-                this.config = new Config(this, document.querySelector("section.config"));
+                return this;
+            }
+
+            initWebsocket() {
+                this.ws = new WebsocketHandler(this).run();
+                return this;
+            }
+
+            initKeys() {
                 this.upper = new Upper(this, document.querySelector("section.remote"));
                 this.dpad = new Dpad(this, document.querySelector("section.remote"));
                 this.lower = new Lower(this, document.querySelector("section.remote"));
                 this.keyboard = new Keyboard(this, document.querySelector("section.keyboard"));
+                return this;
+            }
+
+            initPages() {
+                this.ota = new Ota(this);
                 this.mouse = new Mouse(this, document.querySelector("section.mouse"));
                 this.allButtons = new AllButtons(this, document.querySelector("section.all-buttons"));
                 this.learnOverlay = new Overlay(this, document.querySelector(".overlay.learn"));
@@ -1706,15 +1734,7 @@
                 this.pages = {
                     'all-buttons': this.allButtons
                 }
-                try {
-                    this.ws = new WebsocketHandler(this).run();
-                    return this.initBody()
-                        .initForget()
-                        .initClear()
-                        .initVisibility();
-                } catch (error) {
-                    console.error(error);
-                }
+                return this;
             }
 
             initVisibility() {
@@ -1778,7 +1798,6 @@
             }
 
             applyConfig() {
-                console.log(this.config.data);
                 this.nav.room = this.config.data.room || '';
             }
 
