@@ -48,6 +48,7 @@
 #include "HIDKeyboardTypes.h"
 
 #include <IRrecv.h>
+#include <IRutils.h>
 #include <Preferences.h>
 
 #include "Files.h"

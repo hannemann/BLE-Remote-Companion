@@ -20,7 +20,6 @@ void IRService::run() {
     irrecv.enableIRIn();
     Serial.printf("IRService waiting for input from pin %d\n", IR_PIN);
 }
-
 void IRService::loop() {
     if (irrecv.decode(&results)) {
         if (results.value > 0) {
@@ -39,9 +38,8 @@ void IRService::loop() {
             protocol = results.decode_type;
             if (current != lastSteady) {
                 lastSteady = current;
-                Serial.printf("IR Protocol: %d, Button: ", results.decode_type);
-                Serial.print(current);
-                Serial.println(" pressed");
+                // Serial.print(resultToHumanReadableBasic(&results));
+                Serial.printf("IR Protocol: %d - %s, Button: %llu pressed\n", results.decode_type, typeToString(results.decode_type, results.repeat).c_str(), current);
                 if (!learning.hasOwnProperty("client") && !forgetRemoteBtn.hasOwnProperty("client"))
                 {
                     press();
