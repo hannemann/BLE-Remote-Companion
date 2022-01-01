@@ -143,6 +143,7 @@
     }
     nav:not(.menu) {
         display: flex;
+        align-items: center;
         gap: var(--gap-small);
         font-size: 2em;
         margin-bottom: var(--gap);
@@ -165,6 +166,9 @@
     }
     nav:not(.menu) a:last-of-type {
         margin-left: auto;
+    }
+    nav .room {
+        font-size: 1.5rem;
     }
     .sending nav:not(.menu):before,
     .sending nav:not(.menu):after {
@@ -203,6 +207,7 @@
         box-shadow: var(--nav-shadow);
         display: flex;
         flex-direction: column;
+        z-index: 1;
     }
     nav.menu[data-open="true"] {
         transform: translateX(0);
@@ -444,7 +449,8 @@
     main:not([data-page="remote"]):not([data-page="learn"]) section.remote > div,
     main:not([data-page="keyboard"]):not([data-page="learn"]) section.keyboard,
     main:not([data-page="mouse"]) section.mouse,
-    main:not([data-page="learn"]) section.config,
+    main:not([data-page="learn"]) section.learn-config,
+    main:not([data-page="config"]) section.config,
     main:not([data-page="all-buttons"]) section.all-buttons,
     main:not([data-page="ota"]) section.ota {
         display: none;
@@ -724,10 +730,11 @@
         <a href="/remote"><svg xmlns="http://www.w3.org/2000/svg" style="width: 24px; height: 24px;" viewBox="0 0 24 24"><path fill="currentColor" d="M8.16,3L6.75,4.41L9.34,7H4C2.89,7 2,7.89 2,9V19C2,20.11 2.89,21 4,21H20C21.11,21 22,20.11 22,19V9C22,7.89 21.11,7 20,7H14.66L17.25,4.41L15.84,3L12,6.84L8.16,3M4,9H17V19H4V9M19.5,9A1,1 0 0,1 20.5,10A1,1 0 0,1 19.5,11A1,1 0 0,1 18.5,10A1,1 0 0,1 19.5,9M19.5,12A1,1 0 0,1 20.5,13A1,1 0 0,1 19.5,14A1,1 0 0,1 18.5,13A1,1 0 0,1 19.5,12Z" /></svg></a>
         <a href="/keyboard"><svg xmlns="http://www.w3.org/2000/svg" style="width: 24px; height: 24px;" viewBox="0 0 24 24"><path fill="currentColor" d="M7,22H9V24H7V22M11,22H13V24H11V22M15,22H17V24H15V22M4,5A2,2 0 0,0 2,7V17A2,2 0 0,0 4,19H20A2,2 0 0,0 22,17V7A2,2 0 0,0 20,5H4M4,7H20V17H4V7M5,8V10H7V8H5M8,8V10H10V8H8M11,8V10H13V8H11M14,8V10H16V8H14M17,8V10H19V8H17M5,11V13H7V11H5M8,11V13H10V11H8M11,11V13H13V11H11M14,11V13H16V11H14M17,11V13H19V11H17M8,14V16H16V14H8Z" /></svg></a>
         <a href="/mouse"><svg xmlns="http://www.w3.org/2000/svg" style="width: 24px; height: 24px;" viewBox="0 0 24 24"><path fill="currentColor" d="M11,1.07C7.05,1.56 4,4.92 4,9H11M4,15A8,8 0 0,0 12,23A8,8 0 0,0 20,15V11H4M13,1.07V9H20C20,4.92 16.94,1.56 13,1.07Z" /></svg></a>
+        <span class="room"></span>
         <a href="/menu"><svg xmlns="http://www.w3.org/2000/svg" style="width: 24px; height: 24px;" viewBox="0 0 24 24"><path fill="currentColor" d="M3,6H21V8H3V6M3,11H21V13H3V11M3,16H21V18H3V16Z" /></svg></a>
     </nav>
     <main data-page="remote">
-        <section class="config p-inline">
+        <section class="learn-config p-inline">
             <h1>Configure</h1>
             <p>Delete the entire configuration <button name="clear">&times;</button></p>
             <p>Forget a single button <button name="forget">&times;</button></p>
@@ -809,11 +816,24 @@
                 </svg>
             </label>
         </section>
+        <section class="config">
+            <form>
+                <h1>Config</h1>
+                <fieldset>
+                    <legend>Room</legend>
+                    <input name="room">
+                </fieldset>
+                <p class="cta">
+                    <button type="submit">Save</button>
+                </p>
+            </form>
+        </section>
     </main>
     <nav class="menu">
         <a href="/learn">Learn IR Codes</a>
         <a href="/all-buttons">All Buttons</a>
-        <a href="/ota" data-bottom="true">OTA Update</a>
+        <a href="/config" data-bottom="true">Configuration</a>
+        <a href="/ota">OTA Update</a>
         <a href="/reboot">Reboot</a>
     </nav>
     <div class="overlay learn">
@@ -961,6 +981,9 @@
 
             handleMessage(result) {
                 const data = JSON.parse(result.data);
+                if (data.config) {
+                    this.pageController.config.data = data.config;
+                }
                 if (data.jsonrpc === "2.0") {
                     console.debug("[Websocket] incoming message", data);
                     if (this.wsTimeout) {
@@ -1053,6 +1076,13 @@
 
             reboot() {
                 this.send({ method: "reboot" });
+            }
+
+            saveConfig(config) {
+                this.send({
+                    method: "config",
+                    params: {config}
+                });
             }
 
             send(message, cb) {
@@ -1420,6 +1450,7 @@
                     case "/learn":
                     case "/all-buttons":
                     case "/ota":
+                    case "/config":
                         this.pageController.page = e.currentTarget.pathname.replace(/^\//, "");
                         break;
                     case "/menu":
@@ -1429,6 +1460,10 @@
                         this.pageController.ws.reboot();
                         break;
                 }
+            }
+
+            set room(r) {
+                this.node.querySelector('.room').innerHTML = r;
             }
         }
 
@@ -1616,12 +1651,49 @@
             }
         }
 
+        class Config extends PageHandler {
+            constructor(pageController, node) {
+                super(pageController);
+                this._data = {};
+                this.form = node.querySelector('form');
+                this.form.addEventListener("submit", e => {
+                    e.preventDefault();
+                    this.pageController.ws.saveConfig(this.json)
+                });
+            }
+
+            get json() {
+                const object = {};
+                (new FormData(this.form)).forEach((value, key) => {
+                    if(!Reflect.has(object, key)){
+                        object[key] = value;
+                        return;
+                    }
+                    if(!Array.isArray(object[key])){
+                        object[key] = [object[key]];    
+                    }
+                    object[key].push(value);
+                });
+                return object;
+            }
+
+            set data(d) {
+                this._data = d;
+                this.pageController.applyConfig();
+            }
+
+            get data() {
+                return this._data || {};
+            }
+        }
+
         class PageController {
             run() {
                 this.main = document.querySelector("main");
                 this.nav = new Nav(this);
                 this.menu = new Menu(this);
                 this.ota = new Ota(this);
+                this.config = new Config(this, document.querySelector("section.config"));
                 this.upper = new Upper(this, document.querySelector("section.remote"));
                 this.dpad = new Dpad(this, document.querySelector("section.remote"));
                 this.lower = new Lower(this, document.querySelector("section.remote"));
@@ -1702,6 +1774,11 @@
                 } else {
                     this.ws.keyup(e.currentTarget)
                 }
+            }
+
+            applyConfig() {
+                console.log(this.config.data);
+                this.nav.room = this.config.data.room || '';
             }
 
             get page() {

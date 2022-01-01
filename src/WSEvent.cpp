@@ -40,6 +40,13 @@ void WSEvent::webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size
             return;
         }
         Serial.printf("WEBSOCKET: [%u] Connected from %d.%d.%d.%d url: %s\n", num, ip[0], ip[1], ip[2], ip[3], payload);
+
+        if (BLERC::preferences.begin("blerc", true))
+        {
+            String configJSON = BLERC::preferences.getString("config", "{}");
+            WSEvent::instance().sendTXT(num, configJSON);
+            BLERC::preferences.end();
+        }
         break;
     }
     case WStype_TEXT:
@@ -103,6 +110,13 @@ bool WSEvent::validatePayload(uint8_t num, JSONVar &payload)
         if (strcmp(payload["method"], "mousemove") == 0)
         {
             if (params.hasOwnProperty("x") && params.hasOwnProperty("y") && params.hasOwnProperty("wheel") && params.hasOwnProperty("hWheel"))
+            {
+                return true;
+            }
+        }
+        if (strcmp(payload["method"], "config") == 0)
+        {
+            if (params.hasOwnProperty("config"))
             {
                 return true;
             }
@@ -239,6 +253,14 @@ void WSEvent::callMethod(uint8_t num, const char *method, JSONVar &params)
     if (strcmp(method, "mousemove") == 0)
     {
         bluetooth.mouseMove(int(params["x"]), int(params["y"]), int(params["wheel"]), int(params["hWheel"]));
+    }
+    if (strcmp(method, "config") == 0)
+    {
+        BLERC::preferences.begin("blerc", false);
+        BLERC::preferences.putString("config", JSON.stringify(params).c_str());
+        BLERC::preferences.end();
+        resultOK(num);
+        sendTXT(num, JSON.stringify(params).c_str());
     }
 }
 
