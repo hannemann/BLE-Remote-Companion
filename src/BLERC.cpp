@@ -1,5 +1,7 @@
 #include "BLERC.h"
 
+Preferences BLERC::preferences = Preferences();
+
 BLERC::BLERC(){};
 
 void BLERC::setup()

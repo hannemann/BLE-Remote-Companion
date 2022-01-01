@@ -71,6 +71,7 @@ public:
     }
     void setup();
     void loop();
+    static Preferences preferences;
 };
 
 #endif // BLERC_H

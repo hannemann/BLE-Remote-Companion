@@ -25,7 +25,6 @@ class IRService {
     private:
         decode_results results;
         static IRrecv irrecv;
-        static Preferences preferences;
         uint8_t debounce = 150;
         uint64_t lastSteady = 0;
         uint64_t lastFlicker = 0;
@@ -44,7 +43,7 @@ class IRService {
         uint16_t getKeyId();
         String getConfigValue();
         JSONVar config;
-
+        unsigned long start = 0;
 };
 
 #endif // IR_H

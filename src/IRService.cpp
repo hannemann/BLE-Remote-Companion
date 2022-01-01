@@ -1,16 +1,15 @@
 #include "IRService.h"
 
 IRrecv IRService::irrecv = IRrecv(IR_PIN);
-Preferences IRService::preferences = Preferences();
 
 IRService& IRService::init() {
     Serial.println("Init IR Service...");
-    preferences.begin("ir", true);
+    BLERC::preferences.begin("ir", true);
     Serial.println("Read IR configuration from flash...");
     long start = millis();
-    String configJSON = preferences.getString("config", "{}");
+    String configJSON = BLERC::preferences.getString("config", "{}");
     config = JSON.parse(configJSON);
-    preferences.end();
+    BLERC::preferences.end();
     uint16_t dur = millis() - start;
     Serial.printf("%d Configuration bytes parsed in %dms\n", configJSON.length(), dur);
     return *this;
@@ -23,6 +22,7 @@ void IRService::run() {
 void IRService::loop() {
     if (irrecv.decode(&results)) {
         if (results.value > 0) {
+            start = millis();
             // ignore NEC repeats
             if (results.value != 0xFFFFFFFFFFFFFFFF) {
                 current = results.value;
@@ -49,8 +49,8 @@ void IRService::loop() {
         }
         irrecv.resume();
     } else {
-        if ((millis() - lastDebounceTime) > debounce && current > 0) {
-            Serial.println("Button released");
+        if ((millis() - lastDebounceTime) > debounce && current > 0)
+        {
             if (learning.hasOwnProperty("client"))
             {
                 storeLearned();
@@ -65,6 +65,15 @@ void IRService::loop() {
             }
             current = 0;
             lastSteady = current;
+            if (start > 0)
+            {
+                Serial.printf("Button released. Runtime: %lums\n", millis() - start);
+                start = 0;
+            }
+            else
+            {
+                Serial.println("Button released");
+            }
         }
     }
 }
@@ -124,9 +133,9 @@ String IRService::getConfigValue() {
 
 void IRService::saveConfig()
 {
-    preferences.begin("ir", false);
-    preferences.putString("config", JSON.stringify(config));
-    preferences.end();
+    BLERC::preferences.begin("ir", false);
+    BLERC::preferences.putString("config", JSON.stringify(config));
+    BLERC::preferences.end();
 }
 
 void IRService::printConfig()
@@ -164,9 +173,9 @@ uint16_t IRService::getKeyId() {
 }
 
 void IRService::clearConfig() {
-    preferences.begin("ir", false);
-    preferences.clear();
-    preferences.end();
+    BLERC::preferences.begin("ir", false);
+    BLERC::preferences.clear();
+    BLERC::preferences.end();
     config = JSON.parse("{}");
     Serial.println("Configuration cleared...");
 }
