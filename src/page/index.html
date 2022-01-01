@@ -152,7 +152,7 @@
         z-index: 1;
         overflow: hidden;
     }
-    nav a {
+    nav a, nav span {
         display: inline-block;
         color: inherit;
         text-decoration: none;
@@ -161,7 +161,8 @@
         width: 1em !important;
         height: 1em !important;
     }
-    nav:not(.menu) a {
+    nav:not(.menu) a,
+    nav:not(.menu) span {
         opacity: .5;
     }
     nav:not(.menu) a:last-of-type {
