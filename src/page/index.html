@@ -307,20 +307,27 @@
     section.mouse .wheel {
         grid-area: wheel;
         justify-self: center;
-        width: 2rem;
-        height: 100%;
+        width: min-content;
         display: grid;
         grid-template-rows: min-content 2rem 2rem min-content;
+        grid-template-areas:
+            ". icon-up ."
+            "icon-left up icon-right"
+            "icon-left down icon-right"
+            ". icon-down .";
         align-items: center;
-        box-shadow: var(--bs-remote-btn);
+        touch-action: none;
+        background: var(--clr-bg);
     }
     section.mouse .wheel svg {
         display: block;
         margin-inline: auto;
     }
     section.mouse .wheel div {
+        grid-area: up;
+        cursor: pointer;
         width: 100%;
-        aspect-ratio: 1;
+        height: 100%;
         border-radius: .5em .5em 0 0;
         background-image: 
             linear-gradient(to bottom,
@@ -329,12 +336,25 @@
                 hsl(var(--hue-bg) var(--sat-bg) 50%) 100%);
     }
     section.mouse .wheel div:last-of-type {
+        grid-area: down;
         border-radius: 0 0 .5em .5em;
         background-image: 
             linear-gradient(to top,
                 hsl(var(--hue-bg) var(--sat-bg) 7%) 0%,
                 hsl(var(--hue-bg) var(--sat-bg) 30%) 80%,
                 hsl(var(--hue-bg) var(--sat-bg) 50%) 100%);
+    }
+    section.mouse svg.icon-up {
+        grid-area: icon-up;
+    }
+    section.mouse svg.icon-down {
+        grid-area: icon-down;
+    }
+    section.mouse svg.icon-left {
+        grid-area: icon-left;
+    }
+    section.mouse svg.icon-right {
+        grid-area: icon-right;
     }
     section.mouse .pad {
         width: 100%;
@@ -753,10 +773,12 @@
         <section class="keyboard"></section>
         <section class="mouse">
             <div class="wheel">
-                <svg xmlns="http://www.w3.org/2000/svg" style="width: 24px; height: 24px;" viewBox="0 0 24 24"><path fill="currentColor" d="M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z" /></svg>
+                <svg class="icon-up" xmlns="http://www.w3.org/2000/svg" style="width: 24px; height: 24px;" viewBox="0 0 24 24"><path fill="currentColor" d="M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z" /></svg>
                 <div class="wheel-up"></div>
                 <div class="wheel-down"></div>
-                <svg xmlns="http://www.w3.org/2000/svg" style="width: 24px; height: 24px;" viewBox="0 0 24 24"><path fill="currentColor" d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z" /></svg>
+                <svg class="icon-down" xmlns="http://www.w3.org/2000/svg" style="width: 24px; height: 24px;" viewBox="0 0 24 24"><path fill="currentColor" d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z" /></svg>
+                <svg class="icon-left" xmlns="http://www.w3.org/2000/svg" style="width: 24px; height: 24px;" viewBox="0 0 24 24"><path fill="currentColor" d="M15.41,16.58L10.83,12L15.41,7.41L14,6L8,12L14,18L15.41,16.58Z" /></svg>
+                <svg class="icon-right" xmlns="http://www.w3.org/2000/svg" style="width: 24px; height: 24px;" viewBox="0 0 24 24"><path fill="currentColor" d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" /></svg>
             </div>
             <div class="pad"></div>
             <div class="mouse-btn left" data-button="1"></div>
@@ -1056,11 +1078,15 @@
                 this.node = node;
                 this.mouseIsDown = false;
                 this.throttletimeout = 20;
+                this.wheelthrottletimeout = 50;
                 this.throttle = false;
                 this.padClickTimeout = 100;
                 this.current = {
                     x:0,y:0
                 }
+                this.wheelCurrent = {
+                    x:0,y:0
+                };
                 this.initElements().initListeners().addListeners();
             }
             initElements() {
@@ -1068,8 +1094,10 @@
                 this.left = this.node.querySelector('.left');
                 this.middle = this.node.querySelector('.middle');
                 this.right = this.node.querySelector('.right');
-                this.wheelUp = this.node.querySelector('.wheel-up');
-                this.wheelDown = this.node.querySelector('.wheel-down');
+                this.wheel = this.node.querySelector('.wheel');
+                this.wheelUp = this.wheel.querySelector('.wheel-up');
+                this.wheelIconLeft = this.wheel.querySelector('.icon-left');
+                this.wheelIconRight = this.wheel.querySelector('.icon-right');
                 return this;
             }
             initListeners() {
@@ -1080,8 +1108,9 @@
                 this.padLeaveHandler = this.handlePadLeave.bind(this);
                 this.buttonDownHandler = e => this.pageController.ws.mouseDown(e.currentTarget);
                 this.buttonUpHandler = e => this.pageController.ws.mouseUp(e.currentTarget);
-                this.wheelDownHandler = e => this.pageController.ws.mouseMove(0, 0, -1);
-                this.wheelUpHandler = e => this.pageController.ws.mouseMove(0, 0, 1);
+                this.wheelDownHandler = this.handleWheelDown.bind(this);
+                this.wheelUpHandler = this.handleWheelUp.bind(this);
+                this.wheelMoveHandler = this.handleWheelMove.bind(this);
                 return this;
             }
             addListeners() {
@@ -1096,8 +1125,9 @@
                 this.left.addEventListener('pointerup', this.buttonUpHandler);
                 this.middle.addEventListener('pointerup', this.buttonUpHandler);
                 this.right.addEventListener('pointerup', this.buttonUpHandler);
-                this.wheelUp.addEventListener('pointerup', this.wheelUpHandler);
-                this.wheelDown.addEventListener('pointerup', this.wheelDownHandler);
+                this.wheel.addEventListener('pointerdown', this.wheelDownHandler);
+                this.wheel.addEventListener('pointerup', this.wheelUpHandler);
+                this.wheel.addEventListener('pointermove', this.wheelMoveHandler);
                 return this;
             }
             handlePadEnter(e) {
@@ -1170,7 +1200,47 @@
                     }
                     this.pageController.ws.mouseMove(movementX, movementY);
                     this.throttle = true;
-                    setTimeout(() => this.throttle = false, this.throttletimeout);
+                    setTimeout(() => this.throttle = false, this.wheelthrottletimeout);
+                }
+            }
+            handleWheelDown(e) {
+                if (e.pointerType === 'mouse') {
+                    return;
+                }
+                if (e.pointerType === 'touch') {
+                    this.wheelCurrent.x = e.layerX;
+                    this.wheelCurrent.y = e.layerY;
+                }
+            }
+            handleWheelUp(e) {
+                if (e.pointerType === 'mouse') {
+                    this.pageController.ws.mouseMove(
+                        0, 0, e.composedPath().includes(this.wheelUp) ? 1 : -1
+                    );
+                }
+                if (e.pointerType === 'touch') {
+                    this.wheelCurrent.x = 0;
+                    this.wheelCurrent.y = 0;
+                }
+            }
+            handleWheelMove(e) {
+                if (e.pointerType === 'mouse') {
+                    return;
+                } else if (e.pointerType === 'touch') {
+                    if (!this.throttle) {
+                        let movementX = e.layerX - this.wheelCurrent.x;
+                        let movementY = e.layerY - this.wheelCurrent.y;
+                        let wheel = 0;
+                        let hWheel = 0;
+                        if (Math.abs(movementX) > Math.abs(movementY)) {
+                            hWheel = movementX > 0 ? -1 : 1;
+                        } else {
+                            wheel = movementY > 0 ? -1 : 1;
+                        }
+                        this.pageController.ws.mouseMove(0, 0, wheel, hWheel);
+                        this.throttle = true;
+                        setTimeout(() => this.throttle = false, this.throttletimeout);
+                    }
                 }
             }
         }
