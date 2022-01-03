@@ -33,10 +33,7 @@ void Bluetooth::keydown(int16_t key, bool longpress) {
   input->setValue((uint8_t*)&keyboard, sizeof(keyboard));
   input->notify();
   if (longpress) {
-    for(int i = 0; i < 50; i++) {
-      delay(10);
-      input->notify();
-    }
+    delay(500);
   }
 }
 
@@ -54,10 +51,7 @@ void Bluetooth::mediadown(int16_t key, bool longpress) {
     inputMedia->setValue(value, 2);
     inputMedia->notify();
     if (longpress) {
-        for(int i = 0; i < 50; i++) {
-            delay(10);
-            inputMedia->notify();
-        }
+      delay(500);
     }
 }
 
