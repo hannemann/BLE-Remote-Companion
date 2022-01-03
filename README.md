@@ -125,7 +125,6 @@ android_tv_enter_longpress:
 * handle ir errors when learning
 * layout onfiguration
 * configurable ws timeout
-* case for d1 Mini style with TSOP (reset button)
 * case for Node MCU style with TSOP (reset button)
 * start BLE Advertising via tactile button longpress
 * Basic Auth

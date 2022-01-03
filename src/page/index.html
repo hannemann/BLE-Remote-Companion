@@ -908,7 +908,6 @@
                     <button type="submit">Save</button>
                 </p>
             </form>
-            <!-- <button data-function="advertise">BLE Bonding Mode</button> -->
         </section>
     </main>
     <nav class="menu">
@@ -1705,12 +1704,21 @@
             constructor(pageController, node) {
                 super(pageController);
                 this._data = {};
-                this.form = node.querySelector('form');
+                this.node = node;
+                this.initElements().addListeners();
+            }
+
+            initElements() {
+                this.form = this.node.querySelector('form');
+                return this;
+            }
+
+            addListeners() {
                 this.form.addEventListener("submit", e => {
                     e.preventDefault();
                     this.pageController.ws.saveConfig(this.json)
                 });
-                // this.btnBond = node.querySelector('button[data-function="bond"]');
+                return this;
             }
 
             get json() {
