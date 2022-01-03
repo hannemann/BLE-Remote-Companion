@@ -82,7 +82,7 @@ void Bluetooth::keypressByCode(JSONVar &params)
     int16_t key = HIDUsageKeys::getKey(type, code);
     if (key > 0)
     {
-      bool longpress = params.hasOwnProperty("longpress");
+      bool longpress = params.hasOwnProperty("longpress") && bool(params["longpress"]);
       strcmp(type, "KEYBOARD") == 0 ? keydown(key, longpress) : mediadown(key, longpress);
       strcmp(type, "KEYBOARD") == 0 ? keyup() : mediaup();
     }
