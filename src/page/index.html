@@ -1671,7 +1671,7 @@
                 this.parent.appendChild(container);
                 config.buttons.forEach((b, i) => {
                     const wrapper = document.createElement('div');
-                    wrapper.innerText = b.name;
+                    wrapper.innerText = `${i} - ${b.name}`;
                     container.appendChild(wrapper);
                     const btn = document.createElement('button');
                     btn.dataset.key = i;

@@ -115,6 +115,7 @@ android_tv_enter_longpress:
 * [Keyboard Codes 0x0c (Type: APP_LAUNCHER / 3)](/doc/keycodes/app-launcher.md)
 
 * [Keyboard Codes 0x0c (Type: APP_CONTROL / 4)](/doc/keycodes/app-control.md)
+* [Named and Decimal Keycodes from Android Open Source Project](/doc/keycodes/AOS-Project.md)
 ## 
 * change Wifi MAC also changes BT MAC? Test... this could solve issues if device is connected to an unknown bt client
 * documentation
