@@ -3,33 +3,26 @@
 const char *WSClient::LOG_TAG = "WSClient";
 bool WSClient::running = false;
 bool WSClient::authenticated = false;
-uint16_t WSClient::seq = 0;
+long WSClient::seq = 1;
+uint8_t WSClient::attempt = 0;
 
 void WSClient::init()
 {
-#ifdef HA_WS_HOST
-    host = HA_WS_HOST;
-    port = 8123;
-#endif
-    // BLERC::preferences.begin("wsclient", true);
-    // token = BLERC::preferences.getString("token", "").c_str();
-#ifdef HA_WS_TOKEN
-    token = HA_WS_TOKEN;
-    Serial.println("Websocket client initialized...");
-#endif
+    if (BLERC::ha_ip != "" && BLERC::ha_port > 0 && BLERC::ha_token != "")
+    {
+        Serial.println("Websocket client initialized...");
+    }
 }
 
 void WSClient::run()
 {
-#ifdef HA_WS_TOKEN
-    if (strcmp(token, "") != 0)
+    if (BLERC::ha_ip != "" && BLERC::ha_port > 0 && BLERC::ha_token != "")
     {
         onEvent(eventHandler);
-        this->begin(host, port, url, protocol);
+        this->begin(BLERC::ha_ip, BLERC::ha_port, url, protocol);
         running = true;
         Serial.println("Websocket client running...");
     }
-#endif
 }
 
 void WSClient::eventHandler(WStype_t type, uint8_t *payload, size_t length)
@@ -43,7 +36,7 @@ void WSClient::eventHandler(WStype_t type, uint8_t *payload, size_t length)
         Serial.printf("[WSc] Connected to url: %s\n", payload);
         break;
     case WStype_TEXT:
-        Serial.printf("[WSc] get text: %s\n", payload);
+        ESP_LOGD(LOG_TAG, "[WSc] get text: %s\n", payload);
         instance().handlePayload(payload);
         break;
     case WStype_BIN:
@@ -82,7 +75,20 @@ void WSClient::handlePayload(uint8_t *payload)
         if (strcmp(type, "auth_invalid") == 0)
         {
             authenticated = false;
+            attempt++;
             Serial.println("Websocket client authentication failed");
+            disconnect();
+            if (attempt >= maxAttempts)
+            {
+                running = false;
+                WSEvent::instance().broadcastTXT(
+                    "{\"error\":401,\"message\":\"Home Assistant websocket authentication failed. Giving up\"}");
+            }
+            else
+            {
+                WSEvent::instance().broadcastTXT(
+                    "{\"error\":401,\"message\":\"Home Assistant websocket authentication failed.\"}");
+            }
         }
         if (strcmp(type, "result") == 0)
         {
@@ -95,7 +101,7 @@ void WSClient::sendToken()
 {
     JSONVar auth;
     auth["type"] = String("auth");
-    auth["access_token"] = String(token);
+    auth["access_token"] = String(BLERC::ha_token);
     sendTXT(JSON.stringify(auth).c_str());
 }
 
@@ -107,7 +113,15 @@ void WSClient::callService(const char *method, uint8_t protocol, uint64_t code)
     }
     JSONVar serviceCall;
     serviceCall["id"] = long(seq);
-    seq++;
+    if (seq + 1 >= LONG_MAX)
+    {
+        seq = 1;
+        instance().disconnect();
+    }
+    else
+    {
+        seq++;
+    }
     serviceCall["type"] = String("call_service");
     serviceCall["domain"] = String("script");
     serviceCall["service"] = String("ble_rc_ir_in");

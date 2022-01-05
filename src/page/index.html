@@ -894,8 +894,19 @@
             <form>
                 <h1>Config</h1>
                 <fieldset>
-                    <legend>Room</legend>
-                    <input name="room">
+                    <legend>General</legend>
+                    <label>Room<input name="room"></label>
+                </fieldset>
+                <fieldset>
+                    <legend>Home-Assistant API</legend>
+                    <label>Enable<input type="checkbox" name="ha_api_enable" value="1"></label>
+                    <label>IP<input name="ha_ip"></label>
+                    <label>port<input number="ha_port"></label>
+                    <label>Token<input name="ha_token"></label>
+                    <label>
+                        <span>Send assigned IR codes</span>
+                        <input type="checkbox" name="ha_send_assigned" value="1">
+                    </label>
                 </fieldset>
                 <!-- <fieldset>
                     <legend>Test</legend>
@@ -1742,6 +1753,7 @@
                 for (const [key, value] of Object.entries(this._data)) {
                     if (this.form.elements[key]) {
                         this.form.elements[key].value = value;
+                        // TODO: Checkboxes, Select...
                     }
                 }
             }

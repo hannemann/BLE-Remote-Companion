@@ -2,6 +2,11 @@
 
 String BLERC::configJSON = "{}";
 String BLERC::room = "";
+bool BLERC::ha_api_enable = false;
+bool BLERC::ha_send_assigned = false;
+String BLERC::ha_ip = "";
+uint16_t BLERC::ha_port = 8123;
+String BLERC::ha_token = "";
 Preferences BLERC::preferences = Preferences();
 
 BLERC::BLERC(){};
@@ -54,8 +59,37 @@ void BLERC::readConfig()
             {
                 room = cfg["room"];
             }
+            if (cfg.hasOwnProperty("ha_ip"))
+            {
+                ha_ip = cfg["ha_ip"];
+            }
+            if (cfg.hasOwnProperty("ha_token"))
+            {
+                ha_token = cfg["ha_token"];
+                cfg["ha_token"] = undefined;
+            }
+            if (cfg.hasOwnProperty("ha_port"))
+            {
+                ha_port = (uint16_t) long(cfg["ha_port"]);
+            }
+            if (cfg.hasOwnProperty("ha_api_enable"))
+            {
+                ha_port = bool(cfg["ha_api_enable"]);
+            }
+            if (cfg.hasOwnProperty("ha_send_assigned"))
+            {
+                ha_send_assigned = bool(cfg["ha_send_assigned"]);
+            }
         }
+        configJSON = JSON.stringify(config);
     }
+}
+
+void BLERC::saveConfig(JSONVar &configJSON)
+{
+    BLERC::preferences.begin("blerc", false);
+    BLERC::preferences.putString("config", JSON.stringify(configJSON).c_str());
+    BLERC::preferences.end();
 }
 
 void BLERC::loop()

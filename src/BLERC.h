@@ -79,7 +79,13 @@ public:
     void loop();
     static Preferences preferences;
     static String room;
+    static bool ha_api_enable;
+    static bool ha_send_assigned;
+    static String ha_ip;
+    static uint16_t ha_port;
+    static String ha_token;
     static String configJSON;
+    static void saveConfig(JSONVar &configJSON);
 
 private:
     void readConfig();

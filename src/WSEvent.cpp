@@ -250,9 +250,7 @@ void WSEvent::callMethod(uint8_t num, const char *method, JSONVar &params)
     }
     if (strcmp(method, "config") == 0)
     {
-        BLERC::preferences.begin("blerc", false);
-        BLERC::preferences.putString("config", JSON.stringify(params).c_str());
-        BLERC::preferences.end();
+        BLERC::instance().saveConfig(params);
         resultOK(num);
         sendTXT(num, JSON.stringify(params).c_str());
     }

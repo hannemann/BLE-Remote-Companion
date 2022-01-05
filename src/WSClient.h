@@ -25,7 +25,9 @@ private:
     const char *protocol = "homeassistant";
     const char *url = "/api/websocket";
     const char *token;
-    static uint16_t seq;
+    static long seq;
+    static const uint8_t maxAttempts = 10;
+    static uint8_t attempt;
     static void eventHandler(WStype_t type, uint8_t *payload, size_t length);
     void sendToken();
     void handlePayload(uint8_t *payload);
