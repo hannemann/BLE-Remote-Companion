@@ -45,7 +45,6 @@ void BLERC::readConfig()
     if (BLERC::preferences.begin("blerc", true))
     {
         configJSON = BLERC::preferences.getString("config", "{}");
-        Serial.printf("config: %s\n", configJSON.c_str());
         BLERC::preferences.end();
         JSONVar config = JSON.parse(configJSON);
         if (config.hasOwnProperty("config"))

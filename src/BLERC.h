@@ -4,6 +4,10 @@
 #include <Arduino.h>
 #include <Arduino_JSON.h>
 
+#ifndef DISABLE_BROWNOUT_DETECTION_DURING_WIFI_STARTUP
+#define DISABLE_BROWNOUT_DETECTION_DURING_WIFI_STARTUP 1
+#endif
+
 #if (DISABLE_BROWNOUT_DETECTION_DURING_WIFI_STARTUP > 0)
 #include "soc/soc.h"
 #include "soc/rtc_cntl_reg.h"
