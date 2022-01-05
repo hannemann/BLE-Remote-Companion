@@ -35,6 +35,7 @@ void WebService::init() {
         }
         Serial.printf("\nConnected! IP address: %s\n", WiFi.localIP().toString().c_str());
         WSEvent::instance().init();
+        WSClient::instance().init();
     }
     else
     {
@@ -63,6 +64,7 @@ void WebService::run() {
     if (!captiveMode)
     {
         WSEvent::instance().run();
+        WSClient::instance().run();
     }
     HTTPEvent::instance().run();
 }
@@ -71,6 +73,10 @@ void WebService::loop() {
     if (!captiveMode)
     {
         WSEvent::instance().loop();
+        if (WSClient::running)
+        {
+            WSClient::instance().loop();
+        }
     }
     else
     {

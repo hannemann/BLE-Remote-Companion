@@ -25,6 +25,7 @@
 
 #include <WebServer.h>
 #include <WebSocketsServer.h>
+#include <WebSocketsClient.h>
 #include <DNSServer.h>
 #include <ESPmDNS.h>
 #include <WiFi.h>
@@ -56,6 +57,7 @@
 
 #include "WebService.h"
 #include "WSEvent.h"
+#include "WSClient.h"
 #include "HTTPEvent.h"
 #include "IRService.h"
 #include "Bluetooth.h"
@@ -72,6 +74,11 @@ public:
     void setup();
     void loop();
     static Preferences preferences;
+    static String room;
+    static String configJSON;
+
+private:
+    void readConfig();
 };
 
 #endif // BLERC_H

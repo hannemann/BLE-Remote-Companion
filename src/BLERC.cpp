@@ -1,5 +1,7 @@
 #include "BLERC.h"
 
+String BLERC::configJSON = "{}";
+String BLERC::room = "";
 Preferences BLERC::preferences = Preferences();
 
 BLERC::BLERC(){};
@@ -16,6 +18,7 @@ void BLERC::setup()
     delay(1000);
   }
   Serial.println("");
+  readConfig();
   WebService::instance().init();
   if (!WebService::captiveMode)
   {
@@ -35,6 +38,25 @@ void BLERC::setup()
   snprintf(buffer, tmp + 10, "%dK RAM SYSTEM %d BASIC BYTES FREE", (uint8_t)(floor(ESP.getHeapSize() / 1024)), ESP.getFreeHeap());
   uint8_t pre2 = (length - strlen(buffer)) / 2;
   Serial.printf("%*s%s\n\nReady.\n", pre2, "", buffer);
+}
+
+void BLERC::readConfig()
+{
+    if (BLERC::preferences.begin("blerc", true))
+    {
+        configJSON = BLERC::preferences.getString("config", "{}");
+        Serial.printf("config: %s\n", configJSON.c_str());
+        BLERC::preferences.end();
+        JSONVar config = JSON.parse(configJSON);
+        if (config.hasOwnProperty("config"))
+        {
+            JSONVar cfg = config["config"];
+            if (cfg.hasOwnProperty("room"))
+            {
+                room = cfg["room"];
+            }
+        }
+    }
 }
 
 void BLERC::loop()

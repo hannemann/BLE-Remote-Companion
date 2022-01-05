@@ -147,11 +147,13 @@ void IRService::press() {
     const int16_t key = getHidUsageFromIr();
     getTypeId() == TYPE_KEYBOARD ? bluetooth.keydown(key, false) : bluetooth.mediadown(key, false);
     WSEvent::instance().broadcastKey(getTypeId(), getKeyId(), "keydown", protocol, current);
+    WSClient::callService("keydown", protocol, current);
 }
 
 void IRService::release() {
     getTypeId() == TYPE_KEYBOARD ? bluetooth.keyup() : bluetooth.mediaup();
     WSEvent::instance().broadcastKey(getTypeId(), getKeyId(), "keyup", protocol, current);
+    WSClient::callService("keyup", protocol, current);
 }
 
 int16_t IRService::getHidUsageFromIr() {

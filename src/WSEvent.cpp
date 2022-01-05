@@ -40,13 +40,7 @@ void WSEvent::webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size
             return;
         }
         Serial.printf("WEBSOCKET: [%u] Connected from %d.%d.%d.%d url: %s\n", num, ip[0], ip[1], ip[2], ip[3], payload);
-
-        if (BLERC::preferences.begin("blerc", true))
-        {
-            String configJSON = BLERC::preferences.getString("config", "{}");
-            WSEvent::instance().sendTXT(num, configJSON);
-            BLERC::preferences.end();
-        }
+        WSEvent::instance().sendTXT(num, BLERC::configJSON);
         break;
     }
     case WStype_TEXT:
