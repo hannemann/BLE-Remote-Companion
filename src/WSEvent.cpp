@@ -252,7 +252,7 @@ void WSEvent::callMethod(uint8_t num, const char *method, JSONVar &params)
     {
         BLERC::instance().saveConfig(params);
         resultOK(num);
-        sendTXT(num, JSON.stringify(params).c_str());
+        sendTXT(num, BLERC::configJSON);
     }
 }
 

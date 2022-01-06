@@ -85,7 +85,7 @@ public:
     static uint16_t ha_port;
     static String ha_token;
     static String configJSON;
-    static void saveConfig(JSONVar &configJSON);
+    static void saveConfig(JSONVar &params);
 
 private:
     void readConfig();

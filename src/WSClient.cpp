@@ -8,7 +8,7 @@ uint8_t WSClient::attempt = 0;
 
 void WSClient::init()
 {
-    if (BLERC::ha_ip != "" && BLERC::ha_port > 0 && BLERC::ha_token != "")
+    if (BLERC::ha_api_enable && BLERC::ha_ip != "" && BLERC::ha_port > 0 && BLERC::ha_token != "")
     {
         Serial.println("Websocket client initialized...");
     }
@@ -16,7 +16,7 @@ void WSClient::init()
 
 void WSClient::run()
 {
-    if (BLERC::ha_ip != "" && BLERC::ha_port > 0 && BLERC::ha_token != "")
+    if (BLERC::ha_api_enable && BLERC::ha_ip != "" && BLERC::ha_port > 0 && BLERC::ha_token != "")
     {
         onEvent(eventHandler);
         this->begin(BLERC::ha_ip, BLERC::ha_port, url, protocol);
@@ -33,7 +33,7 @@ void WSClient::eventHandler(WStype_t type, uint8_t *payload, size_t length)
         Serial.printf("[WSc] Disconnected!\n");
         break;
     case WStype_CONNECTED:
-        Serial.printf("[WSc] Connected to url: %s\n", payload);
+        Serial.printf("[WSc] Connected to url: ws://%s:%d%s\n", BLERC::ha_ip.c_str(), BLERC::ha_port, payload);
         break;
     case WStype_TEXT:
         ESP_LOGD(LOG_TAG, "[WSc] get text: %s\n", payload);

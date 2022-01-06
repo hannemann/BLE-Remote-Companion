@@ -923,10 +923,10 @@
                 </fieldset>
                 <fieldset>
                     <legend>Home-Assistant API</legend>
-                    <label>Enable<input type="checkbox" name="ha_api_enable" value="1"></label>
+                    <label>Enable (needs reboot)<input type="checkbox" name="ha_api_enable" value="1"></label>
                     <label>IP<input type="text" name="ha_ip"></label>
                     <label>Port<input type="number" name="ha_port"></label>
-                    <label>Token<input type="text" placeholder="" name="ha_token"></label>
+                    <label>Token<input type="password" placeholder="" name="ha_token"></label>
                     <label>
                         <span>Send assigned IR codes</span>
                         <input type="checkbox" name="ha_send_assigned" value="1">
@@ -1759,7 +1759,16 @@
             get json() {
                 const object = {};
                 (new FormData(this.form)).forEach((value, key) => {
+                    let elem = this.form.elements[key];
                     if (value) {
+                        switch (elem.type) {
+                            case "number":
+                                value = parseInt(value, 10);
+                                break;
+                            case "checkbox":
+                                value = true;
+
+                        }
                         if(!Reflect.has(object, key)){
                             object[key] = value;
                             return;
@@ -1777,14 +1786,19 @@
                 this._data = d;
                 this.pageController.applyConfig();
                 for (const [key, value] of Object.entries(this._data)) {
-                    if (this.form.elements[key]) {
-                        if (key === "ha_token" && value) {
-                            this.form.elements['ha_token'].placeholder = "*****";
-                            this.form.elements['ha_token'].value = "";
-                        } else {
-                            this.form.elements[key].value = value;
+                    let elem = this.form.elements[key];
+                    if (elem) {
+                        switch (elem.type) {
+                            case 'password':
+                                elem.placeholder = "*****";
+                                elem.value = "";
+                                break;
+                            case "checkbox":
+                                elem.checked = typeof value === 'boolean' && value;
+                                break;
+                            default:
+                                elem.value = value;
                         }
-                        // TODO: Checkboxes, Select...
                     }
                 }
             }

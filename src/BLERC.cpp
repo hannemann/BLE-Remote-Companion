@@ -2,11 +2,11 @@
 
 String BLERC::configJSON = "{}";
 String BLERC::room = "";
+String BLERC::ha_ip = "";
+String BLERC::ha_token = "";
+uint16_t BLERC::ha_port = 8123;
 bool BLERC::ha_api_enable = false;
 bool BLERC::ha_send_assigned = false;
-String BLERC::ha_ip = "";
-uint16_t BLERC::ha_port = 8123;
-String BLERC::ha_token = "";
 Preferences BLERC::preferences = Preferences();
 
 BLERC::BLERC(){};
@@ -49,52 +49,78 @@ void BLERC::readConfig()
 {
     if (BLERC::preferences.begin("blerc", true))
     {
-        configJSON = BLERC::preferences.getString("config", "{}");
+        String data = BLERC::preferences.getString("config", "{}");
+        JSONVar config = JSON.parse(data);
         BLERC::preferences.end();
-        JSONVar config = JSON.parse(configJSON);
-        Serial.println(configJSON);
-        if (config.hasOwnProperty("config"))
+
+        if (config.hasOwnProperty("room"))
         {
-            JSONVar cfg = config["config"];
-            if (cfg.hasOwnProperty("room") && cfg["room"] != "")
-            {
-                room = cfg["room"];
-            }
-            if (cfg.hasOwnProperty("ha_ip") && cfg["ha_ip"] != "")
-            {
-                ha_ip = cfg["ha_ip"];
-            }
-            if (cfg.hasOwnProperty("ha_token") && cfg["ha_token"] != "")
-            {
-                ha_token = cfg["ha_token"];
-                cfg["ha_token"] = true;
-            }
-            if (cfg.hasOwnProperty("ha_port") && cfg["ha_port"] != "")
-            {
-                ha_port = (uint16_t) long(cfg["ha_port"]);
-            }
-            else
-            {
-                cfg["ha_port"] = ha_port;
-            }
-            if (cfg.hasOwnProperty("ha_api_enable") && cfg["ha_api_enable"] != "")
-            {
-                ha_api_enable = bool(cfg["ha_api_enable"]);
-            }
-            if (cfg.hasOwnProperty("ha_send_assigned") && cfg["ha_send_assigned"] != "")
-            {
-                ha_send_assigned = bool(cfg["ha_send_assigned"]);
-            }
+            room = String((const char *)config["room"]);
         }
-        configJSON = JSON.stringify(config);
-        Serial.printf("WSClient: %s %s:%d, %s\n", (ha_api_enable ? "on" : "off"), ha_ip.c_str(), ha_port, ha_token.c_str());
+        if (config.hasOwnProperty("ha_ip"))
+        {
+            ha_ip = String((const char *)config["ha_ip"]);
+        }
+        if (config.hasOwnProperty("ha_token"))
+        {
+            ha_token = String((const char *)config["ha_token"]);
+            config["ha_token"] = true;
+        }
+        if (config.hasOwnProperty("ha_port"))
+        {
+            ha_port = (uint16_t)(long)config["ha_port"];
+        }
+        else
+        {
+            config["ha_port"] = ha_port;
+        }
+        if (config.hasOwnProperty("ha_api_enable"))
+        {
+            ha_api_enable = bool(config["ha_api_enable"]);
+        }
+        if (config.hasOwnProperty("ha_send_assigned"))
+        {
+            ha_send_assigned = bool(config["ha_send_assigned"]);
+        }
+
+        JSONVar tmp;
+        tmp["config"] = config;
+        configJSON = JSON.stringify(tmp);
     }
 }
 
-void BLERC::saveConfig(JSONVar &configJSON)
+void BLERC::saveConfig(JSONVar &params)
 {
     BLERC::preferences.begin("blerc", false);
-    BLERC::preferences.putString("config", JSON.stringify(configJSON).c_str());
+    JSONVar cfg = JSON.parse(BLERC::preferences.getString("config", "{}"));
+    if (params.hasOwnProperty("config"))
+    {
+        JSONVar config = params["config"];
+
+        if (config.hasOwnProperty("ha_token"))
+        { // we dont want to delet a previously defined token since its not send again by the client
+            cfg["ha_token"] = (const char *)config["ha_token"];
+        }
+        cfg["ha_api_enable"] = bool(config.hasOwnProperty("ha_api_enable"));
+        cfg["ha_send_assigned"] = bool(config.hasOwnProperty("ha_send_assigned"));
+
+        cfg["room"] = undefined;
+        cfg["ha_port"] = undefined;
+        cfg["ha_ip"] = undefined;
+        if (config.hasOwnProperty("room"))
+        {
+            cfg["room"] = (const char *)config["room"];
+        }
+        if (config.hasOwnProperty("ha_ip"))
+        {
+            cfg["ha_ip"] = (const char *)config["ha_ip"];
+        }
+        if (config.hasOwnProperty("ha_port"))
+        {
+            cfg["ha_port"] = (uint16_t)(long)config["ha_port"];
+        }
+    }
+    BLERC::preferences.putString("config", JSON.stringify(cfg).c_str());
     BLERC::preferences.end();
     instance().readConfig();
 }
