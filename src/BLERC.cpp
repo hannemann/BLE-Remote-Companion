@@ -52,36 +52,42 @@ void BLERC::readConfig()
         configJSON = BLERC::preferences.getString("config", "{}");
         BLERC::preferences.end();
         JSONVar config = JSON.parse(configJSON);
+        Serial.println(configJSON);
         if (config.hasOwnProperty("config"))
         {
             JSONVar cfg = config["config"];
-            if (cfg.hasOwnProperty("room"))
+            if (cfg.hasOwnProperty("room") && cfg["room"] != "")
             {
                 room = cfg["room"];
             }
-            if (cfg.hasOwnProperty("ha_ip"))
+            if (cfg.hasOwnProperty("ha_ip") && cfg["ha_ip"] != "")
             {
                 ha_ip = cfg["ha_ip"];
             }
-            if (cfg.hasOwnProperty("ha_token"))
+            if (cfg.hasOwnProperty("ha_token") && cfg["ha_token"] != "")
             {
                 ha_token = cfg["ha_token"];
-                cfg["ha_token"] = undefined;
+                cfg["ha_token"] = true;
             }
-            if (cfg.hasOwnProperty("ha_port"))
+            if (cfg.hasOwnProperty("ha_port") && cfg["ha_port"] != "")
             {
                 ha_port = (uint16_t) long(cfg["ha_port"]);
             }
-            if (cfg.hasOwnProperty("ha_api_enable"))
+            else
             {
-                ha_port = bool(cfg["ha_api_enable"]);
+                cfg["ha_port"] = ha_port;
             }
-            if (cfg.hasOwnProperty("ha_send_assigned"))
+            if (cfg.hasOwnProperty("ha_api_enable") && cfg["ha_api_enable"] != "")
+            {
+                ha_api_enable = bool(cfg["ha_api_enable"]);
+            }
+            if (cfg.hasOwnProperty("ha_send_assigned") && cfg["ha_send_assigned"] != "")
             {
                 ha_send_assigned = bool(cfg["ha_send_assigned"]);
             }
         }
         configJSON = JSON.stringify(config);
+        Serial.printf("WSClient: %s %s:%d, %s\n", (ha_api_enable ? "on" : "off"), ha_ip.c_str(), ha_port, ha_token.c_str());
     }
 }
 
@@ -90,6 +96,7 @@ void BLERC::saveConfig(JSONVar &configJSON)
     BLERC::preferences.begin("blerc", false);
     BLERC::preferences.putString("config", JSON.stringify(configJSON).c_str());
     BLERC::preferences.end();
+    instance().readConfig();
 }
 
 void BLERC::loop()

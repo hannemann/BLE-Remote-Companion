@@ -526,6 +526,30 @@
         aspect-ratio: revert;
         height: revert;
     }
+    section.config fieldset {
+        border-color: var(--accent-color);
+        border-style: solid none none;
+    }
+    section.config legend {
+        padding-inline: var(--gap-small);
+    }
+    section.config input {
+        font-size: 1rem;
+    }
+    section.config input[type="text"],
+    section.config input[type="number"] { 
+        border-bottom: 1px solid var(--clr-btn-border);
+    }
+    section.config label {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+    }
+    section.config input[type="checkbox"] {
+        margin-block: var(--gap);
+        display: block;
+    }
     /* Router */
     main:not([data-page="remote"]):not([data-page="learn"]) section.remote > div,
     main:not([data-page="keyboard"]):not([data-page="learn"]) section.keyboard,
@@ -895,14 +919,14 @@
                 <h1>Config</h1>
                 <fieldset>
                     <legend>General</legend>
-                    <label>Room<input name="room"></label>
+                    <label>Room<input type="text" name="room"></label>
                 </fieldset>
                 <fieldset>
                     <legend>Home-Assistant API</legend>
                     <label>Enable<input type="checkbox" name="ha_api_enable" value="1"></label>
-                    <label>IP<input name="ha_ip"></label>
-                    <label>port<input number="ha_port"></label>
-                    <label>Token<input name="ha_token"></label>
+                    <label>IP<input type="text" name="ha_ip"></label>
+                    <label>Port<input type="number" name="ha_port"></label>
+                    <label>Token<input type="text" placeholder="" name="ha_token"></label>
                     <label>
                         <span>Send assigned IR codes</span>
                         <input type="checkbox" name="ha_send_assigned" value="1">
@@ -1735,14 +1759,16 @@
             get json() {
                 const object = {};
                 (new FormData(this.form)).forEach((value, key) => {
-                    if(!Reflect.has(object, key)){
-                        object[key] = value;
-                        return;
+                    if (value) {
+                        if(!Reflect.has(object, key)){
+                            object[key] = value;
+                            return;
+                        }
+                        if(!Array.isArray(object[key])){
+                            object[key] = [object[key]];    
+                        }
+                        object[key].push(value);
                     }
-                    if(!Array.isArray(object[key])){
-                        object[key] = [object[key]];    
-                    }
-                    object[key].push(value);
                 });
                 return object;
             }
@@ -1752,7 +1778,12 @@
                 this.pageController.applyConfig();
                 for (const [key, value] of Object.entries(this._data)) {
                     if (this.form.elements[key]) {
-                        this.form.elements[key].value = value;
+                        if (key === "ha_token" && value) {
+                            this.form.elements['ha_token'].placeholder = "*****";
+                            this.form.elements['ha_token'].value = "";
+                        } else {
+                            this.form.elements[key].value = value;
+                        }
                         // TODO: Checkboxes, Select...
                     }
                 }
