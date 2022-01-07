@@ -7,6 +7,8 @@ String BLERC::ha_token = "";
 uint16_t BLERC::ha_port = 8123;
 bool BLERC::ha_api_enable = false;
 bool BLERC::ha_send_assigned = false;
+bool BLERC::ws_br_enable = false;
+bool BLERC::ws_br_send_assigned = false;
 Preferences BLERC::preferences = Preferences();
 
 BLERC::BLERC(){};
@@ -82,6 +84,14 @@ void BLERC::readConfig()
         {
             ha_send_assigned = bool(config["ha_send_assigned"]);
         }
+        if (config.hasOwnProperty("ws_br_enable"))
+        {
+            ws_br_enable = bool(config["ws_br_enable"]);
+        }
+        if (config.hasOwnProperty("ws_br_send_assigned"))
+        {
+            ws_br_send_assigned = bool(config["ws_br_send_assigned"]);
+        }
 
         JSONVar tmp;
         tmp["config"] = config;
@@ -103,6 +113,8 @@ void BLERC::saveConfig(JSONVar &params)
         }
         cfg["ha_api_enable"] = bool(config.hasOwnProperty("ha_api_enable"));
         cfg["ha_send_assigned"] = bool(config.hasOwnProperty("ha_send_assigned"));
+        cfg["ws_br_enable"] = bool(config.hasOwnProperty("ws_br_enable"));
+        cfg["ws_br_send_assigned"] = bool(config.hasOwnProperty("ws_br_send_assigned"));
 
         cfg["room"] = undefined;
         cfg["ha_port"] = undefined;

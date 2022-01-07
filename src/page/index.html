@@ -526,6 +526,10 @@
         aspect-ratio: revert;
         height: revert;
     }
+    section.config > form {
+        display: grid;
+        gap: var(--gap);
+    }
     section.config fieldset {
         border-color: var(--accent-color);
         border-style: solid none none;
@@ -930,6 +934,14 @@
                     <label>
                         <span>Send assigned IR codes</span>
                         <input type="checkbox" name="ha_send_assigned" value="1">
+                    </label>
+                </fieldset>
+                <fieldset>
+                    <legend>Websocket Broadcasts</legend>
+                    <label>Enable<input type="checkbox" name="ws_br_enable" value="1"></label>
+                    <label>
+                        <span>Send assigned IR codes</span>
+                        <input type="checkbox" name="ws_br_send_assigned" value="1">
                     </label>
                 </fieldset>
                 <!-- <fieldset>

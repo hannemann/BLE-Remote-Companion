@@ -84,6 +84,8 @@ public:
     static String ha_ip;
     static uint16_t ha_port;
     static String ha_token;
+    static bool ws_br_enable;
+    static bool ws_br_send_assigned;
     static String configJSON;
     static void saveConfig(JSONVar &params);
 

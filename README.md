@@ -23,10 +23,23 @@ The web frontend offers an easy way to configure your IR remote.
 * Connect ESP32
 * Upload
 
-No configuration needed.
+## Configuration
+### WIFI
+Connect to the WIFI 'BLERC' with the password 0987654321 and enter your WIFI Credentials. Device reboots and than connects to your WIFI. Look up the IP in your Router and than point your Browser to it.
+
+### Bluetooth
+Bind the device you want to control to BLE Remote Companion.  
+It happend to me sometinmes that the Mousepad did not work instantly. A rebind helped in that cases.
+
+### Other
+You find a configuration page in the menu of the frontend.
+|Config|Description|
+|------|-----------|
+|Room  |Give it a name (needed for HA Websocket API)|
+
 
 ## Websocket Server
-BLE-RC exposes a websocket server (default port: 81).
+Remote Companion exposes a websocket server (default port: 81).
 ```
 ws://1.2.3.4:81/jsonrpc
 ```
@@ -80,8 +93,8 @@ Example:
 }
 ```
 ## Node-RED
-You can use the Node-RED websocket nodes to send and receive messages to/from your BLE-RC.  
-This enables you to send all keycodes defined in keys.h and also receive the keycodes sent by BLE-RC if you use your remote or the web frontend.  
+You can use the Node-RED websocket nodes to send and receive messages to/from your Remote Companion.  
+This enables you to send all keycodes defined in keys.h and also receive the keycodes sent by Remote Companion if you use your remote or the web frontend.  
 I use it to have a remote in my Homeassistant and also start Apps via ADB by pressing the Red/Green/Yellow/Blu Buttons on my IR Remote.
 ### Configuration
 * add Websocket out and configure accordingly
@@ -89,7 +102,7 @@ I use it to have a remote in my Homeassistant and also start Apps via ADB by pre
 * add Websocket in to receive messages if a key is pressed
 
 ### Home Assistant script example:
-Observe `android_tv_control` with Node-RED `events:all` node to send messages via websocket to your BLE-RC
+Observe `android_tv_control` with Node-RED `events:all` node to send messages via websocket to your Remote Companion
 ```yaml
 android_tv_enter:
   sequence:

@@ -146,23 +146,27 @@ void IRService::printConfig()
 void IRService::press() {
     const int16_t key = getHidUsageFromIr();
     getTypeId() == TYPE_KEYBOARD ? bluetooth.keydown(key, false) : bluetooth.mediadown(key, false);
-    WSEvent::instance().broadcastKey(getTypeId(), getKeyId(), "keydown", protocol, current);
-    if (key > -1 && BLERC::ha_send_assigned == false)
+    if (key == -1 || (key > -1 && BLERC::ws_br_send_assigned))
     {
-        return;
+        WSEvent::instance().broadcastKey(getTypeId(), getKeyId(), "keydown", protocol, current);
     }
-    WSClient::callService("keydown", protocol, current);
+    if (key == -1 || (key > -1 && BLERC::ha_send_assigned))
+    {
+        WSClient::callService("keydown", protocol, current);
+    }
 }
 
 void IRService::release() {
     const int16_t key = getHidUsageFromIr();
     getTypeId() == TYPE_KEYBOARD ? bluetooth.keyup() : bluetooth.mediaup();
-    WSEvent::instance().broadcastKey(getTypeId(), getKeyId(), "keyup", protocol, current);
-    if (key > -1 && BLERC::ha_send_assigned == false)
+    if (key == -1 || (key > -1 && BLERC::ws_br_send_assigned))
     {
-        return;
+        WSEvent::instance().broadcastKey(getTypeId(), getKeyId(), "keyup", protocol, current);
     }
-    WSClient::callService("keyup", protocol, current);
+    if (key == -1 || (key > -1 && BLERC::ha_send_assigned))
+    {
+        WSClient::callService("keyup", protocol, current);
+    }
 }
 
 int16_t IRService::getHidUsageFromIr() {

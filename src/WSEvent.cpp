@@ -323,11 +323,14 @@ void WSEvent::sendButtons(uint8_t num, const char *type)
  */
 void WSEvent::broadcastKey(uint8_t type, uint16_t key, const char *method, uint8_t irProtocol, uint64_t irKey)
 {
-    const char *keyName = HIDUsageKeys::getKeyName(type, key);
-    const char *keyType = HIDUsageKeys::getKeyType(type);
-    char message[255];
-    snprintf(message, 255, "{\"event\":\"irbroadcast\",\"type\":\"%s\",\"data\":{\"type\":\"%s\",\"key\":\"%s\",\"raw\":{\"protocol\":%d,\"key\":%llu}}}", method, keyType, keyName, irProtocol, irKey);
-    broadcastTXT(message);
+    if (BLERC::ws_br_enable)
+    {
+        const char *keyName = HIDUsageKeys::getKeyName(type, key);
+        const char *keyType = HIDUsageKeys::getKeyType(type);
+        char message[255];
+        snprintf(message, 255, "{\"event\":\"irbroadcast\",\"type\":\"%s\",\"data\":{\"type\":\"%s\",\"key\":\"%s\",\"raw\":{\"protocol\":%d,\"key\":%llu}}}", method, keyType, keyName, irProtocol, irKey);
+        broadcastTXT(message);
+    }
 }
 
 /**
