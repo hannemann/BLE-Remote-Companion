@@ -45,8 +45,12 @@ void WSClient::eventHandler(WStype_t type, uint8_t *payload, size_t length)
     case WStype_FRAGMENT_BIN_START:
     case WStype_FRAGMENT:
     case WStype_FRAGMENT_FIN:
+        break;
     case WStype_PING:
+        // Serial.println("ping");
+        break;
     case WStype_PONG:
+        // Serial.println("pong");
         break;
     }
 }
@@ -71,6 +75,7 @@ void WSClient::handlePayload(uint8_t *payload)
         {
             authenticated = true;
             Serial.println("Websocket client authenticated");
+            enableHeartbeat(10000, 1000, 30); // every 10 seconds with a timout of 1 second, diconnect after 5 Minutes
         }
         if (strcmp(type, "auth_invalid") == 0)
         {
