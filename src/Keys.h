@@ -52,57 +52,21 @@ class HIDUsageKeys {
         return instance;
     }
     int16_t hidKeyboard(uint16_t id);
-    int16_t hidKeyboard(const char* code);
-    int16_t hidKeyboardIndex(const char* code);
+    int16_t hidKeyboard(const char *code);
     const char *hidKeyboardName(uint16_t id);
     int16_t hidAppLauncher(uint16_t id);
-    int16_t hidAppLauncher(const char* code);
-    int16_t hidAppLauncherIndex(const char* code);
+    int16_t hidAppLauncher(const char *code);
     const char *hidAppLauncherName(uint16_t id);
     int16_t hidConsumer(uint16_t id);
-    int16_t hidConsumer(const char* code);
-    int16_t hidConsumerIndex(const char* code);
+    int16_t hidConsumer(const char *code);
     const char *hidConsumerName(uint16_t id);
     int16_t hidAppControl(uint16_t id);
-    int16_t hidAppControl(const char* code);
-    int16_t hidAppControlIndex(const char* code);
+    int16_t hidAppControl(const char *code);
     const char *hidAppControlName(uint16_t id);
     static int16_t getKey(uint8_t type, uint16_t id);
     static int16_t getKey(const char *type, const char *code);
-    static int16_t getKeyIndex(uint8_t type, const char* code);
     static const char *getKeyName(uint8_t type, int16_t id);
     static const char *getKeyType(uint8_t type);
-    static void getLayout(uint8_t id, HID_USAGE_KEY *buffer);
-    static const uint8_t getLayoutSize(uint8_t id);
-    static const HID_USAGE_KEY layoutEmpty[];
-    static const HID_USAGE_KEY layoutRemoteMinimal[];
-    static const HID_USAGE_KEY layoutRemoteDPad[];
-    static const HID_USAGE_KEY layoutRemoteNumbers[];
-    static const HID_USAGE_KEY layoutRemoteMedia[];
-    static const HID_USAGE_KEY layoutRemoteColors[];
-    static const HID_USAGE_KEY layoutRemoteFunctional[];
-    static const HID_USAGE_KEY layoutRemoteFunctionalLower[];
-    static const HID_USAGE_KEY layoutRemoteTop[];
-    static const HID_USAGE_KEY layoutKeyboardNumbers[];
-    static const HID_USAGE_KEY layoutKeyboardRow1[];
-    static const HID_USAGE_KEY layoutKeyboardRow2[];
-    static const HID_USAGE_KEY layoutKeyboardRow3[];
-    static const HID_USAGE_KEY layoutKeyboardRow4[];
-};
-
-enum LAYOUTS {
-    LAYOUT_EMPTY,
-    LAYOUT_REMOTE_MINIMAL,
-    LAYOUT_REMOTE_DPAD,
-    LAYOUT_REMOTE_NUMBERS,
-    LAYOUT_REMOTE_MEDIA,
-    LAYOUT_REMOTE_COLORS,
-    LAYOUT_REMOTE_FUNCTIONAL,
-    LAYOUT_KEYBOARD_NUMBERS,
-    LAYOUT_KEYBOARD_ROW1,
-    LAYOUT_KEYBOARD_ROW2,
-    LAYOUT_KEYBOARD_ROW3,
-    LAYOUT_KEYBOARD_ROW4
 };
 
 const HID_USAGE HIDKeyboard[121] = {
