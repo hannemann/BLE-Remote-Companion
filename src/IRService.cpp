@@ -152,7 +152,7 @@ void IRService::press() {
     }
     if (key == -1 || (key > -1 && BLERC::ha_send_assigned))
     {
-        WSClient::callService("keydown", protocol, current);
+        HAClient::callService("keydown", protocol, current);
     }
 }
 
@@ -165,7 +165,7 @@ void IRService::release() {
     }
     if (key == -1 || (key > -1 && BLERC::ha_send_assigned))
     {
-        WSClient::callService("keyup", protocol, current);
+        HAClient::callService("keyup", protocol, current);
     }
 }
 

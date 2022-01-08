@@ -61,7 +61,7 @@
 
 #include "WebService.h"
 #include "WSEvent.h"
-#include "WSClient.h"
+#include "HAClient.h"
 #include "HTTPEvent.h"
 #include "IRService.h"
 #include "Bluetooth.h"

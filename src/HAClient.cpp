@@ -1,12 +1,12 @@
-#include "WSClient.h"
+#include "HAClient.h"
 
-const char *WSClient::LOG_TAG = "WSClient";
-bool WSClient::running = false;
-bool WSClient::authenticated = false;
-long WSClient::seq = 1;
-uint8_t WSClient::attempt = 0;
+const char *HAClient::LOG_TAG = "HAClient";
+bool HAClient::running = false;
+bool HAClient::authenticated = false;
+long HAClient::seq = 1;
+uint8_t HAClient::attempt = 0;
 
-void WSClient::init()
+void HAClient::init()
 {
     if (BLERC::ha_api_enable && BLERC::ha_ip != "" && BLERC::ha_port > 0 && BLERC::ha_token != "")
     {
@@ -14,7 +14,7 @@ void WSClient::init()
     }
 }
 
-void WSClient::run()
+void HAClient::run()
 {
     if (BLERC::ha_api_enable && BLERC::ha_ip != "" && BLERC::ha_port > 0 && BLERC::ha_token != "")
     {
@@ -25,7 +25,7 @@ void WSClient::run()
     }
 }
 
-void WSClient::eventHandler(WStype_t type, uint8_t *payload, size_t length)
+void HAClient::eventHandler(WStype_t type, uint8_t *payload, size_t length)
 {
     switch (type)
     {
@@ -56,7 +56,7 @@ void WSClient::eventHandler(WStype_t type, uint8_t *payload, size_t length)
     }
 }
 
-void WSClient::handlePayload(uint8_t *payload)
+void HAClient::handlePayload(uint8_t *payload)
 {
     ESP_LOGD(LOG_TAG, "Payload: %s", payload);
     JSONVar jsonBody = JSON.parse((const char *)payload);
@@ -99,7 +99,7 @@ void WSClient::handlePayload(uint8_t *payload)
         }
         if (strcmp(type, "result") == 0)
         {
-            Serial.printf("WSClient result: %s\n", payload);
+            Serial.printf("HAClient result: %s\n", payload);
             if (seq + 1 >= LONG_MAX)
             {
                 instance().disconnect();
@@ -117,7 +117,7 @@ void WSClient::handlePayload(uint8_t *payload)
                 {
                     if (strcmp(jsonBody["event"]["data"]["room"], BLERC::room.c_str()) == 0)
                     {
-                        Serial.printf("WSClient event: %s\n", payload);
+                        Serial.printf("HAClient event: %s\n", payload);
                     }
                 }
             }
@@ -125,7 +125,7 @@ void WSClient::handlePayload(uint8_t *payload)
     }
 }
 
-void WSClient::sendToken()
+void HAClient::sendToken()
 {
     JSONVar auth;
     auth["type"] = String("auth");
@@ -133,7 +133,7 @@ void WSClient::sendToken()
     sendTXT(JSON.stringify(auth).c_str());
 }
 
-void WSClient::subscribe()
+void HAClient::subscribe()
 {
     JSONVar subscription;
     subscriptionId = seq;
@@ -143,7 +143,7 @@ void WSClient::subscribe()
     instance().sendTXT(JSON.stringify(subscription).c_str());
 }
 
-void WSClient::unsubscribe()
+void HAClient::unsubscribe()
 {
     JSONVar unsubscription;
     unsubscription["id"] = long(seq);
@@ -152,7 +152,7 @@ void WSClient::unsubscribe()
     instance().sendTXT(JSON.stringify(unsubscription).c_str());
 }
 
-void WSClient::callService(const char *method, uint8_t protocol, uint64_t code)
+void HAClient::callService(const char *method, uint8_t protocol, uint64_t code)
 {
     if (!running || !authenticated)
     {

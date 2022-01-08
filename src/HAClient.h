@@ -1,15 +1,15 @@
-#ifndef WSCLIENT_H
-#define WSCLIENT_H
+#ifndef HACLIENT_H
+#define HACLIENT_H
 
 #include "BLERC.h"
 
-class WSClient : public WebSocketsClient
+class HAClient : public WebSocketsClient
 {
 public:
-    WSClient() : WebSocketsClient(){};
-    static WSClient &instance()
+    HAClient() : WebSocketsClient(){};
+    static HAClient &instance()
     {
-        static WSClient instance;
+        static HAClient instance;
         return instance;
     }
     static const char *LOG_TAG;
@@ -36,4 +36,4 @@ private:
     void handlePayload(uint8_t *payload);
 };
 
-#endif // WSCLIENT_H
+#endif // HACLIENT_H

@@ -35,7 +35,7 @@ void WebService::init() {
         }
         Serial.printf("\nConnected! IP address: %s\n", WiFi.localIP().toString().c_str());
         WSEvent::instance().init();
-        WSClient::instance().init();
+        HAClient::instance().init();
     }
     else
     {
@@ -64,7 +64,7 @@ void WebService::run() {
     if (!captiveMode)
     {
         WSEvent::instance().run();
-        WSClient::instance().run();
+        HAClient::instance().run();
     }
     HTTPEvent::instance().run();
 }
@@ -76,9 +76,9 @@ void WebService::loop() {
         if (WiFi.status() == WL_CONNECTED)
         {
             WSEvent::instance().loop();
-            if (WSClient::running)
+            if (HAClient::running)
             {
-                WSClient::instance().loop();
+                HAClient::instance().loop();
             }
         }
     }
