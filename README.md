@@ -61,7 +61,7 @@ Supported commands:
 * {Object} params
 * {String} params.type <i>KEYBOARD|CONSUMER|APP_LAUNCHER|APP_CONTROL</i>
 * {String} params.code <i>one of the keycodes as shown in [tables below](#keycode-tables)</i>
-* {Number} (params.longpress) <i>1|0 optional longpress</i>
+* {Number} (params.longpress) <i>1|0 optional longpress (keypress only)</i>
 
 Example:
 ```json
