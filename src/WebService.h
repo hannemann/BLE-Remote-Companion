@@ -22,6 +22,10 @@ class WebService {
 
     private:
         static Preferences preferences;
+        const uint16_t reconnectInterval = 30000;
+        void wifiHealth();
+        uint64_t lastConnectTry = millis();
+        uint8_t reconnectTries = 10;
 };
 
 #endif // WIFI_H

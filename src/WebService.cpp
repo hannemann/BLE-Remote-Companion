@@ -72,10 +72,14 @@ void WebService::run() {
 void WebService::loop() {
     if (!captiveMode)
     {
-        WSEvent::instance().loop();
-        if (WSClient::running)
+        wifiHealth();
+        if (WiFi.status() == WL_CONNECTED)
         {
-            WSClient::instance().loop();
+            WSEvent::instance().loop();
+            if (WSClient::running)
+            {
+                WSClient::instance().loop();
+            }
         }
     }
     else
@@ -83,6 +87,30 @@ void WebService::loop() {
         dnsServer.processNextRequest();
     }
     HTTPEvent::instance().loop();
+}
+
+void WebService::wifiHealth()
+{
+    if ((WiFi.status() != WL_CONNECTED))
+    {
+        if (reconnectTries < 0)
+        {
+            ESP.restart();
+        }
+        uint64_t now = millis();
+        if ((now - lastConnectTry) >= reconnectInterval)
+        {
+            Serial.printf("Attempt WiFi reconnect... %d tries left.\n", reconnectTries);
+            reconnectTries--;
+            WiFi.disconnect();
+            WiFi.reconnect();
+            lastConnectTry = now;
+        }
+    }
+    else
+    {
+        reconnectTries = 10;
+    }
 }
 
 bool WebService::hasWifiCredentials()
