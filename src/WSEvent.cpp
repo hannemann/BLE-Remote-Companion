@@ -80,13 +80,6 @@ bool WSEvent::validatePayload(uint8_t num, JSONVar &payload)
     if (payload.hasOwnProperty("params"))
     {
         JSONVar params = payload["params"];
-        if (strcmp(payload["method"], "buttons") == 0)
-        {
-            if (params.hasOwnProperty("type"))
-            {
-                return true;
-            }
-        }
         if (strcmp(payload["method"], "keypress") == 0 || strcmp(payload["method"], "keyup") == 0 || strcmp(payload["method"], "keydown") == 0 || strcmp(payload["method"], "learn") == 0)
         {
             if (params.hasOwnProperty("type") && (params.hasOwnProperty("key") || params.hasOwnProperty("code")))
@@ -215,11 +208,6 @@ void WSEvent::callMethod(uint8_t num, const char *method, JSONVar &params)
         IRService::instance().learn(params);
         resultOK(num);
     }
-    if (strcmp(method, "buttons") == 0)
-    {
-        sendButtons(num, params["type"]);
-        resultOK(num);
-    }
     if (strcmp(method, "keypress") == 0)
     {
         btKeypress(num, params);
@@ -253,63 +241,6 @@ void WSEvent::callMethod(uint8_t num, const char *method, JSONVar &params)
         BLERC::instance().saveConfig(params);
         resultOK(num);
         sendTXT(num, BLERC::configJSON);
-    }
-}
-
-/**
- * @brief fetch buttons by type and send json to ws client
- * 
- * @param num 
- * @param type 
- */
-void WSEvent::sendButtons(uint8_t num, const char *type)
-{
-    JSONVar btns;
-    JSONVar result;
-    if (strcmp(type, "numbers") == 0)
-    {
-        btns = HTTPEvent::numbers();
-    }
-    if (strcmp(type, "functional") == 0)
-    {
-        btns = HTTPEvent::functional();
-    }
-    if (strcmp(type, "dpad") == 0)
-    {
-        btns = HTTPEvent::dpad();
-    }
-    if (strcmp(type, "media") == 0)
-    {
-        btns = HTTPEvent::media();
-    }
-    if (strcmp(type, "colors") == 0)
-    {
-        btns = HTTPEvent::colors();
-    }
-    if (strcmp(type, "keyboard") == 0)
-    {
-        btns = HTTPEvent::keyboardRows();
-    }
-    // TODO: send in chunks
-    result["buttons"] = btns;
-    // sendTXT(num, JSON.stringify(result).c_str());
-    WSclient_t *client = &_clients[num];
-    if (clientIsConnected(client))
-    {
-        String strBtns = JSON.stringify(result);
-        size_t len = strBtns.length();
-        size_t chunksize = 1024;
-        bool fin = false;
-        WSopcode_t opcode = WSop_text;
-        for (size_t i = 0; i < len; i += chunksize)
-        {
-            fin = i + chunksize >= len;
-            String chunk = fin ? strBtns.substring(i) : strBtns.substring(i, i + chunksize);
-            char *payload = (char *)chunk.c_str();
-            sendFrame(client, opcode, (uint8_t *)payload, strlen(payload), fin, false);
-            opcode = WSop_continuation;
-            delay(100);
-        }
     }
 }
 

@@ -22,20 +22,7 @@ class HTTPEvent {
         static void ota();
         static void update();
         static void learn();
-        static void keyboard();
         static void fourOFour();
-        static String header();
-        static String footer();
-        static String nav();
-        static JSONVar numbers();
-        static JSONVar dpad();
-        static JSONVar media();
-        static JSONVar colors();
-        static JSONVar functional();
-        static JSONVar keyboardRows();
-        static String button(HID_USAGE_KEY key);
-        static JSONVar buttonJSON(HID_USAGE_KEY key);
-
 };
 
 #endif // HTTPEVENT_H

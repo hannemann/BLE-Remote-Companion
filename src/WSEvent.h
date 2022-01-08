@@ -39,7 +39,6 @@ private:
     void handlePayload(uint8_t num, uint8_t *payload);
     void callMethod(uint8_t num, const char *method);
     void callMethod(uint8_t num, const char *method, JSONVar &params);
-    void sendButtons(uint8_t num, const char *type);
     void btKeypress(uint8_t num, JSONVar &params);
     void btKeydown(uint8_t num, JSONVar &params);
     void btKeyup(uint8_t num, JSONVar &params);
