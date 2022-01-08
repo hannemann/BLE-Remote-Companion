@@ -63,74 +63,32 @@ void Bluetooth::mediaup() {
 
 void Bluetooth::keypress(JSONVar &params)
 {
-  int8_t typeId = atoi(params["type"]);
-  int8_t idx = atoi(params["key"]);
-  int16_t key = HIDUsageKeys::getKey(typeId, idx);
-  if (key > 0) {
-    bool longpress = params.hasOwnProperty("longpress");
-    typeId == TYPE_KEYBOARD ? keydown(key, longpress) : mediadown(key, longpress);
-    typeId == TYPE_KEYBOARD ? keyup() : mediaup();
-  }
-}
-
-void Bluetooth::keypressByCode(JSONVar &params)
-{
-  if (params.hasOwnProperty("type") && params.hasOwnProperty("code"))
-  {
-    const char *type = params["type"];
-    const char *code = params["code"];
-    int16_t key = HIDUsageKeys::getKey(type, code);
-    if (key > 0)
-    {
-      bool longpress = params.hasOwnProperty("longpress") && bool(params["longpress"]);
-      strcmp(type, "KEYBOARD") == 0 ? keydown(key, longpress) : mediadown(key, longpress);
-      strcmp(type, "KEYBOARD") == 0 ? keyup() : mediaup();
-    }
-  }
+    keydown(params);
+    keyup(params);
 }
 
 void Bluetooth::keydown(JSONVar &params)
 {
-  int8_t typeId = atoi(params["type"]);
-  int8_t idx = atoi(params["key"]);
-  int16_t key = HIDUsageKeys::getKey(typeId, idx);
-  if (key > 0) {
-    typeId == TYPE_KEYBOARD ? keydown(key, false) : mediadown(key, false);
-  }
-}
-
-void Bluetooth::keydownByCode(JSONVar &params)
-{
-  if (params.hasOwnProperty("type") && params.hasOwnProperty("code"))
-  {
-    const char *type = params["type"];
-    const char *code = params["code"];
-    int16_t key = HIDUsageKeys::getKey(type, code);
-    if (key > 0)
+    if (params.hasOwnProperty("type") && params.hasOwnProperty("code"))
     {
-      bool longpress = params.hasOwnProperty("longpress") && bool(params["longpress"]);
-      strcmp(type, "KEYBOARD") == 0 ? keydown(key, longpress) : mediadown(key, longpress);
+        const char *type = params["type"];
+        const char *code = params["code"];
+        int16_t key = HIDUsageKeys::getKey(type, code);
+        if (key > 0)
+        {
+            bool longpress = params.hasOwnProperty("longpress") && bool(params["longpress"]);
+            strcmp(type, "KEYBOARD") == 0 ? keydown(key, longpress) : mediadown(key, longpress);
+        }
     }
-  }
 }
 
 void Bluetooth::keyup(JSONVar &params)
 {
-  int8_t typeId = atoi(params["type"]);
-  int8_t idx = atoi(params["key"]);
-  int16_t key = HIDUsageKeys::getKey(typeId, idx);
-  if (key > 0) {
-    typeId == TYPE_KEYBOARD ? keyup() : mediaup();
-  }
-}
-
-void Bluetooth::keyupByCode(JSONVar &params)
-{
-  if (params.hasOwnProperty("type"))
-  {
-    const char *type = params["type"];
-    strcmp(type, "KEYBOARD") == 0 ? keyup() : mediaup();
-  }
+    if (params.hasOwnProperty("type"))
+    {
+        const char *type = params["type"];
+        strcmp(type, "KEYBOARD") == 0 ? keyup() : mediaup();
+    }
 }
 
 void Bluetooth::mouseClick(uint8_t b)

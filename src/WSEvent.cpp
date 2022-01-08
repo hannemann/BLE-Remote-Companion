@@ -252,14 +252,12 @@ void WSEvent::callMethod(uint8_t num, const char *method, JSONVar &params)
  * @param irProtocol  
  * @param irKey 
  */
-void WSEvent::broadcastKey(uint8_t type, uint16_t key, const char *method, uint8_t irProtocol, uint64_t irKey)
+void WSEvent::broadcastKey(const char *type, const char *code, const char *method, uint8_t irProtocol, uint64_t irKey)
 {
     if (BLERC::ws_br_enable)
     {
-        const char *keyName = HIDUsageKeys::getKeyName(type, key);
-        const char *keyType = HIDUsageKeys::getKeyType(type);
         char message[255];
-        snprintf(message, 255, "{\"event\":\"irbroadcast\",\"type\":\"%s\",\"data\":{\"type\":\"%s\",\"key\":\"%s\",\"raw\":{\"protocol\":%d,\"key\":%llu}}}", method, keyType, keyName, irProtocol, irKey);
+        snprintf(message, 255, "{\"event\":\"irbroadcast\",\"type\":\"%s\",\"data\":{\"type\":\"%s\",\"key\":\"%s\",\"raw\":{\"protocol\":%d,\"key\":%llu}}}", method, type, code, irProtocol, irKey);
         broadcastTXT(message);
     }
 }
@@ -274,7 +272,8 @@ void WSEvent::btKeypress(uint8_t num, JSONVar &params)
 {
     if (Bluetooth::BLEconnected)
     {
-        params.hasOwnProperty("code") ? bluetooth.keypressByCode(params) : bluetooth.keypress(params);
+        bluetooth.keypress(params);
+        broadcastKey((const char *)params["type"], (const char *)params["code"], "keydown");
         resultOK(num);
         return;
     }
@@ -292,9 +291,7 @@ void WSEvent::btKeydown(uint8_t num, JSONVar &params)
     if (Bluetooth::BLEconnected)
     {
         bluetooth.keydown(params);
-        uint8_t typeId = atoi(params["type"]);
-        uint16_t idx = atoi(params["key"]);
-        broadcastKey(typeId, idx, "keydown");
+        broadcastKey((const char *)params["type"], (const char *)params["code"], "keydown");
         resultOK(num);
         return;
     }
@@ -312,9 +309,7 @@ void WSEvent::btKeyup(uint8_t num, JSONVar &params)
     if (Bluetooth::BLEconnected)
     {
         bluetooth.keyup(params);
-        uint8_t typeId = atoi(params["type"]);
-        uint16_t idx = atoi(params["key"]);
-        broadcastKey(typeId, idx, "keyup");
+        broadcastKey((const char *)params["type"], (const char *)params["code"], "keydown");
         resultOK(num);
         return;
     }

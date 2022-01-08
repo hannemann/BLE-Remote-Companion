@@ -318,7 +318,7 @@
         gap: var(--gap-small);
         place-items: center;
     }
-    button[data-key] {
+    button[data-code] {
         aspect-ratio: 1;
         font-size: 2em;
         height: 1.4em;
@@ -675,7 +675,7 @@
         gap: var(--gap-minimal);
         margin-bottom: var(--gap-minimal);
     }
-    .keyboard button[data-key] {
+    .keyboard button[data-code] {
         aspect-ratio: revert;
         padding-inline: .4em;
         flex-grow: .1;
@@ -820,7 +820,7 @@
         :root {
             --gap: .85rem;
         }
-        .keyboard button[data-key] {
+        .keyboard button[data-code] {
             padding-inline: .3em;
             font-size: 1.5em;
         }
@@ -974,6 +974,9 @@
     </div>
     <script>
         class PageHandler {
+            /**
+             * @param {PageController} pageController
+             */
             constructor(pageController) {
                 this.pageController = pageController;
             }
@@ -1394,8 +1397,8 @@
                     let btn;
                     if (b.type > 0) {
                         btn = container.appendChild(document.createElement("button"));
-                        btn.dataset.key = b.key;
-                        btn.dataset.type = b.type;
+                        btn.dataset.code = Object.values(USBHIDType).find(t => t.typeId === parseInt(b.type, 10))?.buttons[b.key].name;
+                        btn.dataset.type = Object.values(USBHIDType).find(t => t.typeId === parseInt(b.type, 10))?.typeName;
                         btn.addEventListener("pointerdown", this.keyDownHandler);
                         btn.addEventListener("pointerup", this.keyUpHandler);
                     } else {
@@ -1448,8 +1451,8 @@
                 const buttons = container.querySelectorAll('button, span')
                 config.buttons.forEach((b, i) => {
                     if (buttons[i].tagName === "BUTTON") {
-                        buttons[i].dataset.key = b.key;
-                        buttons[i].dataset.type = b.type;
+                        buttons[i].dataset.code = Object.values(USBHIDType).find(t => t.typeId === parseInt(b.type, 10))?.buttons[b.key].name;
+                        buttons[i].dataset.type = Object.values(USBHIDType).find(t => t.typeId === parseInt(b.type, 10))?.typeName;
                         buttons[i].addEventListener("pointerdown", this.keyDownHandler);
                         buttons[i].addEventListener("pointerup", this.keyUpHandler);
                     }
@@ -1721,8 +1724,8 @@
                     wrapper.innerText = `${i} - ${b.name}`;
                     container.appendChild(wrapper);
                     const btn = document.createElement('button');
-                    btn.dataset.key = i;
-                    btn.dataset.type = config.typeId;
+                    btn.dataset.code = Object.values(USBHIDType).find(t => t.typeId === parseInt(config.typeId, 10))?.buttons[i].name;
+                    btn.dataset.type = Object.values(USBHIDType).find(t => t.typeId === parseInt(config.typeId, 10))?.typeName;
                     btn.addEventListener("pointerdown", this.keyDownHandler);
                     btn.addEventListener("pointerup", this.keyUpHandler);
                     btn.innerHTML = 'Test';
@@ -1947,7 +1950,7 @@
                 return !document.body.classList.contains("ws-off");
             }
 
-            set active(v) {
+            set active(v) {2
                 document.body.classList.toggle("ws-off", !v);
             }
 
@@ -2357,10 +2360,10 @@
         const TYPE_APP_CONTROL = 4;
 
         const USBHIDType = {
-            keyboard: {typeId: TYPE_KEYBOARD, buttons: HIDKeyboard, label: "Keyboard 0x07"},
-            consumer: {typeId: TYPE_CONSUMER, buttons: HIDConsumer, label: "Consumer 0x0c"},
-            appLauncher: {typeId: TYPE_APP_LAUNCHER, buttons: HIDAppLauncher, label: "Consumer 0x0c (App Launcher)"},
-            appControl: {typeId: TYPE_APP_CONTROL, buttons: HIDAppControl, label: "Consumer 0x0c (App Control)"} 
+            keyboard: {typeId: TYPE_KEYBOARD, buttons: HIDKeyboard, label: "Keyboard 0x07", typeName: "KEYBOARD"},
+            consumer: {typeId: TYPE_CONSUMER, buttons: HIDConsumer, label: "Consumer 0x0c", typeName: "CONSUMER"},
+            appLauncher: {typeId: TYPE_APP_LAUNCHER, buttons: HIDAppLauncher, label: "Consumer 0x0c (App Launcher)", typeName: "APP_LAUNCHER"},
+            appControl: {typeId: TYPE_APP_CONTROL, buttons: HIDAppControl, label: "Consumer 0x0c (App Control)", typeName: "APP_CONTROL"} 
         };
 
         Object.defineProperty(AllButtons.prototype, 'buttons', {

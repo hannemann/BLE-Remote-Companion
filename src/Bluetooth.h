@@ -87,11 +87,8 @@ class Bluetooth
 public:
   Bluetooth();
   void keypress(JSONVar &params);
-  void keypressByCode(JSONVar &params);
   void keydown(JSONVar &params);
   void keyup(JSONVar &params);
-  void keydownByCode(JSONVar &params);
-  void keyupByCode(JSONVar &params);
   static void create();
   static bool BLEconnected;
   static BLEHIDDevice *hid;

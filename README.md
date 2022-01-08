@@ -55,27 +55,9 @@ Supported commands:
 * clear
   * clear IR configuration
 * reboot
-
-### keyup/keydown
+### keypress/keyup/keydown
 #### Parameters
-* {String} method <i>keyup|keydown</i>
-* {Object} params
-* {Number} params.type <i>1|2|3|4</i>
-* {Number} params.key <i>id of key as shown in [tables below](#keycode-tables)</i>
-
-Example:
-```jsonby
-{
-    "method": "keydown",
-    "params": {
-        "type": 1,
-        "key": 40
-    } 
-}
-```
-### keypress
-#### Parameters
-* {String} method keypress
+* {String} method <i>keypress|keyup|keydown</i>
 * {Object} params
 * {String} params.type <i>KEYBOARD|CONSUMER|APP_LAUNCHER|APP_CONTROL</i>
 * {String} params.code <i>one of the keycodes as shown in [tables below](#keycode-tables)</i>

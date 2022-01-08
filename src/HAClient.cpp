@@ -181,15 +181,15 @@ void HAClient::handleHAEvent(JSONVar &params)
     {
         if (strcmp(params["method"], "keypress") == 0)
         {
-            bluetooth.keypressByCode(params);
+            bluetooth.keypress(params);
         }
         if (strcmp(params["method"], "keydown") == 0)
         {
-            bluetooth.keydownByCode(params);
+            bluetooth.keydown(params);
         }
         if (strcmp(params["method"], "keyup") == 0)
         {
-            bluetooth.keyupByCode(params);
+            bluetooth.keyup(params);
         }
     }
 }
