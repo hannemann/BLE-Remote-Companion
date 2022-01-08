@@ -10,7 +10,7 @@ void HAClient::init()
 {
     if (BLERC::ha_api_enable && BLERC::ha_ip != "" && BLERC::ha_port > 0 && BLERC::ha_token != "")
     {
-        Serial.println("Websocket client initialized...");
+        Serial.printf("[%s] initialized...\n", LOG_TAG);
     }
 }
 
@@ -21,7 +21,7 @@ void HAClient::run()
         onEvent(eventHandler);
         this->begin(BLERC::ha_ip, BLERC::ha_port, url, protocol);
         running = true;
-        Serial.println("Websocket client running...");
+        Serial.printf("[%s] running...\n", LOG_TAG);
     }
 }
 
@@ -31,13 +31,13 @@ void HAClient::eventHandler(WStype_t type, uint8_t *payload, size_t length)
     {
     case WStype_DISCONNECTED:
         seq = 1;
-        Serial.printf("[WSc] Disconnected!\n");
+        Serial.printf("[%s] Disconnected!\n", LOG_TAG);
         break;
     case WStype_CONNECTED:
-        Serial.printf("[WSc] Connected to url: ws://%s:%d%s\n", BLERC::ha_ip.c_str(), BLERC::ha_port, payload);
+        Serial.printf("[%s] Connected to url: ws://%s:%d%s\n", LOG_TAG, BLERC::ha_ip.c_str(), BLERC::ha_port, payload);
         break;
     case WStype_TEXT:
-        ESP_LOGD(LOG_TAG, "[WSc] get text: %s\n", payload);
+        ESP_LOGD(LOG_TAG, "get text: %s\n", payload);
         instance().handlePayload(payload);
         break;
     case WStype_BIN:
@@ -75,7 +75,7 @@ void HAClient::handlePayload(uint8_t *payload)
         if (strcmp(type, "auth_ok") == 0)
         {
             authenticated = true;
-            Serial.println("Websocket client authenticated");
+            Serial.printf("[%s] authenticated\n", LOG_TAG);
             enableHeartbeat(10000, 1000, 30); // every 10 seconds with a timout of 1 second, diconnect after 5 Minutes
             subscribe();
         }
@@ -83,7 +83,7 @@ void HAClient::handlePayload(uint8_t *payload)
         {
             authenticated = false;
             attempt++;
-            Serial.println("Websocket client authentication failed");
+            Serial.printf("[%s] authentication failed", LOG_TAG);
             disconnect();
             if (attempt >= maxAttempts)
             {
@@ -99,7 +99,10 @@ void HAClient::handlePayload(uint8_t *payload)
         }
         if (strcmp(type, "result") == 0)
         {
-            Serial.printf("HAClient result: %s\n", payload);
+            if (jsonBody.hasOwnProperty("success"))
+            {
+                Serial.printf("[%s] %s\n", LOG_TAG, (const char *)(bool(jsonBody["success"]) ? "OK" : "Error"));
+            }
             if (seq + 1 >= LONG_MAX)
             {
                 instance().disconnect();
@@ -117,7 +120,8 @@ void HAClient::handlePayload(uint8_t *payload)
                 {
                     if (strcmp(jsonBody["event"]["data"]["room"], BLERC::room.c_str()) == 0)
                     {
-                        Serial.printf("HAClient event: %s\n", payload);
+                        JSONVar params = jsonBody["event"]["data"];
+                        instance().handleHAEvent(params);
                     }
                 }
             }
@@ -169,4 +173,23 @@ void HAClient::callService(const char *method, uint8_t protocol, uint64_t code)
     serviceCall["service_data"]["code"] = (long)code;
     serviceCall["service_data"]["room"] = BLERC::room;
     instance().sendTXT(JSON.stringify(serviceCall).c_str());
+}
+
+void HAClient::handleHAEvent(JSONVar &params)
+{
+    if (Bluetooth::BLEconnected && params.hasOwnProperty("method"))
+    {
+        if (strcmp(params["method"], "keypress") == 0)
+        {
+            bluetooth.keypressByCode(params);
+        }
+        if (strcmp(params["method"], "keydown") == 0)
+        {
+            bluetooth.keydownByCode(params);
+        }
+        if (strcmp(params["method"], "keyup") == 0)
+        {
+            bluetooth.keyupByCode(params);
+        }
+    }
 }

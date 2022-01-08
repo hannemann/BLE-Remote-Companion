@@ -32,6 +32,7 @@ private:
     long subscriptionId;
     void subscribe();
     void unsubscribe();
+    void handleHAEvent(JSONVar &params);
     void sendToken();
     void handlePayload(uint8_t *payload);
 };
