@@ -30,6 +30,7 @@ void WSClient::eventHandler(WStype_t type, uint8_t *payload, size_t length)
     switch (type)
     {
     case WStype_DISCONNECTED:
+        seq = 1;
         Serial.printf("[WSc] Disconnected!\n");
         break;
     case WStype_CONNECTED:
@@ -76,6 +77,7 @@ void WSClient::handlePayload(uint8_t *payload)
             authenticated = true;
             Serial.println("Websocket client authenticated");
             enableHeartbeat(10000, 1000, 30); // every 10 seconds with a timout of 1 second, diconnect after 5 Minutes
+            subscribe();
         }
         if (strcmp(type, "auth_invalid") == 0)
         {
@@ -98,6 +100,27 @@ void WSClient::handlePayload(uint8_t *payload)
         if (strcmp(type, "result") == 0)
         {
             Serial.printf("WSClient result: %s\n", payload);
+            if (seq + 1 >= LONG_MAX)
+            {
+                instance().disconnect();
+            }
+            else
+            {
+                seq++;
+            }
+        }
+        if (strcmp(type, "event") == 0)
+        {
+            if (jsonBody.hasOwnProperty("event") && jsonBody["event"].hasOwnProperty("data"))
+            {
+                if (jsonBody["event"].hasOwnProperty("data") && jsonBody["event"]["data"].hasOwnProperty("room"))
+                {
+                    if (strcmp(jsonBody["event"]["data"]["room"], BLERC::room.c_str()) == 0)
+                    {
+                        Serial.printf("WSClient event: %s\n", payload);
+                    }
+                }
+            }
         }
     }
 }
@@ -110,6 +133,25 @@ void WSClient::sendToken()
     sendTXT(JSON.stringify(auth).c_str());
 }
 
+void WSClient::subscribe()
+{
+    JSONVar subscription;
+    subscriptionId = seq;
+    subscription["id"] = long(seq);
+    subscription["type"] = String("subscribe_events");
+    subscription["event_type"] = "ha_to_ble_rc";
+    instance().sendTXT(JSON.stringify(subscription).c_str());
+}
+
+void WSClient::unsubscribe()
+{
+    JSONVar unsubscription;
+    unsubscription["id"] = long(seq);
+    unsubscription["type"] = String("unsubscribe_events");
+    unsubscription["subscription"] = long(subscriptionId);
+    instance().sendTXT(JSON.stringify(unsubscription).c_str());
+}
+
 void WSClient::callService(const char *method, uint8_t protocol, uint64_t code)
 {
     if (!running || !authenticated)
@@ -118,18 +160,9 @@ void WSClient::callService(const char *method, uint8_t protocol, uint64_t code)
     }
     JSONVar serviceCall;
     serviceCall["id"] = long(seq);
-    if (seq + 1 >= LONG_MAX)
-    {
-        seq = 1;
-        instance().disconnect();
-    }
-    else
-    {
-        seq++;
-    }
     serviceCall["type"] = String("call_service");
     serviceCall["domain"] = String("script");
-    serviceCall["service"] = String("ble_rc_ir_in");
+    serviceCall["service"] = String("ble_rc_to_ha");
     serviceCall["service_data"] = JSONVar();
     serviceCall["service_data"]["method"] = String(method);
     serviceCall["service_data"]["protocol"] = (int)protocol;

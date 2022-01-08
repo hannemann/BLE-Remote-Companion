@@ -29,6 +29,9 @@ private:
     static const uint8_t maxAttempts = 10;
     static uint8_t attempt;
     static void eventHandler(WStype_t type, uint8_t *payload, size_t length);
+    long subscriptionId;
+    void subscribe();
+    void unsubscribe();
     void sendToken();
     void handlePayload(uint8_t *payload);
 };
