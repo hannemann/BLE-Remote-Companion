@@ -103,14 +103,6 @@ void HAClient::handlePayload(uint8_t *payload)
             {
                 Serial.printf("[%s] %s\n", LOG_TAG, (const char *)(bool(jsonBody["success"]) ? "OK" : "Error"));
             }
-            if (seq + 1 >= LONG_MAX)
-            {
-                instance().disconnect();
-            }
-            else
-            {
-                seq++;
-            }
         }
         if (strcmp(type, "event") == 0)
         {
@@ -145,6 +137,7 @@ void HAClient::subscribe()
     subscription["type"] = String("subscribe_events");
     subscription["event_type"] = "ha_to_ble_rc";
     instance().sendTXT(JSON.stringify(subscription).c_str());
+    incrementSeq();
 }
 
 void HAClient::unsubscribe()
@@ -154,6 +147,7 @@ void HAClient::unsubscribe()
     unsubscription["type"] = String("unsubscribe_events");
     unsubscription["subscription"] = long(subscriptionId);
     instance().sendTXT(JSON.stringify(unsubscription).c_str());
+    incrementSeq();
 }
 
 void HAClient::callService(const char *method, uint8_t protocol, uint64_t code)
@@ -173,6 +167,7 @@ void HAClient::callService(const char *method, uint8_t protocol, uint64_t code)
     serviceCall["service_data"]["code"] = (long)code;
     serviceCall["service_data"]["room"] = BLERC::room;
     instance().sendTXT(JSON.stringify(serviceCall).c_str());
+    incrementSeq();
 }
 
 void HAClient::handleHAEvent(JSONVar &params)
@@ -191,5 +186,17 @@ void HAClient::handleHAEvent(JSONVar &params)
         {
             bluetooth.keyup(params);
         }
+    }
+}
+
+void HAClient::incrementSeq()
+{
+    if (seq + 1 >= LONG_MAX)
+    {
+        instance().disconnect();
+    }
+    else
+    {
+        seq++;
     }
 }
