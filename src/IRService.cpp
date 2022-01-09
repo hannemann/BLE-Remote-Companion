@@ -151,32 +151,27 @@ void IRService::printConfig()
 void IRService::press() {
     const int16_t key = getHidUsageFromIr();
     getTypeId() == TYPE_KEYBOARD ? bluetooth.keydown(key, false) : bluetooth.mediadown(key, false);
-    if (key == -1 || (key > -1 && BLERC::ws_br_send_assigned))
-    {
-        uint8_t typeId = getTypeId();
-        const char *type = HIDUsageKeys::getKeyType(typeId);
-        const char *code = HIDUsageKeys::getKeyName(typeId, getKeyId());
-        WSEvent::instance().broadcastKey(type, code, "keyup", protocol, current);
-    }
-    if (key == -1 || (key > -1 && BLERC::ha_send_assigned))
-    {
-        HAClient::callService("keydown", protocol, current);
-    }
+    notifyClients(key, "keydown");
 }
 
 void IRService::release() {
     const int16_t key = getHidUsageFromIr();
     getTypeId() == TYPE_KEYBOARD ? bluetooth.keyup() : bluetooth.mediaup();
-    if (key == -1 || (key > -1 && BLERC::ws_br_send_assigned))
+    notifyClients(key, "keyup");
+}
+
+void IRService::notifyClients(const int16_t key, const char *method)
+{
+    uint8_t typeId = getTypeId();
+    const char *type = HIDUsageKeys::getKeyType(typeId);
+    const char *code = HIDUsageKeys::getKeyName(typeId, getKeyId());
+    if (key == -1 || BLERC::ws_br_send_assigned)
     {
-        uint8_t typeId = getTypeId();
-        const char *type = HIDUsageKeys::getKeyType(typeId);
-        const char *code = HIDUsageKeys::getKeyName(typeId, getKeyId());
-        WSEvent::instance().broadcastKey(type, code, "keyup", protocol, current);
+        WSEvent::instance().broadcastKey(method, type, code, protocol, current);
     }
-    if (key == -1 || (key > -1 && BLERC::ha_send_assigned))
+    if (key == -1 || BLERC::ha_send_assigned)
     {
-        HAClient::callService("keyup", protocol, current);
+        HAClient::callService(method, type, code, protocol, current);
     }
 }
 
@@ -196,6 +191,48 @@ uint16_t IRService::getKeyId() {
     String delimiter = "-";
     uint16_t key = atoi(configKey.substring(configKey.indexOf("-") + 1).c_str());
     return key;
+}
+
+String IRService::getAssignedIRDataByKey(const char *type, const char *code)
+{
+    uint8_t typeId = HIDUsageKeys::getKeyTypeId(type);
+    int16_t keyId = HIDUsageKeys::getKeyIndex(typeId, code);
+
+    char pBuffer[3];
+    itoa(typeId, pBuffer, 10);
+    char buffer[20];
+    itoa(keyId, buffer, 10);
+
+    String key = (String)pBuffer + "-" + (String)buffer;
+    String result;
+
+    JSONVar conf = instance().config;
+    JSONVar configKeys = conf.keys();
+    for (uint16_t i = 0; i < configKeys.length(); i++)
+    {
+        if (String((const char *)conf[configKeys[i]]) == key)
+        {
+            result = (const char *)configKeys[i];
+            break;
+        }
+    }
+    return result.c_str();
+}
+
+int IRService::getIrProtocolByKey(const char *type, const char *code)
+{
+    String configKey = getAssignedIRDataByKey(type, code);
+    String delimiter = "-";
+    int protocolId = atoi(configKey.substring(0, configKey.indexOf("-")).c_str());
+    return protocolId;
+}
+
+uint64_t IRService::getIrCodeByKey(const char *type, const char *code)
+{
+    String configKey = getAssignedIRDataByKey(type, code);
+    String delimiter = "-";
+    uint16_t irCode = atol(configKey.substring(configKey.indexOf("-") + 1).c_str());
+    return irCode;
 }
 
 void IRService::clearConfig() {

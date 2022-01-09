@@ -16,6 +16,18 @@ int16_t HIDUsageKeys::hidKeyboard(const char* code) {
     return -1;
 }
 
+int16_t HIDUsageKeys::hidKeyboardIndex(const char *code)
+{
+    for (int16_t i = 0; i < sizeof HIDKeyboard / sizeof HIDKeyboard[0]; i++)
+    {
+        if (strcmp(HIDKeyboard[i].name, code) == 0)
+        {
+            return i;
+        }
+    }
+    return -1;
+}
+
 const char *HIDUsageKeys::hidKeyboardName(uint16_t id)
 {
     for (int16_t i = 0; i < sizeof HIDKeyboard / sizeof HIDKeyboard[0]; i++)
@@ -36,6 +48,18 @@ int16_t HIDUsageKeys::hidConsumer(const char* code) {
     for (int16_t i=0; i < sizeof HIDConsumer/sizeof HIDConsumer[0]; i++) {
         if (strcmp(HIDConsumer[i].name, code) == 0) {
             return HIDConsumer[i].USBHID;
+        }
+    }
+    return -1;
+}
+
+int16_t HIDUsageKeys::hidConsumerIndex(const char *code)
+{
+    for (int16_t i = 0; i < sizeof HIDConsumer / sizeof HIDConsumer[0]; i++)
+    {
+        if (strcmp(HIDConsumer[i].name, code) == 0)
+        {
+            return i;
         }
     }
     return -1;
@@ -66,6 +90,18 @@ int16_t HIDUsageKeys::hidAppLauncher(const char* code) {
     return -1;
 }
 
+int16_t HIDUsageKeys::hidAppLauncherIndex(const char *code)
+{
+    for (int16_t i = 0; i < sizeof HIDAppLauncher / sizeof HIDAppLauncher[0]; i++)
+    {
+        if (strcmp(HIDAppLauncher[i].name, code) == 0)
+        {
+            return i;
+        }
+    }
+    return -1;
+}
+
 const char *HIDUsageKeys::hidAppLauncherName(uint16_t id)
 {
     for (int16_t i = 0; i < sizeof HIDKeyboard / sizeof HIDKeyboard[0]; i++)
@@ -86,6 +122,18 @@ int16_t HIDUsageKeys::hidAppControl(const char* code) {
     for (int16_t i=0; i < sizeof HIDAppControl/sizeof HIDAppControl[0]; i++) {
         if (strcmp(HIDAppControl[i].name, code) == 0) {
             return HIDAppControl[i].USBHID;
+        }
+    }
+    return -1;
+}
+
+int16_t HIDUsageKeys::hidAppControlIndex(const char *code)
+{
+    for (int16_t i = 0; i < sizeof HIDAppControl / sizeof HIDAppControl[0]; i++)
+    {
+        if (strcmp(HIDAppControl[i].name, code) == 0)
+        {
+            return i;
         }
     }
     return -1;
@@ -135,6 +183,22 @@ int16_t HIDUsageKeys::getKey(const char *type, const char *code)
     return -1;
 }
 
+int16_t HIDUsageKeys::getKeyIndex(uint8_t type, const char *code)
+{
+    switch (type)
+    {
+    case TYPE_KEYBOARD:
+        return instance().hidKeyboardIndex(code);
+    case TYPE_CONSUMER:
+        return instance().hidConsumerIndex(code);
+    case TYPE_APP_LAUNCHER:
+        return instance().hidAppLauncherIndex(code);
+    case TYPE_APP_CONTROL:
+        return instance().hidAppControlIndex(code);
+    }
+    return -1;
+}
+
 const char *HIDUsageKeys::getKeyName(uint8_t type, int16_t id)
 {
     switch (type)
@@ -165,4 +229,25 @@ const char *HIDUsageKeys::getKeyType(uint8_t type)
         return "TYPE_APP_CONTROL";
     }
     return "unknown";
+}
+
+const uint8_t HIDUsageKeys::getKeyTypeId(const char *type)
+{
+    if (strcmp(type, "KEYBOARD") == 0)
+    {
+        return TYPE_KEYBOARD;
+    }
+    if (strcmp(type, "CONSUMER") == 0)
+    {
+        return TYPE_CONSUMER;
+    }
+    if (strcmp(type, "APP_LAUNCHER") == 0)
+    {
+        return TYPE_APP_LAUNCHER;
+    }
+    if (strcmp(type, "APP_CONTROL") == 0)
+    {
+        return TYPE_APP_CONTROL;
+    }
+    return 0;
 }

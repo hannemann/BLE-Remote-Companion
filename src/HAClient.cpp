@@ -150,7 +150,7 @@ void HAClient::unsubscribe()
     incrementSeq();
 }
 
-void HAClient::callService(const char *method, uint8_t protocol, uint64_t code)
+void HAClient::callService(const char *method, const char *keyType, const char *keyCode, int protocol, long irCode)
 {
     if (!running || !authenticated)
     {
@@ -163,8 +163,10 @@ void HAClient::callService(const char *method, uint8_t protocol, uint64_t code)
     serviceCall["service"] = String("ble_rc_to_ha");
     serviceCall["service_data"] = JSONVar();
     serviceCall["service_data"]["method"] = String(method);
-    serviceCall["service_data"]["protocol"] = (int)protocol;
-    serviceCall["service_data"]["code"] = (long)code;
+    serviceCall["service_data"]["ir_protocol"] = (int)protocol;
+    serviceCall["service_data"]["ir_code"] = (long)irCode;
+    serviceCall["service_data"]["type"] = String(keyType);
+    serviceCall["service_data"]["code"] = String(keyCode);
     serviceCall["service_data"]["room"] = BLERC::room;
     instance().sendTXT(JSON.stringify(serviceCall).c_str());
     incrementSeq();

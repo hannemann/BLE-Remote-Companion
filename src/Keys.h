@@ -53,20 +53,26 @@ class HIDUsageKeys {
     }
     int16_t hidKeyboard(uint16_t id);
     int16_t hidKeyboard(const char *code);
+    int16_t hidKeyboardIndex(const char *code);
     const char *hidKeyboardName(uint16_t id);
     int16_t hidAppLauncher(uint16_t id);
     int16_t hidAppLauncher(const char *code);
+    int16_t hidAppLauncherIndex(const char *code);
     const char *hidAppLauncherName(uint16_t id);
     int16_t hidConsumer(uint16_t id);
     int16_t hidConsumer(const char *code);
+    int16_t hidConsumerIndex(const char *code);
     const char *hidConsumerName(uint16_t id);
     int16_t hidAppControl(uint16_t id);
     int16_t hidAppControl(const char *code);
+    int16_t hidAppControlIndex(const char *code);
     const char *hidAppControlName(uint16_t id);
     static int16_t getKey(uint8_t type, uint16_t id);
     static int16_t getKey(const char *type, const char *code);
+    static int16_t getKeyIndex(uint8_t type, const char *code);
     static const char *getKeyName(uint8_t type, int16_t id);
     static const char *getKeyType(uint8_t type);
+    static const uint8_t getKeyTypeId(const char *type);
 };
 
 const HID_USAGE HIDKeyboard[121] = {

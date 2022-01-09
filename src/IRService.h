@@ -21,6 +21,9 @@ class IRService {
         JSONVar getConfig();
         void clearConfig();
         void endConfig();
+        static String getAssignedIRDataByKey(const char *type, const char *code);
+        static int getIrProtocolByKey(const char *type, const char *code);
+        static uint64_t getIrCodeByKey(const char *type, const char *code);
 
     private:
         decode_results results;
@@ -29,7 +32,7 @@ class IRService {
         uint64_t lastSteady = 0;
         uint64_t lastFlicker = 0;
         uint64_t current = 0;
-        uint8_t protocol = 0;
+        int protocol = 0;
         unsigned long lastDebounceTime = 0;
         void press();
         void release();
@@ -42,6 +45,7 @@ class IRService {
         uint8_t getTypeId();
         uint16_t getKeyId();
         String getConfigValue();
+        void notifyClients(const int16_t key, const char *method);
         JSONVar config;
         unsigned long start = 0;
 };

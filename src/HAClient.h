@@ -17,7 +17,7 @@ public:
     void run();
     static bool running;
     static bool authenticated;
-    static void callService(const char *method, uint8_t protocol, uint64_t code);
+    static void callService(const char *method, const char *keyType, const char *keyCode, int protocol = -1, long irCode = 0);
 
 private:
     const char *host;
@@ -35,6 +35,7 @@ private:
     void handleHAEvent(JSONVar &params);
     void sendToken();
     void handlePayload(uint8_t *payload);
+    static void incrementSeq();
 };
 
 #endif // HACLIENT_H
