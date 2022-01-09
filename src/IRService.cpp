@@ -180,17 +180,23 @@ int16_t IRService::getHidUsageFromIr() {
 }
 
 uint8_t IRService::getTypeId() {
-    String configKey = (const char*)config[getConfigKeyFromIr()];
-    String delimiter = "-";
-    uint8_t type = atoi(configKey.substring(0, configKey.indexOf("-")).c_str());
-    return type;
+    String configKey = getConfigKeyFromIr();
+    if (config.hasOwnProperty(configKey))
+    {
+        String configValue = (const char *)config[configKey];
+        return atoi(configValue.substring(0, configValue.indexOf("-")).c_str());
+    }
+    return 0;
 }
 
 uint16_t IRService::getKeyId() {
-    String configKey = (const char*)config[getConfigKeyFromIr()];
-    String delimiter = "-";
-    uint16_t key = atoi(configKey.substring(configKey.indexOf("-") + 1).c_str());
-    return key;
+    String configKey = getConfigKeyFromIr();
+    if (config.hasOwnProperty(configKey))
+    {
+        String configValue = (const char *)config[configKey];
+        return atoi(configValue.substring(configValue.indexOf("-") + 1).c_str());
+    }
+    return 0;
 }
 
 String IRService::getAssignedIRDataByKey(const char *type, const char *code)

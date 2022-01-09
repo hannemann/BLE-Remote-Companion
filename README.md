@@ -296,9 +296,6 @@ You could use it to have a remote in your home automation system or start Apps v
   * https://github.com/olegos76/nimble_kbdhid_example/blob/main/main/gatt_vars.c)
 * handle ir errors when learning
 * layout onfiguration
-* configurable ws timeout
 * case for Node MCU style with TSOP (reset button)
-* start BLE Advertising via tactile button longpress
 * Basic Auth
-* configurable device name/room visible in frontend/title
-* deeplinks to layouts for iframes
+* navigate with history api
