@@ -93,6 +93,7 @@ void Bluetooth::keyup(JSONVar &params)
 
 void Bluetooth::mouseClick(uint8_t b)
 {
+  ESP_LOGD("Click: %d\n", b);
   _mouseButtons = b;
   mouseMove(0, 0, 0, 0);
   _mouseButtons = 0;
