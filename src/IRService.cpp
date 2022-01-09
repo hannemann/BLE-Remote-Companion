@@ -126,7 +126,7 @@ String IRService::getConfigValue() {
     Serial.printf("Obtain config from %s\n", JSON.stringify(learning).c_str());
     
     String type = (const char*)learning["type"];
-    String key = (const char*)learning["key"];
+    String key = (const char *)learning["code"];
 
     return type + "-" + key;
 }
