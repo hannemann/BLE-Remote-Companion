@@ -62,13 +62,21 @@ ble_rc_to_ha:
       description: "Keydown or up"
       example: "keydown"
       required: true
-    protocol:
+    ir_protocol:
       description: "The ir protocol id"
       example: "1"
       required: true
-    code:
+    ir_code:
       description: "The ir code"
       example: "131578875"
+      required: true
+    type:
+      description: "The keyboard type"
+      example: "KEYBOARD"
+      required: true
+    code:
+      description: "The key code"
+      example: "KEYBOARD_ENTER"
       required: true
     room:
       description: "The ble-rc device room"
@@ -78,9 +86,12 @@ ble_rc_to_ha:
     - event: ble_rc_to_ha
       event_data:
         method: "{{ method }}"
-        protocol: "{{ protocol }}"
+        ir_protocol: "{{ ir_protocol }}"
+        ir_code: "{{ ir_code }}"
+        type: "{{ type }}"
         code: "{{ code }}"
         room: "{{ room }}"
+
 
 ```
 An automation that gets triggered by this event could look like this:
@@ -101,6 +112,40 @@ An automation that gets triggered by this event could look like this:
   action:
     service: script.do_something
   mode: single
+```
+or like this if you want to combine multiple triggers in one automation:
+```yaml
+- id: "91243432-708f-11ec-bf72-93a5ed09c06e"
+  alias: Do something or something else
+  trigger:
+    - platform: event
+      event_type:
+        - ble_rc_to_ha
+  condition: >
+    {{
+      trigger.event.data.method == 'keyup' and
+      trigger.event.data.room == 'Living'
+    }}
+  action:
+    - choose:
+        - conditions:
+            condition: template
+            value_template: >
+              {{
+                trigger.event.data.ir_protocol == 3 and
+                trigger.event.data.ir_code == 45957311
+              }}
+          sequence:
+            service: script.send_adb_intent
+        - conditions:
+            condition: template
+            value_template: >
+              {{
+                trigger.event.data.ir_protocol == 3 and
+                trigger.event.data.ir_code == 45940991
+              }}
+          sequence:
+            service: script.switch_lights_on
 ```
 You can pick up the condition parameters by listenening to the `ble_rc_to_ha` event in the Home Assistant developer tools events section.
 
@@ -125,6 +170,65 @@ Keypress is a combination of `keydown` followed by `keyup`. The optional `longpr
 
 Note: I don't have a use case for `keydown` or `keyup` yet. These methods may be deprecated and dissappear in future releases.
 
+To add remote buttons to your frontend you can use this script:
+```yaml
+sz_shield_control:
+  fields:
+    room:
+      description: "The Room of the device"
+      example: "Living"
+      required: true
+      selector:
+        select:
+          options:
+            - Living
+            - Sleeping
+            - Home Cinema
+    method:
+      description: "The method to invoke"
+      example: "keypress"
+      required: true
+      default: keypress
+      selector:
+        select:
+          options:
+            - keypress
+            - keydown
+            - keyup
+    type:
+      description: "The Keyboard Type"
+      example: "KEYBOARD"
+      required: true
+      default: KEYBOARD
+      selector:
+        select:
+          options:
+            - KEYBOARD
+            - CONSUMER
+            - APP_LAUNCHER
+            - APP_CONTROL
+    code:
+      description: "The keycode"
+      example: "KEYCODE_DPAD_UP"
+      required: true
+      selector:
+        text:
+    longpress:
+      description: "Longpress"
+      required: true
+      default: false
+      selector:
+        boolean:
+  sequence:
+    - event: ha_to_ble_rc
+      event_data:
+        room: "{{ room }}"
+        method: "{{ method }}"
+        type: "{{ type }}"
+        code: "{{ code }}"
+        longpress: "{{ longpress }}"
+
+```
 ## Websocket Server
 As an alternative to the Home Assistant client Remote Companion exposes a websocket server (default port: 81). Once connected you can send and receive Button presses with e.g. Node-RED (easiest IMO if you are not using Home Assistant)
 ```
