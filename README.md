@@ -288,7 +288,6 @@ You could use it to have a remote in your home automation system or start Apps v
 * [Keyboard Codes 0x0c (Type: APP_CONTROL)](/doc/keycodes/app-control.md)
 * [Named and Decimal Keycodes from Android Open Source Project](/doc/keycodes/AOS-Project.md)
 ## TODO:
-* send button presses from frontend to Home Assistant
 * general purpose Node-RED example flows with screenshots
 * change Wifi MAC also changes BT MAC? Test... this could solve issues if device is connected to an unknown bt client
 * documentation

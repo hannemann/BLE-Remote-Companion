@@ -1945,6 +1945,11 @@
 
             applyConfig() {
                 this.nav.room = this.config.data.room || '';
+                const title = document.querySelector('title').innerHTML;
+                document.querySelector('title').innerHTML =
+                    this.config.data.room
+                    ? `${this.config.data.room} - ${title}`
+                    : title;
             }
 
             get page() {
