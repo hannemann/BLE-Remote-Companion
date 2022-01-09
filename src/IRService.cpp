@@ -124,11 +124,16 @@ String IRService::getConfigKeyFromIr() {
 
 String IRService::getConfigValue() {
     Serial.printf("Obtain config from %s\n", JSON.stringify(learning).c_str());
-    
-    String type = (const char*)learning["type"];
-    String key = (const char *)learning["code"];
 
-    return type + "-" + key;
+    uint8_t typeId = HIDUsageKeys::getKeyTypeId((const char *)learning["type"]);
+    int16_t keyId = HIDUsageKeys::getKeyIndex(typeId, (const char *)learning["code"]);
+
+    char pBuffer[3];
+    itoa(typeId, pBuffer, 10);
+    char buffer[20];
+    itoa(keyId, buffer, 10);
+
+    return (String)pBuffer + "-" + (String)buffer;
 }
 
 void IRService::saveConfig()
