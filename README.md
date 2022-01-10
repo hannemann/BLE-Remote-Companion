@@ -38,7 +38,7 @@ You find a configuration page in the menu of the frontend.
 |Config|Description|
 -|-
 |General||
-|Room  |Give it a name (needed for HA Websocket API)|
+|Room  |Give it a name (recommended to be able to differentiate between several devices when events are evaluated by HA)|
 |Home Assistant API||
 |Enable|Enable HA API support|
 |IP|IP Address of machine running Home Assistant|
@@ -49,12 +49,36 @@ You find a configuration page in the menu of the frontend.
 |Enable|Enable Websocket broadcast messages|
 |Send assigned IR Codes|Send IR Button presses that are already assigned to a keypress also|
 
+## Navigation
+* Remote
+  * Mimics an IR remote.
+* Keyboard
+  * A simple keyboard (wip)
+* Mouse
+  * Mimics a trackpad. Tested with Shield and Ubuntu
+## Main Menu
+* ### Learn IR codes page
+  * #### Learn a code  
+    Press the button you want to learn. When prompted press the corresponding button on your remote like normal
+  * #### Forget a code  
+    Press the `Forget a single button` Button. When prompted press the button to be forgotten.
+  * #### Delete all learned codes  
+    Press and confirm the `Delete the entire configuration` button. Configuration of room, HA etc. is left untouched.
+
+* ### All Buttons Page  
+  The Page displays a list of all supported buttons. Not all of them are supported on each and every device and not all existing HID functions are supported by Remote Companion. You can play around with these. The displayed keycodes can all be used with Home Assistant or a websocket client.
+
+* ### OTA Update
+  Keep your Remote Companion up to date by uploading a new release
+
+* ### Reboot
+
 ## Home Assistant
 BLE Remote Companion utilizes the [Home Assistant Websocket API](https://developers.home-assistant.io/docs/api/websocket) if enabled. Simply add the IP address, port and a [Long-lived access token](https://developers.home-assistant.io/docs/auth_api/#long-lived-access-token) to be prepared.
 
 The client calls the script `ble_rc_to_ha`. The parameters for the script contain all information needed to invoke an arbitrary action within your Home Assistant. I prefer a simple script that once invoked fires an event to trigger automations. Using it this way enables you to create automations like you would normally do for any other trigger.
 
-#### Script `ble_rc_to_ha`
+#### Script `ble_rc_to_ha` called by your Remote Companion
 ```yaml
 ble_rc_to_ha:
   fields:
@@ -161,6 +185,7 @@ Expected event data:
     longpress: false      # optional (keypress only)
 ```
 Have a look at the [keycode tables below](#keycode-tables) to find out what to send.
+
 Available methods are
 * keypress (recommended)
 * keydown (don't forget to send a keyup also...)
@@ -282,9 +307,9 @@ As a starting point you can import the [Websocket example flow (with longpress)]
 
 ## Keycode Tables
 * [Keyboard Codes 0x07 (Type: KEYBOARD)](/doc/keycodes/keyboard.md)
-* [Keyboard Codes 0x0c (Type: CONSUMER)](/doc/keycodes/consumer.md)
-* [Keyboard Codes 0x0c (Type: APP_LAUNCHER)](/doc/keycodes/app-launcher.md)
-* [Keyboard Codes 0x0c (Type: APP_CONTROL)](/doc/keycodes/app-control.md)
+* [Consumer Codes 0x0c (Type: CONSUMER)](/doc/keycodes/consumer.md)
+* [Consumer Codes 0x0c (Type: APP_LAUNCHER)](/doc/keycodes/app-launcher.md)
+* [Consumer Codes 0x0c (Type: APP_CONTROL)](/doc/keycodes/app-control.md)
 * [Named and Decimal Keycodes from Android Open Source Project](/doc/keycodes/AOS-Project.md)
 ## TODO:
 * documentation -> wip
