@@ -1,6 +1,6 @@
 # Bluetooth LE Remote Companion
 
-Remotely control devices via Bluetooth with an IR remote, from your Browser, Homeassistant or Node-RED with no noticable latency (depends on IR protocol). 
+Remotely control devices via Bluetooth with an IR remote, from your Browser, Homeassistant or Node-RED. 
 
 ## Features
 This software turns an ESP32 into a virtual keyboard and mouse running a websocket server and/or Home Assistant websocket API client.
@@ -269,17 +269,16 @@ Example payload:
     } 
 }
 ```
-## Node-RED (wip)
+## Node-RED
 You can use the Node-RED websocket nodes to send and receive messages to/from your Remote Companion.  
-This enables you to send and receive keycodes to/from BLE Remote Companion.  
 You could use it to have a remote in your home automation system or start Apps via ADB.
 ### Configuration
 * add Websocket out and configure accordingly
   * activate Send Heartbeat checkbox for automatic reconnect
 * add Websocket in to receive messages if a key is pressed
 
-### [Websocket out example flow](/doc/node-red/websocket-out-flow.json)
-### [Websocket in (with longpress) example flow](/doc/node-red/websocket-in-flow.json)
+As a starting point you can import the [Websocket example flow (with longpress)](/doc/node-red/example-flow.json)
+![Screenshot](/doc/node-red/Node-RED%20Example%20Flow.png)
 
 ## Keycode Tables
 * [Keyboard Codes 0x07 (Type: KEYBOARD)](/doc/keycodes/keyboard.md)
@@ -288,9 +287,7 @@ You could use it to have a remote in your home automation system or start Apps v
 * [Keyboard Codes 0x0c (Type: APP_CONTROL)](/doc/keycodes/app-control.md)
 * [Named and Decimal Keycodes from Android Open Source Project](/doc/keycodes/AOS-Project.md)
 ## TODO:
-* general purpose Node-RED example flows with screenshots
-* change Wifi MAC also changes BT MAC? Test... this could solve issues if device is connected to an unknown bt client
-* documentation
+* documentation -> wip
 * Mouse Mode -> needs testing
   * https://github.com/T-vK/ESP32-BLE-Mouse
   * https://github.com/olegos76/nimble_kbdhid_example/blob/main/main/gatt_vars.c)

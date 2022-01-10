@@ -1,0 +1,495 @@
+[
+  {
+    "id": "8130b0fcccb7fe55",
+    "type": "tab",
+    "label": "BLE-RC Test",
+    "disabled": false,
+    "info": "",
+    "env": []
+  },
+  {
+    "id": "68c5225bcbe2478b",
+    "type": "websocket out",
+    "z": "8130b0fcccb7fe55",
+    "name": "BLE-RC out",
+    "server": "",
+    "client": "3ee14b8f32b1ba3d",
+    "x": 570,
+    "y": 160,
+    "wires": []
+  },
+  {
+    "id": "ec10171d27e27e81",
+    "type": "websocket in",
+    "z": "8130b0fcccb7fe55",
+    "name": "BLE-RC in",
+    "server": "",
+    "client": "3ee14b8f32b1ba3d",
+    "x": 100,
+    "y": 280,
+    "wires": [["df0afcb5eb50f568"]]
+  },
+  {
+    "id": "df0afcb5eb50f568",
+    "type": "json",
+    "z": "8130b0fcccb7fe55",
+    "name": "",
+    "property": "payload",
+    "action": "",
+    "pretty": false,
+    "x": 110,
+    "y": 320,
+    "wires": [["bac441cec0fbf31a"]]
+  },
+  {
+    "id": "2c12b70ed8664598",
+    "type": "switch",
+    "z": "8130b0fcccb7fe55",
+    "name": "Filter",
+    "property": "payload.data.method",
+    "propertyType": "msg",
+    "rules": [
+      {
+        "t": "eq",
+        "v": "keydown",
+        "vt": "str"
+      },
+      {
+        "t": "eq",
+        "v": "keyup",
+        "vt": "str"
+      }
+    ],
+    "checkall": "true",
+    "repair": false,
+    "outputs": 2,
+    "x": 370,
+    "y": 320,
+    "wires": [["a2b4481121ff0fd5"], ["0fef0e81a73f58df", "8167951643d38644"]]
+  },
+  {
+    "id": "0fef0e81a73f58df",
+    "type": "switch",
+    "z": "8130b0fcccb7fe55",
+    "name": "Codes",
+    "property": "msg.payload.data.ir_protocol & '-' & msg.payload.data.ir_code",
+    "propertyType": "jsonata",
+    "rules": [
+      {
+        "t": "eq",
+        "v": "1-1359",
+        "vt": "str"
+      },
+      {
+        "t": "eq",
+        "v": "1-1357",
+        "vt": "str"
+      },
+      {
+        "t": "eq",
+        "v": "1-1361",
+        "vt": "str"
+      },
+      {
+        "t": "eq",
+        "v": "1-1360",
+        "vt": "str"
+      },
+      {
+        "t": "eq",
+        "v": "1-1358",
+        "vt": "str"
+      }
+    ],
+    "checkall": "true",
+    "repair": false,
+    "outputs": 5,
+    "x": 110,
+    "y": 440,
+    "wires": [
+      ["bbe00495d23b51b2"],
+      ["83fa990f4d3d2fb2"],
+      ["6b9aae3f2c55ad6e"],
+      ["9216d21eebf6e270"],
+      ["2a3bb73e2b36a480"]
+    ]
+  },
+  {
+    "id": "8167951643d38644",
+    "type": "delay",
+    "z": "8130b0fcccb7fe55",
+    "name": "50ms",
+    "pauseType": "delay",
+    "timeout": "50",
+    "timeoutUnits": "milliseconds",
+    "rate": "1",
+    "nbRateUnits": "1",
+    "rateUnits": "second",
+    "randomFirst": "1",
+    "randomLast": "5",
+    "randomUnits": "seconds",
+    "drop": false,
+    "allowrate": false,
+    "outputs": 1,
+    "x": 530,
+    "y": 340,
+    "wires": [["4af43152af263c8f"]]
+  },
+  {
+    "id": "a2b4481121ff0fd5",
+    "type": "change",
+    "z": "8130b0fcccb7fe55",
+    "name": "Timestamp Keydown",
+    "rules": [
+      {
+        "t": "set",
+        "p": "blercKeyDown",
+        "pt": "flow",
+        "to": "",
+        "tot": "date"
+      }
+    ],
+    "action": "",
+    "property": "",
+    "from": "",
+    "to": "",
+    "reg": false,
+    "x": 580,
+    "y": 300,
+    "wires": [[]]
+  },
+  {
+    "id": "4af43152af263c8f",
+    "type": "change",
+    "z": "8130b0fcccb7fe55",
+    "name": "Remove Timestamp",
+    "rules": [
+      {
+        "t": "delete",
+        "p": "blercKeyDown",
+        "pt": "flow"
+      }
+    ],
+    "action": "",
+    "property": "",
+    "from": "",
+    "to": "",
+    "reg": false,
+    "x": 700,
+    "y": 340,
+    "wires": [[]]
+  },
+  {
+    "id": "bac441cec0fbf31a",
+    "type": "switch",
+    "z": "8130b0fcccb7fe55",
+    "name": "Is event?",
+    "property": "payload.event",
+    "propertyType": "msg",
+    "rules": [
+      {
+        "t": "eq",
+        "v": "ble_rc_to_ws",
+        "vt": "str"
+      }
+    ],
+    "checkall": "true",
+    "repair": false,
+    "outputs": 1,
+    "x": 240,
+    "y": 320,
+    "wires": [["2c12b70ed8664598"]]
+  },
+  {
+    "id": "b8634236134d35c0",
+    "type": "debug",
+    "z": "8130b0fcccb7fe55",
+    "name": "OK",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 450,
+    "y": 420,
+    "wires": []
+  },
+  {
+    "id": "83fa990f4d3d2fb2",
+    "type": "debug",
+    "z": "8130b0fcccb7fe55",
+    "name": "UP",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 450,
+    "y": 500,
+    "wires": []
+  },
+  {
+    "id": "6b9aae3f2c55ad6e",
+    "type": "debug",
+    "z": "8130b0fcccb7fe55",
+    "name": "Down",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 450,
+    "y": 540,
+    "wires": []
+  },
+  {
+    "id": "9216d21eebf6e270",
+    "type": "debug",
+    "z": "8130b0fcccb7fe55",
+    "name": "Left",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 450,
+    "y": 580,
+    "wires": []
+  },
+  {
+    "id": "243e3dad51f7d82b",
+    "type": "inject",
+    "z": "8130b0fcccb7fe55",
+    "name": "OK",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "{\"method\":\"keypress\",\"params\":{\"type\":\"KEYBOARD\",\"code\":\"KEYCODE_ENTER\",\"longpress\":false}}",
+    "payloadType": "json",
+    "x": 250,
+    "y": 160,
+    "wires": [["68c5225bcbe2478b"]]
+  },
+  {
+    "id": "bbe00495d23b51b2",
+    "type": "function",
+    "z": "8130b0fcccb7fe55",
+    "name": "Detect Longpress",
+    "func": "let short = null;\nlet long = null;\n\nif (Date.now() - flow.get(\"blercKeyDown\") > 500) {\n    long = msg;\n} else {\n    short = msg;\n}\n\nreturn [short,long];",
+    "outputs": 2,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 290,
+    "y": 420,
+    "wires": [["b8634236134d35c0"], ["5b36ebdd3cf2b3d0"]]
+  },
+  {
+    "id": "5b36ebdd3cf2b3d0",
+    "type": "debug",
+    "z": "8130b0fcccb7fe55",
+    "name": "OK Longpress",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 480,
+    "y": 460,
+    "wires": []
+  },
+  {
+    "id": "2a3bb73e2b36a480",
+    "type": "debug",
+    "z": "8130b0fcccb7fe55",
+    "name": "Right",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 450,
+    "y": 620,
+    "wires": []
+  },
+  {
+    "id": "39a59da5ab1a0860",
+    "type": "inject",
+    "z": "8130b0fcccb7fe55",
+    "name": "OK Longpress",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "{\"method\":\"keypress\",\"params\":{\"type\":\"KEYBOARD\",\"code\":\"KEYCODE_ENTER\",\"longpress\":true}}",
+    "payloadType": "json",
+    "x": 410,
+    "y": 60,
+    "wires": [["68c5225bcbe2478b"]]
+  },
+  {
+    "id": "6795cee6632efae6",
+    "type": "inject",
+    "z": "8130b0fcccb7fe55",
+    "name": "UP",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "{\"method\":\"keypress\",\"params\":{\"type\":\"KEYBOARD\",\"code\":\"KEYCODE_DPAD_UP\",\"longpress\":false}}",
+    "payloadType": "json",
+    "x": 250,
+    "y": 120,
+    "wires": [["68c5225bcbe2478b"]]
+  },
+  {
+    "id": "cd22299639d39878",
+    "type": "inject",
+    "z": "8130b0fcccb7fe55",
+    "name": "DOWN",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "{\"method\":\"keypress\",\"params\":{\"type\":\"KEYBOARD\",\"code\":\"KEYCODE_DPAD_DOWN\",\"longpress\":false}}",
+    "payloadType": "json",
+    "x": 250,
+    "y": 200,
+    "wires": [["68c5225bcbe2478b"]]
+  },
+  {
+    "id": "2a43d6f181086f7a",
+    "type": "inject",
+    "z": "8130b0fcccb7fe55",
+    "name": "LEFT",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "{\"method\":\"keypress\",\"params\":{\"type\":\"KEYBOARD\",\"code\":\"KEYCODE_DPAD_LEFT\",\"longpress\":false}}",
+    "payloadType": "json",
+    "x": 110,
+    "y": 160,
+    "wires": [["68c5225bcbe2478b"]]
+  },
+  {
+    "id": "c8ec9fd4497276c4",
+    "type": "inject",
+    "z": "8130b0fcccb7fe55",
+    "name": "RIGHT",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "{\"method\":\"keypress\",\"params\":{\"type\":\"KEYBOARD\",\"code\":\"KEYCODE_DPAD_RIGHT\",\"longpress\":false}}",
+    "payloadType": "json",
+    "x": 390,
+    "y": 160,
+    "wires": [["68c5225bcbe2478b"]]
+  },
+  {
+    "id": "d6ffe60e7571ed22",
+    "type": "inject",
+    "z": "8130b0fcccb7fe55",
+    "name": "ESCAPE",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "{\"method\":\"keypress\",\"params\":{\"type\":\"KEYBOARD\",\"code\":\"KEYCODE_ESCAPE\",\"longpress\":false}}",
+    "payloadType": "json",
+    "x": 120,
+    "y": 60,
+    "wires": [["68c5225bcbe2478b"]]
+  },
+  {
+    "id": "a93bf89276611fd7",
+    "type": "comment",
+    "z": "8130b0fcccb7fe55",
+    "name": "Detect DPAD",
+    "info": "",
+    "x": 650,
+    "y": 260,
+    "wires": []
+  },
+  {
+    "id": "e8b17625b4d881f4",
+    "type": "comment",
+    "z": "8130b0fcccb7fe55",
+    "name": "Send DPAD",
+    "info": "",
+    "x": 650,
+    "y": 60,
+    "wires": []
+  },
+  {
+    "id": "3ee14b8f32b1ba3d",
+    "type": "websocket-client",
+    "path": "ws://192.168.178.218:81/jsonrpc",
+    "tls": "",
+    "wholemsg": "false",
+    "hb": "10"
+  }
+]
