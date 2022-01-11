@@ -1556,12 +1556,15 @@
                 switch (e.currentTarget.pathname) {
                     case "/remote":
                     case "/keyboard":
-                    case "/mouse":
                     case "/learn":
                     case "/all-buttons":
                     case "/ota":
                     case "/config":
                         this.pageController.page = e.currentTarget.pathname.replace(/^\//, "");
+                        break;
+                    case "/mouse":
+                        this.pageController.page = e.currentTarget.pathname.replace(/^\//, "");
+                        this.pageController.ws.mouseMove(1, 1);
                         break;
                     case "/menu":
                         this.pageController.menu.toggle();
