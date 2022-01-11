@@ -1260,12 +1260,15 @@
                 this.pad.addEventListener('pointermove', this.padMoveHandler);
                 this.pad.addEventListener('pointerenter', this.padEnterHandler);
                 this.pad.addEventListener('pointerleave', this.padLeaveHandler);
-                // this.left.addEventListener('pointerdown', this.buttonDownHandler);
-                // this.middle.addEventListener('pointerdown', this.buttonDownHandler);
-                // this.right.addEventListener('pointerdown', this.buttonDownHandler);
-                this.left.addEventListener('pointerup', this.clickHandler);
-                this.middle.addEventListener('pointerup', this.clickHandler);
-                this.right.addEventListener('pointerup', this.clickHandler);
+                this.left.addEventListener('pointerdown', this.buttonDownHandler);
+                this.middle.addEventListener('pointerdown', this.buttonDownHandler);
+                this.right.addEventListener('pointerdown', this.buttonDownHandler);
+                this.left.addEventListener('pointerup', this.buttonUpHandler);
+                this.middle.addEventListener('pointerup', this.buttonUpHandler);
+                this.right.addEventListener('pointerup', this.buttonUpHandler);
+                // this.left.addEventListener('pointerup', this.clickHandler);
+                // this.middle.addEventListener('pointerup', this.clickHandler);
+                // this.right.addEventListener('pointerup', this.clickHandler);
                 this.wheel.addEventListener('pointerdown', this.wheelDownHandler);
                 this.wheel.addEventListener('pointerup', this.wheelUpHandler);
                 this.wheel.addEventListener('pointermove', this.wheelMoveHandler);
@@ -1285,7 +1288,7 @@
                 }
             }
             handlePadDown(e) {
-                if (false && "touch" === e.pointerType) {
+                if ("touch" === e.pointerType) {
                     if (this.padUpTimeout) {
                         clearTimeout(this.padUpTimeout);
                         this.padUpTimeout = undefined;
@@ -1313,7 +1316,7 @@
                 }
             }
             handlePadUp(e) {
-                if (false && "touch" === e.pointerType) {
+                if ("touch" === e.pointerType) {
                     this.padUpTimeout = setTimeout(() => {
                         // console.log("Touch up");
                         this.buttonUpHandler({currentTarget: this.left});
