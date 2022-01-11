@@ -69,7 +69,8 @@ You find a configuration page in the menu of the frontend.
   The Page displays a list of all supported buttons. Not all of them are supported on each and every device and not all existing HID functions are supported by Remote Companion. You can play around with these. The displayed keycodes can all be used with Home Assistant or a websocket client.
 
 * ### OTA Update
-  Keep your Remote Companion up to date by uploading a new release
+  Keep your Remote Companion up to date by uploading a new release  
+  I own one device that doesn't like OTA updates (and is alos picky with USB so i assume it's somehow broken). If the Upload fails i reboot the device via menu while being on the update page. Wait for 15 seconds and than try again. Works in most cases.
 
 * ### Reboot
 
