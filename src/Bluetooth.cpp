@@ -123,7 +123,7 @@ void Bluetooth::mouseMove(signed char x, signed char y, signed char wheel, signe
 {
   if (BLEconnected)
   {
-    ESP_LOGD("Bluetooth", "x: %d, y: %d\n", (uint8_t)x, (uint8_t)y);
+    ESP_LOGD("Bluetooth", "x: %d, y: %d, Buttons: %d\n", (uint8_t)x, (uint8_t)y, _mouseButtons);
     uint8_t m[5];
     m[0] = _mouseButtons;
     m[1] = x;

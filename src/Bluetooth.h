@@ -114,7 +114,7 @@ public:
   void disconnect();
 
 private:
-  uint8_t _mouseButtons;
+  uint8_t _mouseButtons = 0;
   void mouseButtons(uint8_t b);
   inputKeyboard_t keyboard_report{};
 };
