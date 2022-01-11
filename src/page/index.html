@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="color-scheme" content="dark light">
-    <title>BLE-RC</title>
+    <title data-default="BLE-RC">BLE-RC</title>
     <style>
     @font-face {
         font-family: icon-pack;
@@ -1012,7 +1012,7 @@
                 if (this.url.includes("WS_PORT")) {
                     // we assume dev env
                     this.url = `ws://192.168.178.218:81/jsonrpc`;
-                    document.querySelector('title').innerHTML = "IDE BLE-RC";
+                    document.querySelector('title').dataset.default = "IDE BLE-RC";
                 }
                 this.initHandler()
                     .initWebsocket();
@@ -1951,7 +1951,7 @@
 
             applyConfig() {
                 this.nav.room = this.config.data.room || '';
-                const title = document.querySelector('title').innerHTML;
+                const title = document.querySelector('title').dataset.default;
                 document.querySelector('title').innerHTML =
                     this.config.data.room
                     ? `${this.config.data.room} - ${title}`
