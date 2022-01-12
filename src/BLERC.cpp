@@ -1,6 +1,7 @@
 #include "BLERC.h"
 
 String BLERC::configJSON = "{}";
+String BLERC::remoteMappings = "{}";
 String BLERC::room = "";
 String BLERC::ha_ip = "";
 String BLERC::ha_token = "";
@@ -26,6 +27,7 @@ void BLERC::setup()
   }
   Serial.println("");
   readConfig();
+  readMappings();
   WebService::instance().init();
   if (!WebService::captiveMode)
   {
@@ -135,6 +137,22 @@ void BLERC::saveConfig(JSONVar &params)
     BLERC::preferences.putString("config", JSON.stringify(cfg).c_str());
     BLERC::preferences.end();
     instance().readConfig();
+}
+
+void BLERC::readMappings()
+{
+    BLERC::preferences.begin("remote", true);
+    if (BLERC::preferences.isKey("mappings"))
+    {
+        BLERC::remoteMappings = BLERC::preferences.getString("mappings");
+    }
+    else
+    {
+        BLERC::preferences.end();
+        BLERC::preferences.begin("remote", false);
+        BLERC::preferences.putString("mappings", BLERC::remoteMappings);
+    }
+    BLERC::preferences.end();
 }
 
 void BLERC::loop()

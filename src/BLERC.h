@@ -87,10 +87,12 @@ public:
     static bool ws_br_enable;
     static bool ws_br_send_assigned;
     static String configJSON;
+    static String remoteMappings;
     static void saveConfig(JSONVar &params);
 
 private:
     void readConfig();
+    void readMappings();
 };
 
 #endif // BLERC_H

@@ -41,6 +41,9 @@ void WSEvent::webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size
         }
         Serial.printf("WEBSOCKET: [%u] Connected from %d.%d.%d.%d url: %s\n", num, ip[0], ip[1], ip[2], ip[3], payload);
         WSEvent::instance().sendTXT(num, BLERC::configJSON);
+        char buffer[1024];
+        snprintf(buffer, 1024, "{\"remote\":{\"mappings\":%s}}", BLERC::remoteMappings.c_str());
+        WSEvent::instance().sendTXT(num, buffer);
         break;
     }
     case WStype_TEXT:
