@@ -87,7 +87,9 @@ public:
     static bool ws_br_enable;
     static bool ws_br_send_assigned;
     static String configJSON;
-    static String remoteMappings;
+    static String remoteMappingsJSON;
+    static JSONVar remoteMappings;
+    static bool addRemoteMapping(JSONVar &params);
     static void saveConfig(JSONVar &params);
 
 private:

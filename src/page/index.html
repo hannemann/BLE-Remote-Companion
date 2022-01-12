@@ -555,13 +555,14 @@
         display: block;
     }
     /* Router */
-    main:not([data-page="remote"]):not([data-page="learn"]) section.remote > div,
+    main:not([data-page="remote"]):not([data-page="learn"]):not([data-page="remap"]) section.remote > div,
     main:not([data-page="keyboard"]):not([data-page="learn"]) section.keyboard,
     main:not([data-page="mouse"]) section.mouse,
     main:not([data-page="learn"]) section.learn-config,
     main:not([data-page="config"]) section.config,
     main:not([data-page="all-buttons"]) section.all-buttons,
-    main:not([data-page="ota"]) section.ota {
+    main:not([data-page="ota"]) section.ota,
+    main:not([data-page="remap"]) section.remap {
         display: none;
     }
     main[data-page="keyboard"] section.remote > div:is(.dpad),
@@ -756,6 +757,9 @@
     .overlay p > span {
         font-size: 2em;
     }
+    .overlay.remap {
+        overflow-y: scroll;
+    }
 
     /* Form */
     form {
@@ -844,6 +848,10 @@
             <p>Delete the entire configuration <button name="clear">&times;</button></p>
             <p>Forget a single button <button name="forget">&times;</button></p>
             <p>Hit the button you want learn and press the button on your IR remote.</p>
+        </section>
+        <section class="remap p-inline">
+            <h1>Map Remote Buttons</h1>
+            <p>Hit the button you want to map, then choose a function from the list.</p>
         </section>
         <section class="remote">
             <div class="dpad">
@@ -945,13 +953,6 @@
                         <input type="checkbox" name="ws_br_send_assigned" value="1">
                     </label>
                 </fieldset>
-                <!-- <fieldset>
-                    <legend>Test</legend>
-                    <select multiple>
-                        <option style="font-family: icon-pack, sans-serif">&#xe800;</option>
-                        <option>&times;</option>
-                    </select>
-                </fieldset> -->
                 <p class="cta">
                     <button type="submit">Save</button>
                 </p>
@@ -960,6 +961,7 @@
     </main>
     <nav class="menu">
         <a href="/learn">Learn IR Codes</a>
+        <a href="/remap">Map Remote Buttons</a>
         <a href="/all-buttons">All Buttons</a>
         <a href="/config" data-bottom="true">Configuration</a>
         <a href="/ota">OTA Update</a>
@@ -967,11 +969,27 @@
     </nav>
     <div class="overlay learn">
         <button class="cancelIr">&times;</button>
-        <p class="buttons"><span>Now press the button on your remote to learn</span> <button data-code>&times;</button></p>
+        <p class="buttons">
+            <span>Now press the button on your remote to learn</span>
+            <button data-code>&times;</button>
+        </p>
     </div>
     <div class="overlay forget">
         <button class="cancelIr">&times;</button>
         <p><span>Now press the button on your remote to be forgotten.</span></p>
+    </div>
+    <div class="overlay remap">
+        <button class="cancelIr">&times;</button>
+        <p class="buttons">
+            <span>Now choose the function you want to assign to</span>
+            <button data-code>&times;</button>
+        </p>
+        <section class="all-buttons">
+            <label class="sticky-filter">
+                <input>
+                <span class="icon-filter"></span>
+            </label>
+        </section>
     </div>
     <script>
         class PageHandler {
@@ -1169,6 +1187,13 @@
                 this.send({
                     method: "learn",
                     params: btn.dataset
+                }, cb);
+            }
+
+            remap(btns, cb) {
+                this.send({
+                    method: "remap",
+                    params: btns
                 }, cb);
             }
 
@@ -1395,12 +1420,18 @@
                 super(pageController);
                 this._container = null;
                 this.parent = parent;
-                this.keyDownHandler = this.pageController.handleKeydown.bind(this.pageController);
-                this.keyUpHandler = this.pageController.handleKeyup.bind(this.pageController);
+                this.initHandler();
                 for (let i of this) {
                     this.render(this.buttons[i], i);
                 }
             }
+
+            initHandler() {
+                this.keyDownHandler = this.pageController.handleKeydown.bind(this.pageController);
+                this.keyUpHandler = this.pageController.handleKeyup.bind(this.pageController);
+                return this;
+            }
+
             render(config, part) {
                 const container = this.container;
                 container.classList.add("buttons", part);
@@ -1563,6 +1594,7 @@
                     case "/all-buttons":
                     case "/ota":
                     case "/config":
+                    case "/remap":
                         this.pageController.page = e.currentTarget.pathname.replace(/^\//, "");
                         break;
                     case "/mouse":
@@ -1601,6 +1633,14 @@
                 if (btn) {
                     btn.innerHTML = label;
                 }
+            }
+
+            get button() {
+                const btn = this.node.querySelector("p button");
+                if (btn) {
+                    return btn;
+                }
+                return null;
             }
         }
 
@@ -1767,6 +1807,13 @@
             }
         }
 
+        class RemapButtons extends AllButtons {
+            initHandler() {
+                this.keyDownHandler = e => undefined;
+                this.keyUpHandler = this.pageController.handleRemap.bind(this.pageController);
+            }
+        }
+
         class Config extends PageHandler {
             constructor(pageController, node) {
                 super(pageController);
@@ -1880,9 +1927,11 @@
             initPages() {
                 this.ota = new Ota(this);
                 this.mouse = new Mouse(this, document.querySelector("section.mouse"));
-                this.allButtons = new AllButtons(this, document.querySelector("section.all-buttons"));
+                this.allButtons = new AllButtons(this, document.querySelector("main > section.all-buttons"));
+                this.remapButtons = new RemapButtons(this, document.querySelector(".overlay.remap section.all-buttons"));
                 this.learnOverlay = new Overlay(this, document.querySelector(".overlay.learn"));
                 this.forgetOverlay = new Overlay(this, document.querySelector(".overlay.forget"));
+                this.remapOverlay = new Overlay(this, document.querySelector(".overlay.remap"));
                 this.pages = {
                     'all-buttons': this.allButtons
                 }
@@ -1917,6 +1966,31 @@
                 this.learnOverlay.show = true;
             }
 
+            invokeRemap(btn) {
+                this.remapOverlay.button = btn.innerHTML;
+                this.remapOverlay.button.dataset.type = btn.dataset.type;
+                this.remapOverlay.button.dataset.code = btn.dataset.code;
+                this.remapOverlay.show = true;
+            }
+
+            handleRemap(e) {
+                const oldType = this.remapOverlay.button.dataset.type;
+                const oldCode = this.remapOverlay.button.dataset.code;
+                const newType = e.currentTarget.dataset.type;
+                const newCode = e.currentTarget.dataset.code;
+                const typeIdOld = Object.values(USBHIDType).find(t => t.typeName === oldType)?.typeId;
+                const codeIdOld = Object.values(USBHIDType).find(t => t.typeName === oldType)?.buttons.findIndex(b => b.name === oldCode);
+                const typeIdNew = Object.values(USBHIDType).find(t => t.typeName === newType)?.typeId;
+                const codeIdNew = Object.values(USBHIDType).find(t => t.typeName === newType)?.buttons.findIndex(b => b.name === newCode);
+
+                this.ws.remap({
+                        old: `${typeIdOld}-${codeIdOld}`,
+                        new: `${typeIdNew}-${codeIdNew}`
+                    },
+                    () => {this.remapOverlay.show = false;}
+                );
+            }
+
             initForget() {
                 document.querySelector('button[name="forget"]')
                 .addEventListener("pointerup", (e) => {
@@ -1937,13 +2011,15 @@
             }
 
             handleKeydown(e) {
-                if (this.page === "learn" || !this.ws.active) return;
+                if (['learn', 'remap'].includes(this.page) || !this.ws.active) return;
                 this.ws.keydown(e.currentTarget)
             }
 
             handleKeyup (e) {
                 if (this.page === "learn") {
                     this.invokeLearn(e.currentTarget)
+                } else if (this.page === "remap") {
+                    this.invokeRemap(e.currentTarget);
                 } else {
                     this.ws.keyup(e.currentTarget)
                 }

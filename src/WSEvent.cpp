@@ -42,7 +42,7 @@ void WSEvent::webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size
         Serial.printf("WEBSOCKET: [%u] Connected from %d.%d.%d.%d url: %s\n", num, ip[0], ip[1], ip[2], ip[3], payload);
         WSEvent::instance().sendTXT(num, BLERC::configJSON);
         char buffer[1024];
-        snprintf(buffer, 1024, "{\"remote\":{\"mappings\":%s}}", BLERC::remoteMappings.c_str());
+        snprintf(buffer, 1024, "{\"remote\":{\"mappings\":%s}}", BLERC::remoteMappingsJSON.c_str());
         WSEvent::instance().sendTXT(num, buffer);
         break;
     }
@@ -86,6 +86,13 @@ bool WSEvent::validatePayload(uint8_t num, JSONVar &payload)
         if (strcmp(payload["method"], "keypress") == 0 || strcmp(payload["method"], "keyup") == 0 || strcmp(payload["method"], "keydown") == 0 || strcmp(payload["method"], "learn") == 0)
         {
             if (params.hasOwnProperty("type") && (params.hasOwnProperty("key") || params.hasOwnProperty("code")))
+            {
+                return true;
+            }
+        }
+        if (strcmp(payload["method"], "remap") == 0)
+        {
+            if (params.hasOwnProperty("old") && params.hasOwnProperty("new"))
             {
                 return true;
             }
@@ -210,6 +217,21 @@ void WSEvent::callMethod(uint8_t num, const char *method, JSONVar &params)
         params["client"] = num;
         IRService::instance().learn(params);
         resultOK(num);
+    }
+    if (strcmp(method, "remap") == 0)
+    {
+        bool result = BLERC::addRemoteMapping(params);
+        if (result)
+        {
+            char buffer[1024];
+            snprintf(buffer, 1024, "{\"remote\":{\"mappings\":%s}}", BLERC::remoteMappingsJSON.c_str());
+            WSEvent::instance().sendTXT(num, buffer);
+            resultOK(num);
+        }
+        else
+        {
+            resultError(num);
+        }
     }
     if (strcmp(method, "keypress") == 0)
     {

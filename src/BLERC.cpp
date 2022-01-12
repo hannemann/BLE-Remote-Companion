@@ -1,7 +1,8 @@
 #include "BLERC.h"
 
 String BLERC::configJSON = "{}";
-String BLERC::remoteMappings = "{}";
+String BLERC::remoteMappingsJSON = "{}";
+JSONVar BLERC::remoteMappings = JSONVar();
 String BLERC::room = "";
 String BLERC::ha_ip = "";
 String BLERC::ha_token = "";
@@ -144,15 +145,27 @@ void BLERC::readMappings()
     BLERC::preferences.begin("remote", true);
     if (BLERC::preferences.isKey("mappings"))
     {
-        BLERC::remoteMappings = BLERC::preferences.getString("mappings");
+        BLERC::remoteMappingsJSON = BLERC::preferences.getString("mappings");
+        BLERC::remoteMappings = JSON.parse(BLERC::preferences.getString("mappings"));
     }
     else
     {
         BLERC::preferences.end();
         BLERC::preferences.begin("remote", false);
-        BLERC::preferences.putString("mappings", BLERC::remoteMappings);
+        BLERC::preferences.putString("mappings", BLERC::remoteMappingsJSON);
     }
     BLERC::preferences.end();
+}
+
+bool BLERC::addRemoteMapping(JSONVar &params)
+{
+    BLERC::preferences.begin("remote", false);
+    BLERC::remoteMappings[params["old"]] = (const char *)params["new"];
+    BLERC::remoteMappingsJSON = JSON.stringify(BLERC::remoteMappings);
+    BLERC::preferences.putString("mappings", BLERC::remoteMappingsJSON);
+    BLERC::preferences.end();
+
+    return true;
 }
 
 void BLERC::loop()
