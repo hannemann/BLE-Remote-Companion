@@ -91,6 +91,7 @@ public:
     static JSONVar remoteMappings;
     static bool addRemoteMapping(JSONVar &params);
     static bool removeRemoteMapping(JSONVar &params);
+    static bool deleteRemoteMappings();
     static void saveConfig(JSONVar &params);
 
 private:

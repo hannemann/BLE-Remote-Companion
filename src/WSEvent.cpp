@@ -127,7 +127,7 @@ bool WSEvent::validatePayload(uint8_t num, JSONVar &payload)
         }
         ESP_LOGE(LOG_TAG, "[%u] %s params invalid", num, (const char *)payload["method"]);
     }
-    if (strcmp(payload["method"], "btDisconnect") == 0 || strcmp(payload["method"], "cancelIr") == 0 || strcmp(payload["method"], "forget") == 0 || strcmp(payload["method"], "clear") == 0 || strcmp(payload["method"], "reboot") == 0)
+    if (strcmp(payload["method"], "deleteMappings") == 0 || strcmp(payload["method"], "btDisconnect") == 0 || strcmp(payload["method"], "cancelIr") == 0 || strcmp(payload["method"], "forget") == 0 || strcmp(payload["method"], "clear") == 0 || strcmp(payload["method"], "reboot") == 0)
     {
         return true;
     }
@@ -207,6 +207,11 @@ void WSEvent::callMethod(uint8_t num, const char *method)
     {
         IRService::instance().clearConfig();
         resultOK(num, "{\"method\":\"clear\",\"result\":\"OK\"}");
+    }
+    if (strcmp(method, "deleteMappings") == 0)
+    {
+        BLERC::deleteRemoteMappings();
+        resultOK(num, "{\"method\":\"deleteMappings\",\"result\":\"OK\"}");
     }
 }
 

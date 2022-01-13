@@ -373,7 +373,7 @@
         gap: var(--gap-minimal);
         width: 100%;
     }
-    main:not([data-page="learn"]) section.keyboard {
+    main:not([data-page="learn"]):not([data-page="remap"]) section.keyboard {
         position: fixed;
         bottom: var(--gap-minimal);
     }
@@ -556,12 +556,13 @@
     }
     /* Router */
     main:not([data-page="remote"]):not([data-page="learn"]):not([data-page="remap"]) section.remote > div,
-    main:not([data-page="keyboard"]):not([data-page="learn"]) section.keyboard,
+    main:not([data-page="keyboard"]):not([data-page="learn"]):not([data-page="remap"]) section.keyboard,
     main:not([data-page="mouse"]) section.mouse,
     main:not([data-page="learn"]) section.learn-config,
     main:not([data-page="config"]) section.config,
     main:not([data-page="all-buttons"]) section.all-buttons,
     main:not([data-page="ota"]) section.ota,
+    main:not([data-page="remap"]) section.remap-config,
     main:not([data-page="remap"]) section.remap {
         display: none;
     }
@@ -721,22 +722,22 @@
         gap: var(--gap-small);
     }
     .learn-config p,
-    .remap p {
+    .remap-config p {
         display: flex;
         justify-content: space-between;
         align-items: center;
     }
     .learn-config button,
-    .remap p button {
+    .remap-config button {
         border: none;
         padding: .75rem 1.5rem;
         color: var(--clr-alert);
         font-size: 1.2em;
     }
-    .remap .reset {
+    .remap-config .reset {
         display: none;
     }
-    .remap .reset.show {
+    .remap-config .reset.show {
         display: revert;
     }
     .overlay {
@@ -767,6 +768,14 @@
     }
     .overlay.remap {
         overflow-y: scroll;
+        padding-top: calc(6 * var(--gap));
+        gap: var(--gap);
+    }
+    .overlay.remap .sticky-filter {
+        top: calc(-1 * (6 * var(--gap)));
+    }
+    .overlay.remap .all-buttons h2 {
+        top: calc(-1 * (6 * var(--gap)) + 1.5em + 2px);
     }
 
     /* Form */
@@ -857,11 +866,12 @@
             <p>Forget a single button <button name="forget">&times;</button></p>
             <p>Hit the button you want learn and press the button on your IR remote.</p>
         </section>
-        <section class="remap p-inline">
+        <section class="remap-config p-inline">
             <h1>Map Remote Buttons</h1>
             <p>Hit the button you want to map, then choose a function from the list.</p>
             <p>Note: Remapped/reset buttons also have to be re-learned.</p>
             <p>Reset a single button <button name="reset">&times;</button></p>
+            <p>Reset all mappings <button name="resetAll">&times;</button></p>
             <p class="reset">Now hit the button you want to reset.</p>
         </section>
         <section class="remote">
@@ -1218,6 +1228,12 @@
                         default: btn.dataset.defaultMapping
                     }
                 }, cb)
+            }
+
+            deleteMappings() {
+                this.send({
+                    method: "deleteMappings"
+                }, () => location.reload())
             }
 
             forget(cb) {
@@ -1789,6 +1805,9 @@
         }
 
         class AllButtons extends ButtonsAbstract {
+
+            get label() { return "Test"; }
+
             constructor(pageController, parent) {
                 super(pageController, parent);
                 this.search = this.parent.querySelector('input');
@@ -1810,7 +1829,7 @@
                     btn.dataset.type = Object.values(USBHIDType).find(t => t.typeId === parseInt(config.typeId, 10))?.typeName;
                     btn.addEventListener("pointerdown", this.keyDownHandler);
                     btn.addEventListener("pointerup", this.keyUpHandler);
-                    btn.innerHTML = 'Test';
+                    btn.innerHTML = this.label;
                     wrapper.appendChild(btn);
                     this.items.push(wrapper);
                 });
@@ -1833,16 +1852,22 @@
         }
 
         class RemapButtons extends AllButtons {
+
+            get label() { return "Apply"; }
+
             constructor(pageController, parent) {
                 super(pageController, parent);
-                this.resetBtn = document.querySelector('section.remap button[name="reset"]');
+                this.resetBtn = document.querySelector('section.remap-config button[name="reset"]');
                 this.resetBtn.addEventListener('pointerup', this.toggleResetHandler);
+                this.resetAllBtn = document.querySelector('section.remap-config button[name="resetAll"]');
+                this.resetAllBtn.addEventListener('pointerup', this.resetAllHandler);
             }
 
             initHandler() {
                 this.keyDownHandler = e => undefined;
                 this.keyUpHandler = this.handleRemap.bind(this);
                 this.toggleResetHandler = this.toggleReset.bind(this);
+                this.resetAllHandler = this.resetAll.bind(this);
             }
 
             applyMappings(mappings) {
@@ -1890,16 +1915,22 @@
                 btn.dataset.type = Object.values(USBHIDType).find(t => t.typeId === defaultTypeId)?.typeName;
             }
 
+            resetAll() {
+                if (confirm("Delete Mappings?")) {
+                    this.pageController.ws.deleteMappings();
+                }
+            }
+
             toggleReset() {
                 this.resetMode = !this.resetMode;
             }
 
             set resetMode(v) {
-                document.querySelector("section.remap p.reset").classList.toggle('show', "boolean" === typeof v && v);
+                document.querySelector("section.remap-config p.reset").classList.toggle('show', "boolean" === typeof v && v);
             }
 
             get resetMode() {
-                return document.querySelector("section.remap p.reset").classList.contains('show');
+                return document.querySelector("section.remap-config p.reset").classList.contains('show');
             }
         }
 

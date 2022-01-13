@@ -179,6 +179,17 @@ bool BLERC::removeRemoteMapping(JSONVar &params)
     return true;
 }
 
+bool BLERC::deleteRemoteMappings()
+{
+    BLERC::preferences.begin("remote", false);
+    BLERC::remoteMappings = JSON.parse("{}");
+    BLERC::remoteMappingsJSON = JSON.stringify(BLERC::remoteMappings);
+    BLERC::preferences.putString("mappings", BLERC::remoteMappingsJSON);
+    BLERC::preferences.end();
+
+    return true;
+}
+
 void BLERC::loop()
 {
   WebService::instance().loop();
