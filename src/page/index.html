@@ -720,16 +720,24 @@
         display: grid;
         gap: var(--gap-small);
     }
-    .learn-config p {
+    .learn-config p,
+    .remap p {
         display: flex;
         justify-content: space-between;
         align-items: center;
     }
-    .learn-config button {
+    .learn-config button,
+    .remap p button {
         border: none;
         padding: .75rem 1.5rem;
         color: var(--clr-alert);
         font-size: 1.2em;
+    }
+    .remap .reset {
+        display: none;
+    }
+    .remap .reset.show {
+        display: revert;
     }
     .overlay {
         position: fixed;
@@ -852,6 +860,9 @@
         <section class="remap p-inline">
             <h1>Map Remote Buttons</h1>
             <p>Hit the button you want to map, then choose a function from the list.</p>
+            <p>Note: Remapped/reset buttons also have to be re-learned.</p>
+            <p>Reset a single button <button name="reset">&times;</button></p>
+            <p class="reset">Now hit the button you want to reset.</p>
         </section>
         <section class="remote">
             <div class="dpad">
@@ -1198,6 +1209,15 @@
                     method: "remap",
                     params: btns
                 }, cb);
+            }
+
+            resetMapping(btn, cb) {
+                this.send({
+                    method: "resetBtn",
+                    params: {
+                        default: btn.dataset.defaultMapping
+                    }
+                }, cb)
             }
 
             forget(cb) {
@@ -1813,9 +1833,16 @@
         }
 
         class RemapButtons extends AllButtons {
+            constructor(pageController, parent) {
+                super(pageController, parent);
+                this.resetBtn = document.querySelector('section.remap button[name="reset"]');
+                this.resetBtn.addEventListener('pointerup', this.toggleResetHandler);
+            }
+
             initHandler() {
                 this.keyDownHandler = e => undefined;
-                this.keyUpHandler = this.pageController.handleRemap.bind(this.pageController);
+                this.keyUpHandler = this.handleRemap.bind(this);
+                this.toggleResetHandler = this.toggleReset.bind(this);
             }
 
             applyMappings(mappings) {
@@ -1831,6 +1858,48 @@
                     }
                 });
                 this.pageController.remapOverlay.show = false;
+            }
+
+            handleRemap(e) {
+                const oldType = this.pageController.remapOverlay.button.dataset.type;
+                const oldCode = this.pageController.remapOverlay.button.dataset.code;
+                const newType = e.currentTarget.dataset.type;
+                const newCode = e.currentTarget.dataset.code;
+                const typeIdOld = Object.values(USBHIDType).find(t => t.typeName === oldType)?.typeId;
+                const codeIdOld = Object.values(USBHIDType).find(t => t.typeName === oldType)?.buttons.findIndex(b => b.name === oldCode);
+                const typeIdNew = Object.values(USBHIDType).find(t => t.typeName === newType)?.typeId;
+                const codeIdNew = Object.values(USBHIDType).find(t => t.typeName === newType)?.buttons.findIndex(b => b.name === newCode);
+
+                this.pageController.ws.remap({
+                        old: `${typeIdOld}-${codeIdOld}`,
+                        new: `${typeIdNew}-${codeIdNew}`
+                    }
+                );
+            }
+
+            handleReset(btn) {
+                this.pageController.ws.resetMapping(btn, this.applyDefault.bind(this));
+            }
+
+            applyDefault(result) {
+                this.resetMode = false;
+                const btn = document.querySelector(`[data-default-mapping="${result.btn}"]`)
+                const defaultTypeId = parseInt(result.btn.split('-').shift(), 10);
+                const defaultCodeId = parseInt(result.btn.split('-').pop(), 10);
+                btn.dataset.code = Object.values(USBHIDType).find(t => t.typeId === defaultTypeId)?.buttons[defaultCodeId].name;
+                btn.dataset.type = Object.values(USBHIDType).find(t => t.typeId === defaultTypeId)?.typeName;
+            }
+
+            toggleReset() {
+                this.resetMode = !this.resetMode;
+            }
+
+            set resetMode(v) {
+                document.querySelector("section.remap p.reset").classList.toggle('show', "boolean" === typeof v && v);
+            }
+
+            get resetMode() {
+                return document.querySelector("section.remap p.reset").classList.contains('show');
             }
         }
 
@@ -1987,27 +2056,14 @@
             }
 
             invokeRemap(btn) {
-                this.remapOverlay.button = btn.innerHTML;
-                this.remapOverlay.button.dataset.type = btn.dataset.type;
-                this.remapOverlay.button.dataset.code = btn.dataset.code;
-                this.remapOverlay.show = true;
-            }
-
-            handleRemap(e) {
-                const oldType = this.remapOverlay.button.dataset.type;
-                const oldCode = this.remapOverlay.button.dataset.code;
-                const newType = e.currentTarget.dataset.type;
-                const newCode = e.currentTarget.dataset.code;
-                const typeIdOld = Object.values(USBHIDType).find(t => t.typeName === oldType)?.typeId;
-                const codeIdOld = Object.values(USBHIDType).find(t => t.typeName === oldType)?.buttons.findIndex(b => b.name === oldCode);
-                const typeIdNew = Object.values(USBHIDType).find(t => t.typeName === newType)?.typeId;
-                const codeIdNew = Object.values(USBHIDType).find(t => t.typeName === newType)?.buttons.findIndex(b => b.name === newCode);
-
-                this.ws.remap({
-                        old: `${typeIdOld}-${codeIdOld}`,
-                        new: `${typeIdNew}-${codeIdNew}`
-                    }
-                );
+                if (this.remapButtons.resetMode) {
+                    this.remapButtons.handleReset(btn);
+                } else {
+                    this.remapOverlay.button = btn.innerHTML;
+                    this.remapOverlay.button.dataset.type = btn.dataset.type;
+                    this.remapOverlay.button.dataset.code = btn.dataset.code;
+                    this.remapOverlay.show = true;
+                }
             }
 
             initForget() {

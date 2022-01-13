@@ -97,6 +97,13 @@ bool WSEvent::validatePayload(uint8_t num, JSONVar &payload)
                 return true;
             }
         }
+        if (strcmp(payload["method"], "resetBtn") == 0)
+        {
+            if (params.hasOwnProperty("default"))
+            {
+                return true;
+            }
+        }
         if (strcmp(payload["method"], "mouseup") == 0 || strcmp(payload["method"], "mousedown") == 0 || strcmp(payload["method"], "mouseclick") == 0)
         {
             if (params.hasOwnProperty("button"))
@@ -227,6 +234,20 @@ void WSEvent::callMethod(uint8_t num, const char *method, JSONVar &params)
             snprintf(buffer, 1024, "{\"remote\":{\"mappings\":%s}}", BLERC::remoteMappingsJSON.c_str());
             WSEvent::instance().sendTXT(num, buffer);
             resultOK(num);
+        }
+        else
+        {
+            resultError(num);
+        }
+    }
+    if (strcmp(method, "resetBtn") == 0)
+    {
+        bool result = BLERC::removeRemoteMapping(params);
+        if (result)
+        {
+            char buffer[127];
+            snprintf(buffer, 127, "{\"method\":\"resetBtn\",\"result\":\"OK\",\"btn\":\"%s\"}", (const char *)params["default"]);
+            resultOK(num, buffer);
         }
         else
         {

@@ -90,6 +90,7 @@ public:
     static String remoteMappingsJSON;
     static JSONVar remoteMappings;
     static bool addRemoteMapping(JSONVar &params);
+    static bool removeRemoteMapping(JSONVar &params);
     static void saveConfig(JSONVar &params);
 
 private:

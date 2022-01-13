@@ -168,6 +168,17 @@ bool BLERC::addRemoteMapping(JSONVar &params)
     return true;
 }
 
+bool BLERC::removeRemoteMapping(JSONVar &params)
+{
+    BLERC::preferences.begin("remote", false);
+    BLERC::remoteMappings[params["default"]] = undefined;
+    BLERC::remoteMappingsJSON = JSON.stringify(BLERC::remoteMappings);
+    BLERC::preferences.putString("mappings", BLERC::remoteMappingsJSON);
+    BLERC::preferences.end();
+
+    return true;
+}
+
 void BLERC::loop()
 {
   WebService::instance().loop();
