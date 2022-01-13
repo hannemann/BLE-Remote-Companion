@@ -566,9 +566,9 @@
     main:not([data-page="remap"]) section.remap {
         display: none;
     }
-    main[data-page="keyboard"] section.remote > div:is(.dpad),
-    main[data-page="keyboard"] section.remote > div:is(.functional),
-    main[data-page="mouse"] section.remote > div:is(.functional) {
+    main[data-page="keyboard"] section.remote.remote > div:is(.dpad),
+    main[data-page="keyboard"] section.remote.remote > div:is(.functional),
+    main[data-page="mouse"] section.remote.remote > div:is(.functional) {
         display: grid;
     }
     /* /Router */
@@ -1886,17 +1886,13 @@
             }
 
             handleRemap(e) {
-                const oldType = this.pageController.remapOverlay.button.dataset.type;
-                const oldCode = this.pageController.remapOverlay.button.dataset.code;
                 const newType = e.currentTarget.dataset.type;
                 const newCode = e.currentTarget.dataset.code;
-                const typeIdOld = Object.values(USBHIDType).find(t => t.typeName === oldType)?.typeId;
-                const codeIdOld = Object.values(USBHIDType).find(t => t.typeName === oldType)?.buttons.findIndex(b => b.name === oldCode);
                 const typeIdNew = Object.values(USBHIDType).find(t => t.typeName === newType)?.typeId;
                 const codeIdNew = Object.values(USBHIDType).find(t => t.typeName === newType)?.buttons.findIndex(b => b.name === newCode);
 
                 this.pageController.ws.remap({
-                        old: `${typeIdOld}-${codeIdOld}`,
+                        old: this.pageController.remapOverlay.button.dataset.defaultMapping,
                         new: `${typeIdNew}-${codeIdNew}`
                     }
                 );
@@ -2091,8 +2087,7 @@
                     this.remapButtons.handleReset(btn);
                 } else {
                     this.remapOverlay.button = btn.innerHTML;
-                    this.remapOverlay.button.dataset.type = btn.dataset.type;
-                    this.remapOverlay.button.dataset.code = btn.dataset.code;
+                    this.remapOverlay.button.dataset.defaultMapping = btn.dataset.defaultMapping;
                     this.remapOverlay.show = true;
                 }
             }
