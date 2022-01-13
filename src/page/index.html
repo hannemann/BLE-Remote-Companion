@@ -1103,6 +1103,9 @@
                 if (data.config) {
                     this.pageController.config.data = data.config;
                 }
+                if (data.remote?.mappings) {
+                    this.pageController.remapButtons.applyMappings(data.remote.mappings)
+                }
                 if (data.jsonrpc === "2.0") {
                     console.debug("[Websocket] incoming message", data);
                     if (this.wsTimeout) {
@@ -1444,6 +1447,7 @@
                         btn = container.appendChild(document.createElement("button"));
                         btn.dataset.code = Object.values(USBHIDType).find(t => t.typeId === parseInt(b.type, 10))?.buttons[b.key].name;
                         btn.dataset.type = Object.values(USBHIDType).find(t => t.typeId === parseInt(b.type, 10))?.typeName;
+                        btn.dataset.defaultMapping = `${b.type}-${b.key}`;
                         btn.addEventListener("pointerdown", this.keyDownHandler);
                         btn.addEventListener("pointerup", this.keyUpHandler);
                     } else {
@@ -1498,6 +1502,7 @@
                     if (buttons[i].tagName === "BUTTON") {
                         buttons[i].dataset.code = Object.values(USBHIDType).find(t => t.typeId === parseInt(b.type, 10))?.buttons[b.key].name;
                         buttons[i].dataset.type = Object.values(USBHIDType).find(t => t.typeId === parseInt(b.type, 10))?.typeName;
+                        buttons[i].dataset.defaultMapping = `${b.type}-${b.key}`;
                         buttons[i].addEventListener("pointerdown", this.keyDownHandler);
                         buttons[i].addEventListener("pointerup", this.keyUpHandler);
                     }
@@ -1812,6 +1817,21 @@
                 this.keyDownHandler = e => undefined;
                 this.keyUpHandler = this.pageController.handleRemap.bind(this.pageController);
             }
+
+            applyMappings(mappings) {
+                Object.keys(mappings).forEach(m => {
+                    if (mappings[m]) {
+                        let typeId = parseInt(mappings[m].split("-").shift(), 10);
+                        let codeId = parseInt(mappings[m].split("-").pop(), 10);
+                        let codeNew = Object.values(USBHIDType).find(t => t.typeId === typeId)?.buttons[codeId].name;
+                        let typeNew = Object.values(USBHIDType).find(t => t.typeId === typeId)?.typeName;
+                        let btn = document.querySelector(`[data-default-mapping="${m}"]`);
+                        btn.dataset.type = typeNew;
+                        btn.dataset.code = codeNew;
+                    }
+                });
+                this.pageController.remapOverlay.show = false;
+            }
         }
 
         class Config extends PageHandler {
@@ -1986,8 +2006,7 @@
                 this.ws.remap({
                         old: `${typeIdOld}-${codeIdOld}`,
                         new: `${typeIdNew}-${codeIdNew}`
-                    },
-                    () => {this.remapOverlay.show = false;}
+                    }
                 );
             }
 
