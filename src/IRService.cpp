@@ -1,5 +1,7 @@
 #include "IRService.h"
 
+bool IRService::mouseMode = false;
+
 IRrecv IRService::irrecv = IRrecv(IR_PIN);
 
 IRService& IRService::init() {
@@ -36,7 +38,8 @@ void IRService::loop() {
                 current &= 0xfeffff;
             }
             protocol = results.decode_type;
-            if (current != lastSteady) {
+            if (current != lastSteady && !mouseMode)
+            {
                 lastSteady = current;
                 // Serial.print(resultToHumanReadableBasic(&results));
                 Serial.printf("IR Protocol: %d - %s, Button: %llu pressed\n", results.decode_type, typeToString(results.decode_type, results.repeat).c_str(), current);
@@ -44,6 +47,10 @@ void IRService::loop() {
                 {
                     press();
                 }
+            }
+            else if (mouseMode)
+            {
+                press();
             }
             lastDebounceTime = millis();
         }
@@ -150,14 +157,53 @@ void IRService::printConfig()
 
 void IRService::press() {
     const int16_t key = getHidUsageFromIr();
-    getTypeId() == TYPE_KEYBOARD ? bluetooth.keydown(key, false) : bluetooth.mediadown(key, false);
-    notifyClients(key, "keydown");
+    const uint8_t typeId = getTypeId();
+    if (mouseMode && typeId == TYPE_KEYBOARD && (key == DPAD_UP || key == DPAD_DOWN || key == DPAD_LEFT || key == DPAD_RIGHT))
+    {
+        switch (key)
+        {
+        case DPAD_UP:
+            bluetooth.mouseMove(0, -10);
+            break;
+        case DPAD_DOWN:
+            bluetooth.mouseMove(0, 10);
+            break;
+        case DPAD_LEFT:
+            bluetooth.mouseMove(-10, 0);
+            break;
+        case DPAD_RIGHT:
+            bluetooth.mouseMove(10, 0);
+            break;
+        }
+    }
+    else if (!mouseMode && typeId != TYPE_INTERNAL)
+    {
+        typeId == TYPE_KEYBOARD ? bluetooth.keydown(key, false) : bluetooth.mediadown(key, false);
+        notifyClients(key, "keydown");
+    }
 }
 
 void IRService::release() {
+    const uint8_t typeId = getTypeId();
     const int16_t key = getHidUsageFromIr();
-    getTypeId() == TYPE_KEYBOARD ? bluetooth.keyup() : bluetooth.mediaup();
-    notifyClients(key, "keyup");
+    if (!mouseMode && typeId != TYPE_INTERNAL)
+    {
+        const int16_t key = getHidUsageFromIr();
+        typeId == TYPE_KEYBOARD ? bluetooth.keyup() : bluetooth.mediaup();
+        notifyClients(key, "keyup");
+    }
+
+    else if (mouseMode && typeId == TYPE_KEYBOARD && key == DPAD_OK)
+    {
+        bluetooth.mouseClick(1);
+    }
+    else if (typeId == TYPE_INTERNAL)
+    {
+        if (key == TOGGLE_MOUSE)
+        {
+            mouseMode = mouseMode == true ? false : true;
+        }
+    }
 }
 
 void IRService::notifyClients(const int16_t key, const char *method)

@@ -3,6 +3,12 @@
 
 #include <Arduino.h>
 
+#define DPAD_OK 0x0028
+#define DPAD_RIGHT 0x004f
+#define DPAD_LEFT 0x0050
+#define DPAD_DOWN 0x0051
+#define DPAD_UP 0x0052
+#define TOGGLE_MOUSE 0x0001
 struct inputConsumer_t
 {
   uint16_t ConsumerControl;                          // Value = 0 to 572
@@ -21,12 +27,14 @@ struct inputKeyboard_t
   uint8_t  Key;                                        // Value = 0 to 101
 };
 
-enum USBHIDType {
+enum USBHIDType
+{
   TYPE_NONE,
   TYPE_KEYBOARD,
   TYPE_CONSUMER,
   TYPE_APP_LAUNCHER,
-  TYPE_APP_CONTROL
+  TYPE_APP_CONTROL,
+  TYPE_INTERNAL
 };
 
 typedef struct
@@ -67,6 +75,10 @@ class HIDUsageKeys {
     int16_t hidAppControl(const char *code);
     int16_t hidAppControlIndex(const char *code);
     const char *hidAppControlName(uint16_t id);
+    int16_t hidInternal(uint16_t id);
+    int16_t hidInternal(const char *code);
+    int16_t hidInternalIndex(const char *code);
+    const char *hidInternalName(uint16_t id);
     static int16_t getKey(uint8_t type, uint16_t id);
     static int16_t getKey(const char *type, const char *code);
     static int16_t getKeyIndex(uint8_t type, const char *code);
@@ -74,6 +86,9 @@ class HIDUsageKeys {
     static const char *getKeyType(uint8_t type);
     static const uint8_t getKeyTypeId(const char *type);
 };
+
+const HID_USAGE InternalUsage[1] = {
+    {"TOGGLE_MOUSE", 0x0001}};
 
 const HID_USAGE HIDKeyboard[121] = {
     {"KEYCODE_A", 0x0004},

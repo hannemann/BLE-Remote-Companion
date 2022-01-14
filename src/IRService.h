@@ -24,6 +24,7 @@ class IRService {
         static String getAssignedIRDataByKey(const char *type, const char *code);
         static int getIrProtocolByKey(const char *type, const char *code);
         static uint64_t getIrCodeByKey(const char *type, const char *code);
+        static bool mouseMode;
 
     private:
         decode_results results;

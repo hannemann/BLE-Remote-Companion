@@ -269,11 +269,21 @@ void WSEvent::callMethod(uint8_t num, const char *method, JSONVar &params)
     }
     if (strcmp(method, "keyup") == 0)
     {
+        if (strcmp(params["type"], "INTERNAL") == 0)
+        {
+            if (strcmp(params["code"], "TOGGLE_MOUSE") == 0)
+            {
+                IRService::mouseMode = IRService::mouseMode == true ? false : true;
+            }
+        }
         btKeyup(num, params);
     }
     if (strcmp(method, "mousedown") == 0)
     {
-        bluetooth.mouseDown(int(params["button"]));
+        if (strcmp(params["type"], "INTERNAL") != 0)
+        {
+            bluetooth.mouseDown(int(params["button"]));
+        }
     }
     if (strcmp(method, "mouseup") == 0)
     {

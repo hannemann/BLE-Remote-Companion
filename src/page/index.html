@@ -1579,7 +1579,7 @@
         class Lower extends ButtonsAbstract {
             get buttons() {
                 return {
-                    functionalLower: {"classes":["col-3"],"buttons":[{"key":26,"type":2,"label":".mute"},{"key":-1,"type":0,"label":""},{"key":7,"type":2,"label":".swap"}]},
+                    functionalLower: {"classes":["col-3"],"buttons":[{"key":26,"type":2,"label":".mute"},{"key":0,"type":5,"label":".mouse"},{"key":7,"type":2,"label":".swap"}]},
                     media: {"classes":["col-4"],"buttons":[{"key":22,"type":2,"label":".skip-back"},{"key":20,"type":2,"label":".rew"},{"key":19,"type":2,"label":".ffwd"},{"key":21,"type":2,"label":".skip-next"},{"key":18,"type":2,"label":".record"},{"key":23,"type":2,"label":".stop"},{"key":25,"type":2,"label":".play-pause"}]},
                     colors: {"classes":["col-4"],"buttons":[{"key":3,"type":2,"label":".red"},{"key":4,"type":2,"label":".green"},{"key":6,"type":2,"label":".yellow"},{"key":5,"type":2,"label":".blue"}]}
                 }
@@ -2553,13 +2553,19 @@
             {name: "AC Distribute Vertically", USBHID: 0x029c},
         ];
 
+        const InternalUsage = [
+            {name: "TOGGLE_MOUSE", USBHID: 0x0001},
+        ];
+
         const TYPE_KEYBOARD = 1;
         const TYPE_CONSUMER = 2;
         const TYPE_APP_LAUNCHER = 3;
         const TYPE_APP_CONTROL = 4;
+        const TYPE_INTERNAL_USAGE = 5;
 
         const USBHIDType = {
             keyboard: {typeId: TYPE_KEYBOARD, buttons: HIDKeyboard, label: "Keyboard 0x07", typeName: "KEYBOARD"},
+            internalUsage: {typeId: TYPE_INTERNAL_USAGE, buttons: InternalUsage, label: "Internal Usage", typeName: "INTERNAL"},
             consumer: {typeId: TYPE_CONSUMER, buttons: HIDConsumer, label: "Consumer 0x0c", typeName: "CONSUMER"},
             appLauncher: {typeId: TYPE_APP_LAUNCHER, buttons: HIDAppLauncher, label: "Consumer 0x0c (App Launcher)", typeName: "APP_LAUNCHER"},
             appControl: {typeId: TYPE_APP_CONTROL, buttons: HIDAppControl, label: "Consumer 0x0c (App Control)", typeName: "APP_CONTROL"} 
