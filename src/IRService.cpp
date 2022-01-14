@@ -1,6 +1,8 @@
 #include "IRService.h"
 
 bool IRService::mouseMode = false;
+int8_t IRService::mouseStep = 5;
+int8_t IRService::maxMouseStep = INT8_MAX;
 
 IRrecv IRService::irrecv = IRrecv(IR_PIN);
 
@@ -38,7 +40,12 @@ void IRService::loop() {
                 current &= 0xfeffff;
             }
             protocol = results.decode_type;
-            if (current != lastSteady && !mouseMode)
+            currentKey = getKeyId();
+            currentType = getTypeId();
+            currentHid = getHidUsageFromIr();
+            bool isMouse = (mouseMode && isDpad());
+            bool isClick = (mouseMode && currentHid == DPAD_OK);
+            if (current != lastSteady && !isMouse && !isClick)
             {
                 lastSteady = current;
                 // Serial.print(resultToHumanReadableBasic(&results));
@@ -48,9 +55,9 @@ void IRService::loop() {
                     press();
                 }
             }
-            else if (mouseMode)
+            else if (isMouse)
             {
-                press();
+                mouseMove();
             }
             lastDebounceTime = millis();
         }
@@ -64,6 +71,7 @@ void IRService::loop() {
             }
             else if (forgetRemoteBtn.hasOwnProperty("client"))
             {
+
                 deleteLearned();
             }
             else
@@ -156,61 +164,73 @@ void IRService::printConfig()
 }
 
 void IRService::press() {
-    const int16_t key = getHidUsageFromIr();
-    const uint8_t typeId = getTypeId();
-    if (mouseMode && typeId == TYPE_KEYBOARD && (key == DPAD_UP || key == DPAD_DOWN || key == DPAD_LEFT || key == DPAD_RIGHT))
+    if (currentType != TYPE_INTERNAL)
     {
-        switch (key)
-        {
-        case DPAD_UP:
-            bluetooth.mouseMove(0, -10);
-            break;
-        case DPAD_DOWN:
-            bluetooth.mouseMove(0, 10);
-            break;
-        case DPAD_LEFT:
-            bluetooth.mouseMove(-10, 0);
-            break;
-        case DPAD_RIGHT:
-            bluetooth.mouseMove(10, 0);
-            break;
-        }
+        currentType == TYPE_KEYBOARD ? bluetooth.keydown(currentHid, false) : bluetooth.mediadown(currentHid, false);
+        notifyClients(currentHid, "keydown");
     }
-    else if (!mouseMode && typeId != TYPE_INTERNAL)
+}
+
+void IRService::mouseMove()
+{
+    switch (currentHid)
     {
-        typeId == TYPE_KEYBOARD ? bluetooth.keydown(key, false) : bluetooth.mediadown(key, false);
-        notifyClients(key, "keydown");
+    case DPAD_UP:
+        bluetooth.mouseMove(0, mouseStep * -1);
+        break;
+    case DPAD_DOWN:
+        bluetooth.mouseMove(0, mouseStep);
+        break;
+    case DPAD_LEFT:
+        bluetooth.mouseMove(mouseStep * -1, 0);
+        break;
+    case DPAD_RIGHT:
+        bluetooth.mouseMove(mouseStep, 0);
+        break;
+    }
+
+    if (mouseStep < maxMouseStep)
+    {
+        mouseStep = mouseStep + 10 <= maxMouseStep ? mouseStep + 10 : maxMouseStep;
     }
 }
 
 void IRService::release() {
-    const uint8_t typeId = getTypeId();
-    const int16_t key = getHidUsageFromIr();
-    if (!mouseMode && typeId != TYPE_INTERNAL)
+    mouseStep = 5;
+    if (currentType != TYPE_INTERNAL)
     {
-        const int16_t key = getHidUsageFromIr();
-        typeId == TYPE_KEYBOARD ? bluetooth.keyup() : bluetooth.mediaup();
-        notifyClients(key, "keyup");
+        if (mouseMode && currentType == TYPE_KEYBOARD && currentHid == DPAD_OK)
+        {
+            bluetooth.mouseClick(1);
+        }
+        else
+        {
+            currentType == TYPE_KEYBOARD ? bluetooth.keyup() : bluetooth.mediaup();
+            notifyClients(currentHid, "keyup");
+        }
     }
-
-    else if (mouseMode && typeId == TYPE_KEYBOARD && key == DPAD_OK)
+    else
     {
-        bluetooth.mouseClick(1);
-    }
-    else if (typeId == TYPE_INTERNAL)
-    {
-        if (key == TOGGLE_MOUSE)
+        if (currentHid == TOGGLE_MOUSE)
         {
             mouseMode = mouseMode == true ? false : true;
+            if (mouseMode)
+            {
+                bluetooth.mouseMove(1, 0);
+            }
         }
     }
 }
 
+bool IRService::isDpad()
+{
+    return currentType == TYPE_KEYBOARD && (currentHid == DPAD_UP || currentHid == DPAD_DOWN || currentHid == DPAD_LEFT || currentHid == DPAD_RIGHT);
+}
+
 void IRService::notifyClients(const int16_t key, const char *method)
 {
-    uint8_t typeId = getTypeId();
-    const char *type = HIDUsageKeys::getKeyType(typeId);
-    const char *code = HIDUsageKeys::getKeyName(typeId, getKeyId());
+    const char *type = HIDUsageKeys::getKeyType(currentType);
+    const char *code = HIDUsageKeys::getKeyName(currentType, currentKey);
     if (key == -1 || BLERC::ws_br_send_assigned)
     {
         WSEvent::instance().broadcastKey(method, type, code, protocol, current);
@@ -222,7 +242,7 @@ void IRService::notifyClients(const int16_t key, const char *method)
 }
 
 int16_t IRService::getHidUsageFromIr() {
-    return HIDUsageKeys::getKey(getTypeId(), getKeyId());
+    return HIDUsageKeys::getKey(currentType, currentKey);
 }
 
 uint8_t IRService::getTypeId() {
