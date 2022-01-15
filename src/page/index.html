@@ -1611,7 +1611,7 @@
                     buttons.row3.buttons[1].label = 'Z';
                 }
                 return buttons;
-            }zy
+            }
 
             destroy() {
                 this.parent.querySelectorAll('button').forEach(b => {
@@ -2184,6 +2184,7 @@
                 if (typeof this.pages[page]?.onshow === 'function') {
                     this.pages[page].onshow();
                 }
+                window.scrollTo(0,0);
             }
 
             get active() {

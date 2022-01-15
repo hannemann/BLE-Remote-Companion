@@ -1,6 +1,6 @@
 #include "BLERC.h"
 
-String BLERC::configJSON = "{}";
+String BLERC::configJSON = "{\"config\":{\"kb_layout\":1}}";
 String BLERC::remoteMappingsJSON = "{}";
 JSONVar BLERC::remoteMappings = JSONVar();
 String BLERC::room = "";
