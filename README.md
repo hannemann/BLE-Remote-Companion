@@ -1,6 +1,6 @@
 # Bluetooth LE Remote Companion
 
-Remotely control devices via Bluetooth with an IR remote, from your Browser, Homeassistant or Node-RED. 
+Remotely control devices via Bluetooth with an IR remote, from a Browser, Homeassistant or Node-RED. 
 
 ## Features
 This software turns an ESP32 into a virtual keyboard and mouse running a websocket server and/or Home Assistant websocket API client.
@@ -9,12 +9,17 @@ Button presses sent by an IR remote can also be broadcasted to Home Assistant or
 
 A simple keyboard and mouse is available in the web frontend. Point your browser to the esp's IP and check out.
 
-The web frontend offers an easy, self-explanatory way to configure your IR remote.
+The web frontend offers an easy, self-explanatory way to configure your IR remote. It is also possible to change the default keycode that is sent by a button.
 
 An easy to print housing for a d1 mini style esp32 can be found in the `case/D1-Mini` subfolder.
 
 ## Supported Hardware
 * ESP32
+  * developed and tested on D1 Mini Style ESP32:
+    * Module: ESP32-WROOM-32
+    * Chipset: ESP32-D0WDQ6
+    * 4MB Flash
+    * 520KB RAM
 
 ### (Strongly) Recommended Peripherals
 * TSOP4838 on PIN 23 (pin can be configured in prod_env.ini see example)
@@ -27,10 +32,10 @@ An easy to print housing for a d1 mini style esp32 can be found in the `case/D1-
 
 ## Configuration
 ### WIFI
-Connect to the WIFI 'BLERC' with the password 0987654321 and enter your WIFI Credentials. Device reboots and than connects to your WIFI. Look up the IP in your router and than point your browser to it.
+Connect to the WIFI 'BLERC' with the password 0987654321 and enter your WIFI Credentials. Device reboots and than connects to the WIFI. Look up the IP in the router and than point a browser to it.
 
 ### Bluetooth
-Bind the device you want to control to `BLE Remote Companion`.  
+Bind the device to control to `BLE Remote Companion`.  
 It happend to me sometinmes that the mouse did not work instantly. A rebind always helped in that cases.
 
 ### Other
@@ -39,6 +44,8 @@ You find a configuration page in the menu of the frontend.
 -|-
 |General||
 |Room  |Give it a name (recommended to be able to differentiate between several devices when events are evaluated by HA)|
+|Keyboard||
+|Layout|Match the layout to the layout of the device|
 |Home Assistant API||
 |Enable|Enable HA API support|
 |IP|IP Address of machine running Home Assistant|
@@ -64,12 +71,18 @@ You find a configuration page in the menu of the frontend.
     Press the `Forget a single button` Button. When prompted press the button to be forgotten.
   * #### Delete all learned codes  
     Press and confirm the `Delete the entire configuration` button. Configuration of room, HA etc. is left untouched.
-
+* ### Map Remote Buttons
+  * #### Add Mapping
+    Hit the Button you want to remap, choose the function in the list. Re-learn the remote button afterwards
+  * #### Reset a single Button
+    Press the button you want to reset
+  * #### Reset all mappings
+    Reset all mappings to their default values
 * ### All Buttons Page  
-  The Page displays a list of all supported buttons. Not all of them are supported on each and every device and not all existing HID functions are supported by Remote Companion. You can play around with these. The displayed keycodes can all be used with Home Assistant or a websocket client.
+  The Page displays a list of all supported buttons. Not all of them are supported on each and every device and not all existing HID functions are supported by Remote Companion. Play around with these. The displayed keycodes can all be used with Home Assistant or a websocket client.
 
 * ### OTA Update
-  Keep your Remote Companion up to date by uploading a new release  
+  Keep Remote Companion up to date by uploading a new release  
   I own one device that doesn't like OTA updates (and is alos picky with USB so i assume it's somehow broken). If the Upload fails i reboot the device via menu while being on the update page. Wait for 15 seconds and than try again. Works in most cases.
 
 * ### Reboot
@@ -315,7 +328,6 @@ As a starting point you can import the [Websocket example flow (with longpress)]
 ## TODO:
 * documentation -> wip
 * handle ir errors when learning
-* layout onfiguration
 * case for Node MCU style with TSOP (reset button)
 * Basic Auth
 * navigate with history api
