@@ -265,7 +265,10 @@ void WSEvent::callMethod(uint8_t num, const char *method, JSONVar &params)
     }
     if (strcmp(method, "keydown") == 0)
     {
-        btKeydown(num, params);
+        if (strcmp(params["type"], "INTERNAL") != 0)
+        {
+            btKeydown(num, params);
+        }
     }
     if (strcmp(method, "keyup") == 0)
     {
@@ -276,14 +279,14 @@ void WSEvent::callMethod(uint8_t num, const char *method, JSONVar &params)
                 IRService::mouseMode = IRService::mouseMode == true ? false : true;
             }
         }
-        btKeyup(num, params);
+        else
+        {
+            btKeyup(num, params);
+        }
     }
     if (strcmp(method, "mousedown") == 0)
     {
-        if (strcmp(params["type"], "INTERNAL") != 0)
-        {
-            bluetooth.mouseDown(int(params["button"]));
-        }
+        bluetooth.mouseDown(int(params["button"]));
     }
     if (strcmp(method, "mouseup") == 0)
     {
