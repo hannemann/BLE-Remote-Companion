@@ -1646,7 +1646,9 @@
                         this.pageController.menu.toggle();
                         break;
                     case "/reboot":
-                        this.pageController.ws.reboot();
+                        if (confirm('Reboot?')) {
+                            this.pageController.ws.reboot();
+                        }
                         break;
                 }
             }
