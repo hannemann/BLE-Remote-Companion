@@ -79,6 +79,7 @@ public:
     void loop();
     static Preferences preferences;
     static String room;
+    static uint8_t kb_layout;
     static bool ha_api_enable;
     static bool ha_send_assigned;
     static String ha_ip;

@@ -956,6 +956,16 @@
                     <label>Room<input type="text" name="room"></label>
                 </fieldset>
                 <fieldset>
+                    <legend>Keyboard</legend>
+                    <label>
+                        Layout
+                        <select name="kb_layout" data-numeric="1">
+                            <option value="0">QWERTZ</option>
+                            <option value="1">QWERTY</option>
+                        </select>
+                    </label>
+                </fieldset>
+                <fieldset>
                     <legend>Home-Assistant API</legend>
                     <label>Enable (needs reboot)<input type="checkbox" name="ha_api_enable" value="1"></label>
                     <label>IP<input type="text" name="ha_ip"></label>
@@ -1588,13 +1598,27 @@
 
         class Keyboard extends ButtonsAbstract {
             get buttons() {
-                return {
+                // layout QWERTZ
+                const buttons = {
                     rowN: {"buttons":[{"key":26,"type":1,"label":"1"},{"key":27,"type":1,"label":"2"},{"key":28,"type":1,"label":"3"},{"key":29,"type":1,"label":"4"},{"key":30,"type":1,"label":"5"},{"key":31,"type":1,"label":"6"},{"key":32,"type":1,"label":"7"},{"key":33,"type":1,"label":"8"},{"key":34,"type":1,"label":"9"},{"key":35,"type":1,"label":"0"}]},
-                    row1: {"buttons":[{"key":16,"type":1,"label":"Q"},{"key":22,"type":1,"label":"W"},{"key":4,"type":1,"label":"E"},{"key":17,"type":1,"label":"R"},{"key":19,"type":1,"label":"T"},{"key":25,"type":1,"label":"Z"},{"key":20,"type":1,"label":"U"},{"key":8,"type":1,"label":"I"},{"key":14,"type":1,"label":"O"},{"key":15,"type":1,"label":"P"}]},
+                    row1: {"buttons":[{"key":16,"type":1,"label":"Q"},{"key":22,"type":1,"label":"W"},{"key":4,"type":1,"label":"E"},{"key":17,"type":1,"label":"R"},{"key":19,"type":1,"label":"T"},{"key":24,"type":1,"label":"Z"},{"key":20,"type":1,"label":"U"},{"key":8,"type":1,"label":"I"},{"key":14,"type":1,"label":"O"},{"key":15,"type":1,"label":"P"}]},
                     row2: {"buttons":[{"key":0,"type":1,"label":"A"},{"key":18,"type":1,"label":"S"},{"key":3,"type":1,"label":"D"},{"key":5,"type":1,"label":"F"},{"key":6,"type":1,"label":"G"},{"key":7,"type":1,"label":"H"},{"key":9,"type":1,"label":"J"},{"key":10,"type":1,"label":"K"},{"key":11,"type":1,"label":"L"}]},
-                    row3: {"buttons":[{"key":-1,"type":0,"label":""},{"key":24,"type":1,"label":"Y"},{"key":23,"type":1,"label":"X"},{"key":2,"type":1,"label":"C"},{"key":21,"type":1,"label":"V"},{"key":1,"type":1,"label":"B"},{"key":13,"type":1,"label":"N"},{"key":12,"type":1,"label":"M"},{"key":38,"type":1,"label":"&#x232b"}]},
+                    row3: {"buttons":[{"key":-1,"type":0,"label":""},{"key":25,"type":1,"label":"Y"},{"key":23,"type":1,"label":"X"},{"key":2,"type":1,"label":"C"},{"key":21,"type":1,"label":"V"},{"key":1,"type":1,"label":"B"},{"key":13,"type":1,"label":"N"},{"key":12,"type":1,"label":"M"},{"key":38,"type":1,"label":"&#x232b"}]},
                     row4: {"buttons":[{"key":-1,"type":0,"label":"&nbsp;"},{"key":40,"type":1,"label":"&nbsp"},{"key":36,"type":1,"label":"&#x23ce"}]}
+                };
+                if (this.pageController.config.data.kb_layout === KB_QWERTY) {
+                    buttons.row1.buttons[5].label = 'Y';
+                    buttons.row3.buttons[1].label = 'Z';
                 }
+                return buttons;
+            }zy
+
+            destroy() {
+                this.parent.querySelectorAll('button').forEach(b => {
+                    b.removeEventListener('pointerdown', this.keyDownHandler);
+                    b.removeEventListener('pointerUp', this.keyUpHandler);
+                });
+                this.parent.innerHTML = '';
             }
         }
 
@@ -1966,6 +1990,9 @@
                                 value = true;
 
                         }
+                        if (elem.dataset.numeric) {
+                            value = parseInt(value, 10);
+                        }
                         if(!Reflect.has(object, key)){
                             object[key] = value;
                             return;
@@ -1982,9 +2009,12 @@
             set data(d) {
                 this._data = d;
                 this.pageController.applyConfig();
-                for (const [key, value] of Object.entries(this._data)) {
+                for (let [key, value] of Object.entries(this._data)) {
                     let elem = this.form.elements[key];
                     if (elem) {
+                        if (elem.dataset.numeric) {
+                            value = parseInt(value, 10);
+                        }
                         switch (elem.type) {
                             case 'password':
                                 elem.placeholder = "*****";
@@ -2038,7 +2068,15 @@
                 this.upper = new Upper(this, document.querySelector("section.remote"));
                 this.dpad = new Dpad(this, document.querySelector("section.remote"));
                 this.lower = new Lower(this, document.querySelector("section.remote"));
-                this.keyboard = new Keyboard(this, document.querySelector("section.keyboard"));
+                return this;
+            }
+
+            initKeyboard() {
+                const section = document.querySelector("section.keyboard");
+                if (this.keyboard) {
+                    this.keyboard.destroy();
+                }
+                this.keyboard = new Keyboard(this, section);
                 return this;
             }
 
@@ -2129,6 +2167,7 @@
             }
 
             applyConfig() {
+                this.initKeyboard();
                 this.nav.room = this.config.data.room || '';
                 const title = document.querySelector('title').dataset.default;
                 document.querySelector('title').innerHTML =
@@ -2564,6 +2603,9 @@
         const TYPE_APP_LAUNCHER = 3;
         const TYPE_APP_CONTROL = 4;
         const TYPE_INTERNAL_USAGE = 5;
+
+        const KB_QWERTZ = 0;
+        const KB_QWERTY = 1;
 
         const USBHIDType = {
             keyboard: {typeId: TYPE_KEYBOARD, buttons: HIDKeyboard, label: "Keyboard 0x07", typeName: "KEYBOARD"},

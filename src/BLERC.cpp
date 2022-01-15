@@ -4,6 +4,7 @@ String BLERC::configJSON = "{}";
 String BLERC::remoteMappingsJSON = "{}";
 JSONVar BLERC::remoteMappings = JSONVar();
 String BLERC::room = "";
+uint8_t BLERC::kb_layout = 1;
 String BLERC::ha_ip = "";
 String BLERC::ha_token = "";
 uint16_t BLERC::ha_port = 8123;
@@ -61,6 +62,14 @@ void BLERC::readConfig()
         if (config.hasOwnProperty("room"))
         {
             room = String((const char *)config["room"]);
+        }
+        if (config.hasOwnProperty("kb_layout"))
+        {
+            kb_layout = int(config["kb_layout"]);
+        }
+        else
+        {
+            config["kb_layout"] = kb_layout;
         }
         if (config.hasOwnProperty("ha_ip"))
         {
@@ -120,11 +129,16 @@ void BLERC::saveConfig(JSONVar &params)
         cfg["ws_br_send_assigned"] = bool(config.hasOwnProperty("ws_br_send_assigned"));
 
         cfg["room"] = undefined;
+        cfg["kb_layout"] = 0;
         cfg["ha_port"] = undefined;
         cfg["ha_ip"] = undefined;
         if (config.hasOwnProperty("room"))
         {
             cfg["room"] = (const char *)config["room"];
+        }
+        if (config.hasOwnProperty("kb_layout"))
+        {
+            cfg["kb_layout"] = int(config["kb_layout"]);
         }
         if (config.hasOwnProperty("ha_ip"))
         {
