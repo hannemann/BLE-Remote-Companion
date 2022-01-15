@@ -313,11 +313,7 @@ As a starting point you can import the [Websocket example flow (with longpress)]
 * [Consumer Codes 0x0c (Type: APP_CONTROL)](/doc/keycodes/app-control.md)
 * [Named and Decimal Keycodes from Android Open Source Project](/doc/keycodes/AOS-Project.md)
 ## TODO:
-* first time a mapping is saved esp crashes
 * documentation -> wip
-* Mouse Mode -> needs testing
-  * https://github.com/T-vK/ESP32-BLE-Mouse
-  * https://github.com/olegos76/nimble_kbdhid_example/blob/main/main/gatt_vars.c)
 * handle ir errors when learning
 * layout onfiguration
 * case for Node MCU style with TSOP (reset button)
