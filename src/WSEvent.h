@@ -17,8 +17,8 @@ public:
     static const char *LOG_TAG;
     void init();
     void run();
-    void notifyClients(const char *method, const char *type, const char *code);
-    void broadcastKey(const char *method, const char *type, const char *code, int irProtocol = -1, uint64_t irKey = 0);
+    void notifyClients(const char *method, const char *type, const char *code, bool longpress = false);
+    void broadcastKey(const char *method, const char *type, const char *code, int irProtocol = -1, uint64_t irKey = 0, bool longpress = false);
     void resultOK(uint8_t num, const char *message = nullptr);
     void resultError(uint8_t num, int32_t error = ERROR_UNKNOWN);
     static void webSocketEvent(uint8_t num, WStype_t type, uint8_t *payload, size_t length);
@@ -36,6 +36,7 @@ public:
 
 private:
     uint64_t requestId;
+    unsigned long start = 0;
     bool validatePayload(uint8_t num, JSONVar &payload);
     void handlePayload(uint8_t num, uint8_t *payload);
     void callMethod(uint8_t num, const char *method);

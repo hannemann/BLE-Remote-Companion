@@ -53,9 +53,10 @@ class IRService {
         uint8_t getTypeId();
         uint16_t getKeyId();
         String getConfigValue();
-        void notifyClients(const int16_t key, const char *method);
+        void notifyClients(const int16_t key, const char *method, bool longpress = false);
         JSONVar config;
         unsigned long start = 0;
+        unsigned long keyStart = 0;
 };
 
 #endif // IR_H

@@ -315,18 +315,18 @@ void WSEvent::callMethod(uint8_t num, const char *method, JSONVar &params)
  * @param type 
  * @param code 
  */
-void WSEvent::notifyClients(const char *method, const char *type, const char *code)
+void WSEvent::notifyClients(const char *method, const char *type, const char *code, bool longpress)
 {
     int irProtocol = IRService::getIrProtocolByKey(type, code);
     uint64_t irCode = IRService::getIrCodeByKey(type, code);
 
     if ((irProtocol == 0 && irCode == 0) || BLERC::ws_br_send_assigned)
     {
-        broadcastKey(method, type, code, irProtocol, irCode);
+        broadcastKey(method, type, code, irProtocol, irCode, longpress);
     }
     if ((irProtocol == 0 && irCode == 0) || BLERC::ha_send_assigned)
     {
-        HAClient::callService(method, type, code, irProtocol, irCode);
+        HAClient::callService(method, type, code, irProtocol, irCode, longpress);
     }
 }
 
@@ -338,12 +338,12 @@ void WSEvent::notifyClients(const char *method, const char *type, const char *co
  * @param irProtocol  
  * @param irKey 
  */
-void WSEvent::broadcastKey(const char *method, const char *type, const char *code, int irProtocol, uint64_t irKey)
+void WSEvent::broadcastKey(const char *method, const char *type, const char *code, int irProtocol, uint64_t irKey, bool longpress)
 {
     if (BLERC::ws_br_enable)
     {
         char message[255];
-        snprintf(message, 255, "{\"event\":\"ble_rc_to_ws\",\"data\":{\"room\":\"%s\",\"method\":\"%s\",\"type\":\"%s\",\"code\":\"%s\",\"ir_protocol\":%d,\"ir_code\":%llu}}", BLERC::room.c_str(), method, type, code, irProtocol, irKey);
+        snprintf(message, 255, "{\"event\":\"ble_rc_to_ws\",\"data\":{\"room\":\"%s\",\"method\":\"%s\",\"type\":\"%s\",\"code\":\"%s\",\"ir_protocol\":%d,\"ir_code\":%llu,\"longpress\":%s}}", BLERC::room.c_str(), method, type, code, irProtocol, irKey, longpress ? "true" : "false");
         broadcastTXT(message);
     }
 }
@@ -359,7 +359,12 @@ void WSEvent::btKeypress(uint8_t num, JSONVar &params)
     if (Bluetooth::BLEconnected)
     {
         bluetooth.keypress(params);
-        notifyClients("keypress", (const char *)params["type"], (const char *)params["code"]);
+        bool longpress = false;
+        if (params.hasOwnProperty("longpress"))
+        {
+            longpress = bool(params["longpress"]);
+        }
+        notifyClients("keypress", (const char *)params["type"], (const char *)params["code"], longpress);
         resultOK(num);
         return;
     }
@@ -376,6 +381,7 @@ void WSEvent::btKeydown(uint8_t num, JSONVar &params)
 {
     if (Bluetooth::BLEconnected)
     {
+        start = millis();
         bluetooth.keydown(params);
         notifyClients("keydown", (const char *)params["type"], (const char *)params["code"]);
         resultOK(num);
@@ -394,8 +400,9 @@ void WSEvent::btKeyup(uint8_t num, JSONVar &params)
 {
     if (Bluetooth::BLEconnected)
     {
+        bool longpress = millis() - start > 500;
         bluetooth.keyup(params);
-        notifyClients("keyup", (const char *)params["type"], (const char *)params["code"]);
+        notifyClients("keyup", (const char *)params["type"], (const char *)params["code"], longpress);
         resultOK(num);
         return;
     }

@@ -17,7 +17,7 @@ public:
     void run();
     static bool running;
     static bool authenticated;
-    static void callService(const char *method, const char *keyType, const char *keyCode, int protocol = -1, long irCode = 0);
+    static void callService(const char *method, const char *keyType, const char *keyCode, int protocol = -1, long irCode = 0, bool longpress = false);
 
 private:
     const char *host;

@@ -150,7 +150,7 @@ void HAClient::unsubscribe()
     incrementSeq();
 }
 
-void HAClient::callService(const char *method, const char *keyType, const char *keyCode, int protocol, long irCode)
+void HAClient::callService(const char *method, const char *keyType, const char *keyCode, int protocol, long irCode, bool longpress)
 {
     if (!running || !authenticated)
     {
@@ -168,6 +168,7 @@ void HAClient::callService(const char *method, const char *keyType, const char *
     serviceCall["service_data"]["type"] = String(keyType);
     serviceCall["service_data"]["code"] = String(keyCode);
     serviceCall["service_data"]["room"] = BLERC::room;
+    serviceCall["service_data"]["longpress"] = longpress;
     instance().sendTXT(JSON.stringify(serviceCall).c_str());
     incrementSeq();
 }

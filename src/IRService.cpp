@@ -166,6 +166,7 @@ void IRService::printConfig()
 void IRService::press() {
     if (currentType != TYPE_INTERNAL)
     {
+        keyStart = millis();
         currentType == TYPE_KEYBOARD ? bluetooth.keydown(currentHid, false) : bluetooth.mediadown(currentHid, false);
         notifyClients(currentHid, "keydown");
     }
@@ -205,8 +206,9 @@ void IRService::release() {
         }
         else
         {
+            bool longpress = millis() - keyStart >= 500;
             currentType == TYPE_KEYBOARD ? bluetooth.keyup() : bluetooth.mediaup();
-            notifyClients(currentHid, "keyup");
+            notifyClients(currentHid, "keyup", longpress);
         }
     }
     else
@@ -227,17 +229,17 @@ bool IRService::isDpad()
     return currentType == TYPE_KEYBOARD && (currentHid == DPAD_UP || currentHid == DPAD_DOWN || currentHid == DPAD_LEFT || currentHid == DPAD_RIGHT);
 }
 
-void IRService::notifyClients(const int16_t key, const char *method)
+void IRService::notifyClients(const int16_t key, const char *method, bool longpress)
 {
     const char *type = HIDUsageKeys::getKeyType(currentType);
     const char *code = HIDUsageKeys::getKeyName(currentType, currentKey);
     if (key == -1 || BLERC::ws_br_send_assigned)
     {
-        WSEvent::instance().broadcastKey(method, type, code, protocol, current);
+        WSEvent::instance().broadcastKey(method, type, code, protocol, current, longpress);
     }
     if (key == -1 || BLERC::ha_send_assigned)
     {
-        HAClient::callService(method, type, code, protocol, current);
+        HAClient::callService(method, type, code, protocol, current, longpress);
     }
 }
 
