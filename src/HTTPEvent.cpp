@@ -101,7 +101,8 @@ void HTTPEvent::fourOFour() {
 void HTTPEvent::captivePortal()
 {
     Serial.printf("GET / CaptivePortal\n");
-    instance().server.send_P(200, "text/html", captiveHTML);
+    instance().server.sendHeader("Content-Encoding", "gzip");
+    instance().server.send_P(200, "text/html", captiveHTML, captiveHTML_L);
 }
 
 void HTTPEvent::captiveSave()
@@ -123,8 +124,7 @@ void HTTPEvent::captiveSave()
         }
         WebService::instance().saveCredentials(ssid.c_str(), psk.c_str());
     }
-    // WebService::instance().saveCredentials();
-    instance()
-        .server.send_P(200, "text/html", rebootHTML);
+    instance().server.sendHeader("Content-Encoding", "gzip");
+    instance().server.send_P(200, "text/html", rebootHTML, rebootHTML_L);
     ESP.restart();
 }

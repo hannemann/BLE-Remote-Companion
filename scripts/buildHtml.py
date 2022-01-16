@@ -14,9 +14,9 @@ import codecs
 Import("env")
 
 cImport = "#include <Arduino.h>\n\n"
-cProgmem = "const char indexHTML[] PROGMEM = {"
+cProgmem = "const char %sHTML[] PROGMEM = {"
 cWrapEnd = "};"
-cLengthTemplate = "const uint16_t indexHTML_L = %d;\n"
+cLengthTemplate = "const uint16_t %sHTML_L = %d;\n"
 
 def get_build_flag_value(flag_name):
     build_flags = env.ParseFlags(env['BUILD_FLAGS'])
@@ -29,20 +29,20 @@ def readFile(name):
         data = file.read().replace('[%WS_PORT%]', get_build_flag_value('WS_PORT'))
     return data
 
-def zip(data):
+def zip(data, name):
     out = BytesIO()
     with gzip.GzipFile(fileobj=out, mode="w") as f:
         f.write(data.encode('utf-8'))
     
     global cLength
-    cLength = cLengthTemplate % len(out.getvalue())
+    cLength = cLengthTemplate % (name, len(out.getvalue()))
     return ",".join(["{0:#0{1}x}".format(b,4) for b in out.getvalue()])
 
-def wrap(data):
-    return cImport + cLength + cProgmem + data + cWrapEnd 
+def wrap(data, name):
+    return cImport + cLength + (cProgmem % name) + data + cWrapEnd 
 
-def write(data):
-    with open("./src/page/index.h", "w") as text_file:
+def write(data, outFile):
+    with open(outFile, "w") as text_file:
         text_file.write(data)
 
 
@@ -55,7 +55,18 @@ def build_web():
             inFile = Path("./src/page/index.html");
             outFile = Path("./src/page/index.h");
             if not outFile.exists() or inFile.stat().st_mtime > outFile.stat().st_mtime:
-                write(wrap(zip(readFile("./src/page/index.html"))))
+                write(wrap(zip(readFile(inFile), "index"), "index"), outFile)
+
+            inFile = Path("./src/page/captive.html");
+            outFile = Path("./src/page/captive.h");
+            if not outFile.exists() or inFile.stat().st_mtime > outFile.stat().st_mtime:
+                write(wrap(zip(readFile(inFile), "captive"), "captive"), outFile)
+
+            inFile = Path("./src/page/reboot.html");
+            outFile = Path("./src/page/reboot.h");
+            if not outFile.exists() or inFile.stat().st_mtime > outFile.stat().st_mtime:
+                write(wrap(zip(readFile(inFile), "reboot"), "reboot"), outFile)
+
     except OSError as e:
         print("Encountered error OSError building webpage:", e)
         if e.filename:
