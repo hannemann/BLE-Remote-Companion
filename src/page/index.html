@@ -1057,9 +1057,9 @@
             }
 
             run() {
-                this.url = `ws://${location.host}:[%WS_PORT%]/jsonrpc`
+                this.url = `ws://${location.host}:[%WS_PORT%]/jsonrpc`;
                 if (this.url.includes("WS_PORT")) {
-                    // we assume dev env
+                    /* we assume dev env */
                     this.url = `ws://192.168.178.218:81/jsonrpc`;
                     document.querySelector('title').dataset.default = "IDE BLE-RC";
                 }
@@ -1080,7 +1080,7 @@
                 this._attempts++;
                 console.debug("[Websocket] connect attempt %d...", this._attempts);
                 this.ws = new WebSocket(this.url);
-                this.addListeners()
+                this.addListeners();
                 return this;
             }
 
@@ -1297,7 +1297,7 @@
                 this.padClickTimeout = 100;
                 this.current = {
                     x:0,y:0
-                }
+                };
                 this.wheelCurrent = {
                     x:0,y:0
                 };
@@ -1340,9 +1340,9 @@
                 this.left.addEventListener('pointerup', this.buttonUpHandler);
                 this.middle.addEventListener('pointerup', this.buttonUpHandler);
                 this.right.addEventListener('pointerup', this.buttonUpHandler);
-                // this.left.addEventListener('pointerup', this.clickHandler);
-                // this.middle.addEventListener('pointerup', this.clickHandler);
-                // this.right.addEventListener('pointerup', this.clickHandler);
+                /* this.left.addEventListener('pointerup', this.clickHandler);
+                this.middle.addEventListener('pointerup', this.clickHandler);
+                this.right.addEventListener('pointerup', this.clickHandler); */
                 this.wheel.addEventListener('pointerdown', this.wheelDownHandler);
                 this.wheel.addEventListener('pointerup', this.wheelUpHandler);
                 this.wheel.addEventListener('pointermove', this.wheelMoveHandler);
@@ -1368,13 +1368,13 @@
                         this.padUpTimeout = undefined;
                     }
                     if (this.padDownTimeout) {
-                        // console.log("Touch down");
+                        /* console.log("Touch down"); */
                         this.buttonDownHandler({currentTarget: this.left});
                         this.padDownTimeout = undefined;
                     }
                     this.padDownTimeout = setTimeout(() => {
                         if (this.padUpTimeout) {
-                            // console.log("Touch down");
+                            /* console.log("Touch down"); */
                             this.buttonDownHandler({currentTarget: this.left});
                         }
                         this.padDownTimeout = undefined;
@@ -1392,7 +1392,7 @@
             handlePadUp(e) {
                 if ("touch" === e.pointerType) {
                     this.padUpTimeout = setTimeout(() => {
-                        // console.log("Touch up");
+                        /* console.log("Touch up"); */
                         this.buttonUpHandler({currentTarget: this.left});
                         this.padUpTimeout = undefined;
                     }, this.padClickTimeout);
@@ -1415,7 +1415,7 @@
                     this.current = {
                         x: e.layerX,
                         y: e.layerY
-                    }
+                    };
                     this.pageController.ws.mouseMove(movementX, movementY);
                     this.throttle = true;
                     setTimeout(() => this.throttle = false, this.throttletimeout);
@@ -1543,7 +1543,7 @@
         class Dpad extends ButtonsAbstract {
             render(config, part) {
                 const container = document.querySelector(".dpad");
-                const buttons = container.querySelectorAll('button, span')
+                const buttons = container.querySelectorAll('button, span');
                 config.buttons.forEach((b, i) => {
                     if (buttons[i].tagName === "BUTTON") {
                         buttons[i].dataset.code = Object.values(USBHIDType).find(t => t.typeId === parseInt(b.type, 10))?.buttons[b.key].name;
@@ -1598,7 +1598,7 @@
 
         class Keyboard extends ButtonsAbstract {
             get buttons() {
-                // layout QWERTZ
+                /* layout QWERTZ */
                 const buttons = {
                     rowN: {"buttons":[{"key":26,"type":1,"label":"1"},{"key":27,"type":1,"label":"2"},{"key":28,"type":1,"label":"3"},{"key":29,"type":1,"label":"4"},{"key":30,"type":1,"label":"5"},{"key":31,"type":1,"label":"6"},{"key":32,"type":1,"label":"7"},{"key":33,"type":1,"label":"8"},{"key":34,"type":1,"label":"9"},{"key":35,"type":1,"label":"0"}]},
                     row1: {"buttons":[{"key":16,"type":1,"label":"Q"},{"key":22,"type":1,"label":"W"},{"key":4,"type":1,"label":"E"},{"key":17,"type":1,"label":"R"},{"key":19,"type":1,"label":"T"},{"key":24,"type":1,"label":"Z"},{"key":20,"type":1,"label":"U"},{"key":8,"type":1,"label":"I"},{"key":14,"type":1,"label":"O"},{"key":15,"type":1,"label":"P"}]},
@@ -1930,7 +1930,7 @@
 
             applyDefault(result) {
                 this.resetMode = false;
-                const btn = document.querySelector(`[data-default-mapping="${result.btn}"]`)
+                const btn = document.querySelector(`[data-default-mapping="${result.btn}"]`);
                 const defaultTypeId = parseInt(result.btn.split('-').shift(), 10);
                 const defaultCodeId = parseInt(result.btn.split('-').pop(), 10);
                 btn.dataset.code = Object.values(USBHIDType).find(t => t.typeId === defaultTypeId)?.buttons[defaultCodeId].name;
@@ -2090,7 +2090,7 @@
                 this.remapOverlay = new Overlay(this, document.querySelector(".overlay.remap"));
                 this.pages = {
                     'all-buttons': this.allButtons
-                }
+                };
                 return this;
             }
 
@@ -2191,7 +2191,7 @@
                 return !document.body.classList.contains("ws-off");
             }
 
-            set active(v) {2
+            set active(v) {
                 document.body.classList.toggle("ws-off", !v);
             }
 
@@ -2336,47 +2336,47 @@
             {name: "KEYCODE_WINDOW", USBHID: 0x0067},
             {name: "KEYCODE_PROG_RED", USBHID: 0x0069},
             {name: "KEYCODE_PROG_GREEN", USBHID: 0x006a},
-            {name: "KEYCODE_PROG_BLUE", USBHID: 0x006b}, // 5
+            {name: "KEYCODE_PROG_BLUE", USBHID: 0x006b},
             {name: "KEYCODE_PROG_YELLOW", USBHID: 0x006c},
             {name: "KEYCODE_LAST_CHANNEL", USBHID: 0x0083},
             {name: "KEYCODE_TV", USBHID: 0x0089},
             {name: "KEYCODE_EXPLORER", USBHID: 0x008a},
-            {name: "KEYCODE_CALL", USBHID: 0x008c}, // 10
+            {name: "KEYCODE_CALL", USBHID: 0x008c},
             {name: "KEYCODE_GUIDE", USBHID: 0x008d},
             {name: "KEYCODE_DVR", USBHID: 0x009a},
             {name: "KEYCODE_CAPTIONS", USBHID: 0x0061},
             {name: "KEYCODE_CHANNEL_UP", USBHID: 0x009c},
-            {name: "KEYCODE_CHANNEL_DOWN", USBHID: 0x009d}, // 15
+            {name: "KEYCODE_CHANNEL_DOWN", USBHID: 0x009d},
             {name: "KEYCODE_MEDIA_PLAY", USBHID: 0x00b0},
             {name: "KEYCODE_BREAK", USBHID: 0x00b1},
             {name: "KEYCODE_MEDIA_RECORD", USBHID: 0x00b2},
             {name: "KEYCODE_MEDIA_FAST_FORWARD", USBHID: 0x00b3},
-            {name: "KEYCODE_MEDIA_REWIND", USBHID: 0x00b4}, // 20
+            {name: "KEYCODE_MEDIA_REWIND", USBHID: 0x00b4},
             {name: "KEYCODE_MEDIA_NEXT", USBHID: 0x00b5},
             {name: "KEYCODE_MEDIA_PREVIOUS", USBHID: 0x00b6},
             {name: "KEYCODE_MEDIA_STOP", USBHID: 0x00b7},
             {name: "KEYCODE_MEDIA_EJECT", USBHID: 0x00b8},
-            {name: "KEYCODE_MEDIA_PLAY_PAUSE", USBHID: 0x00cd}, // 25
+            {name: "KEYCODE_MEDIA_PLAY_PAUSE", USBHID: 0x00cd},
             {name: "KEYCODE_VOLUME_MUTE", USBHID: 0x00e2},
             {name: "KEYCODE_VOLUME_UP", USBHID: 0x00e9},
             {name: "KEYCODE_VOLUME_DOWN", USBHID: 0x00ea},
             {name: "KEYCODE_MEDIA_AUDIO_TRACK", USBHID: 0x0173},
-            {name: "KEYCODE_BOOKMARK", USBHID: 0x0182}, // 30
+            {name: "KEYCODE_BOOKMARK", USBHID: 0x0182},
             {name: "KEYCODE_MUSIC", USBHID: 0x0183},
             {name: "KEYCODE_ENVELOPE", USBHID: 0x018a},
             {name: "KEYCODE_CONTACTS", USBHID: 0x018d},
             {name: "KEYCODE_CALENDAR", USBHID: 0x018e},
-            {name: "KEYCODE_CALCULATOR", USBHID: 0x0192}, // 35
+            {name: "KEYCODE_CALCULATOR", USBHID: 0x0192},
             {name: "KEYCODE_EXPLORER", USBHID: 0x0196},
             {name: "KEYCODE_POWER", USBHID: 0x019e},
             {name: "KEYCODE_HEADSETHOOK", USBHID: 0x01b6},
             {name: "KEYCODE_MUSIC", USBHID: 0x01b7},
-            {name: "KEYCODE_SEARCH", USBHID: 0x0221}, // 40
+            {name: "KEYCODE_SEARCH", USBHID: 0x0221},
             {name: "KEYCODE_HOME", USBHID: 0x0223},
             {name: "KEYCODE_BACK", USBHID: 0x0224},
             {name: "KEYCODE_FORWARD", USBHID: 0x0225},
             {name: "KEYCODE_MEDIA_STOP", USBHID: 0x0226},
-            {name: "KEYCODE_BOOKMARK", USBHID: 0x022a}, // 45
+            {name: "KEYCODE_BOOKMARK", USBHID: 0x022a},
             {name: "KEYCODE_PAGE_UP", USBHID: 0x0233},
             {name: "KEYCODE_PAGE_DOWN", USBHID: 0x0234},
         ];
