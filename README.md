@@ -120,6 +120,10 @@ ble_rc_to_ha:
       description: "The ble-rc device room"
       example: "Living"
       required: true
+    longpress:
+      description: "Pressed for longer than 500ms"
+      example: "true"
+      required: true
   sequence:
     - event: ble_rc_to_ha
       event_data:
@@ -129,8 +133,7 @@ ble_rc_to_ha:
         type: "{{ type }}"
         code: "{{ code }}"
         room: "{{ room }}"
-
-
+        longpress: "{{ longpress }}"
 ```
 An automation that gets triggered by this event could look like this:
 ```yaml
@@ -211,7 +214,7 @@ Note: I don't have a use case for `keydown` or `keyup` yet. These methods may be
 
 To add remote buttons to your frontend you can use this script:
 ```yaml
-sz_shield_control:
+android_tv_control:
   fields:
     room:
       description: "The Room of the device"

@@ -39,7 +39,7 @@
     "pretty": false,
     "x": 110,
     "y": 320,
-    "wires": [["bac441cec0fbf31a"]]
+    "wires": [["bac441cec0fbf31a", "6048ca1ab30d9220"]]
   },
   {
     "id": "2c12b70ed8664598",
@@ -65,7 +65,7 @@
     "outputs": 2,
     "x": 370,
     "y": 320,
-    "wires": [["a2b4481121ff0fd5"], ["0fef0e81a73f58df", "8167951643d38644"]]
+    "wires": [[], ["0fef0e81a73f58df"]]
   },
   {
     "id": "0fef0e81a73f58df",
@@ -105,79 +105,14 @@
     "repair": false,
     "outputs": 5,
     "x": 110,
-    "y": 440,
+    "y": 420,
     "wires": [
-      ["bbe00495d23b51b2"],
+      ["f080ed9558977726"],
       ["83fa990f4d3d2fb2"],
       ["6b9aae3f2c55ad6e"],
       ["9216d21eebf6e270"],
       ["2a3bb73e2b36a480"]
     ]
-  },
-  {
-    "id": "8167951643d38644",
-    "type": "delay",
-    "z": "8130b0fcccb7fe55",
-    "name": "50ms",
-    "pauseType": "delay",
-    "timeout": "50",
-    "timeoutUnits": "milliseconds",
-    "rate": "1",
-    "nbRateUnits": "1",
-    "rateUnits": "second",
-    "randomFirst": "1",
-    "randomLast": "5",
-    "randomUnits": "seconds",
-    "drop": false,
-    "allowrate": false,
-    "outputs": 1,
-    "x": 530,
-    "y": 340,
-    "wires": [["4af43152af263c8f"]]
-  },
-  {
-    "id": "a2b4481121ff0fd5",
-    "type": "change",
-    "z": "8130b0fcccb7fe55",
-    "name": "Timestamp Keydown",
-    "rules": [
-      {
-        "t": "set",
-        "p": "blercKeyDown",
-        "pt": "flow",
-        "to": "",
-        "tot": "date"
-      }
-    ],
-    "action": "",
-    "property": "",
-    "from": "",
-    "to": "",
-    "reg": false,
-    "x": 580,
-    "y": 300,
-    "wires": [[]]
-  },
-  {
-    "id": "4af43152af263c8f",
-    "type": "change",
-    "z": "8130b0fcccb7fe55",
-    "name": "Remove Timestamp",
-    "rules": [
-      {
-        "t": "delete",
-        "p": "blercKeyDown",
-        "pt": "flow"
-      }
-    ],
-    "action": "",
-    "property": "",
-    "from": "",
-    "to": "",
-    "reg": false,
-    "x": 700,
-    "y": 340,
-    "wires": [[]]
   },
   {
     "id": "bac441cec0fbf31a",
@@ -214,7 +149,7 @@
     "statusVal": "",
     "statusType": "auto",
     "x": 450,
-    "y": 420,
+    "y": 400,
     "wires": []
   },
   {
@@ -231,7 +166,7 @@
     "statusVal": "",
     "statusType": "auto",
     "x": 450,
-    "y": 500,
+    "y": 480,
     "wires": []
   },
   {
@@ -248,7 +183,7 @@
     "statusVal": "",
     "statusType": "auto",
     "x": 450,
-    "y": 540,
+    "y": 520,
     "wires": []
   },
   {
@@ -265,7 +200,7 @@
     "statusVal": "",
     "statusType": "auto",
     "x": 450,
-    "y": 580,
+    "y": 560,
     "wires": []
   },
   {
@@ -290,21 +225,6 @@
     "wires": [["68c5225bcbe2478b"]]
   },
   {
-    "id": "bbe00495d23b51b2",
-    "type": "function",
-    "z": "8130b0fcccb7fe55",
-    "name": "Detect Longpress",
-    "func": "let short = null;\nlet long = null;\n\nif (Date.now() - flow.get(\"blercKeyDown\") > 500) {\n    long = msg;\n} else {\n    short = msg;\n}\n\nreturn [short,long];",
-    "outputs": 2,
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "libs": [],
-    "x": 290,
-    "y": 420,
-    "wires": [["b8634236134d35c0"], ["5b36ebdd3cf2b3d0"]]
-  },
-  {
     "id": "5b36ebdd3cf2b3d0",
     "type": "debug",
     "z": "8130b0fcccb7fe55",
@@ -318,7 +238,7 @@
     "statusVal": "",
     "statusType": "auto",
     "x": 480,
-    "y": 460,
+    "y": 440,
     "wires": []
   },
   {
@@ -335,7 +255,7 @@
     "statusVal": "",
     "statusType": "auto",
     "x": 450,
-    "y": 620,
+    "y": 600,
     "wires": []
   },
   {
@@ -483,6 +403,45 @@
     "x": 650,
     "y": 60,
     "wires": []
+  },
+  {
+    "id": "6048ca1ab30d9220",
+    "type": "debug",
+    "z": "8130b0fcccb7fe55",
+    "name": "JSON",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 310,
+    "y": 280,
+    "wires": []
+  },
+  {
+    "id": "f080ed9558977726",
+    "type": "switch",
+    "z": "8130b0fcccb7fe55",
+    "name": "Longpress",
+    "property": "payload.data.longpress",
+    "propertyType": "msg",
+    "rules": [
+      {
+        "t": "false"
+      },
+      {
+        "t": "true"
+      }
+    ],
+    "checkall": "true",
+    "repair": false,
+    "outputs": 2,
+    "x": 290,
+    "y": 400,
+    "wires": [["b8634236134d35c0"], ["5b36ebdd3cf2b3d0"]]
   },
   {
     "id": "3ee14b8f32b1ba3d",
