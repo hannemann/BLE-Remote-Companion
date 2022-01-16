@@ -90,7 +90,7 @@ class HIDUsageKeys {
 const HID_USAGE InternalUsage[1] = {
     {"TOGGLE_MOUSE", 0x0001}};
 
-const HID_USAGE HIDKeyboard[121] = {
+const HID_USAGE HIDKeyboard[122] = {
     {"KEYCODE_A", 0x0004},
     {"KEYCODE_B", 0x0005},
     {"KEYCODE_C", 0x0006},
@@ -211,7 +211,9 @@ const HID_USAGE HIDKeyboard[121] = {
     {"KEYCODE_EXPLORER", 0x00f0},
     {"KEYCODE_BACK", 0x00f1},
     {"KEYCODE_FORWARD", 0x00f2},
-    {"KEYCODE_CALCULATOR", 0x00fb}};
+    {"KEYCODE_CALCULATOR", 0x00fb},
+    /* New */
+    {"KEYCODE_INTL_BACKSLASH", 0x0032}};
 
 const HID_USAGE HIDConsumer[48] = {
     {"KEYCODE_POWER", 0x0034},

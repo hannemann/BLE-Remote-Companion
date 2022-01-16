@@ -1597,6 +1597,58 @@
         }
 
         class Keyboard extends ButtonsAbstract {
+
+            constructor(pageController, parent) {
+                super(pageController, parent);
+
+                this.withInput = false; /* currently not possible since e.code property is always empty */
+                
+                if (this.withInput) {
+                    this.input = document.createElement('input');
+                    this.input.addEventListener('keydown', e => {
+                        e.preventDefault();
+                        let keyCode = this.parseKey(e);
+                        console.log(keyCode, e);
+                        document.querySelector('nav .room').innerHTML = keyCode;
+                        if (!e.repeat && keyCode) {
+                            this.pageController.ws.keydown({
+                                dataset: {
+                                    code: keyCode,
+                                    type: USBHIDType.keyboard.typeName
+                                }
+                            });
+                        }
+                    });
+                    this.input.addEventListener('keyup', e => {
+                        e.preventDefault();
+                        let keyCode = this.parseKey(e);
+                        console.log(keyCode, e);
+                        if (keyCode) {
+                            this.pageController.ws.keyup({
+                                dataset: {
+                                    code: keyCode,
+                                    type: USBHIDType.keyboard.typeName
+                                }
+                            });
+                        }
+                    });
+
+                    this.parent.appendChild(this.input);
+                }
+            }
+
+            parseKey(e) {
+                let keyCode;
+                if (e.code.match(/^(Key|Digit)/)) {
+                    keyCode = e.code.toUpperCase().replace(/(KEY|DIGIT)/, "KEYCODE_");
+                } else if (KeyEventCodeMap.hasOwnProperty(e.code)) {
+                    keyCode = KeyEventCodeMap[e.code];
+                } else {
+                    keyCode = false;
+                }
+                return keyCode;
+            }
+
             get buttons() {
                 /* layout QWERTZ */
                 const buttons = {
@@ -2594,6 +2646,32 @@
             {name: "AC Distribute Horizontally", USBHID: 0x029b},
             {name: "AC Distribute Vertically", USBHID: 0x029c},
         ];
+
+        const KeyEventCodeMap = {
+            "Enter":"KEYCODE_ENTER",
+            "ArrowDown":"KEYCODE_DPAD_DOWN",
+            "ArrowLeft":"KEYCODE_DPAD_LEFT",
+            "ArrowRight":"KEYCODE_DPAD_RIGHT",
+            "ArrowUp":"KEYCODE_DPAD_UP",
+            "End":"KEYCODE_MOVE_END",
+            "Home":"KEYCODE_MOVE_HOME",
+            "PageDown":"KEYCODE_PAGE_DOWN",
+            "PageUp":"KEYCODE_PAGE_UP",
+            "Backspace":"KEYCODE_DEL",
+            "IntlBackslash":"KEYCODE_INTL_BACKSLASH", /* 0x0032 */
+            "Comma":"KEYCODE_COMMA",                  /* 0x0036 */
+            "Period":"KEYCODE_PERIOD",                /* 0x0037 */
+            "Slash":"KEYCODE_SLASH",                  /* 0x0038 */
+            "Semicolon":"KEYCODE_SEMICOLON",          /* 0x0033 */
+            "Quote":"KEYCODE_APOSTROPHE",             /* 0x0034 */
+            "Backslash":"KEYCODE_BACKSLASH",          /* 0x0032 */
+            "BracketLeft":"KEYCODE_LEFT_BRACKET",     /* 0x002f */
+            "BracketRight":"KEYCODE_RIGHT_BRACKET",   /* 0x0030 */
+            "Minus":"KEYCODE_MINUS",                  /* 0x002d */
+            "Equal":"KEYCODE_EQUALS",                 /* 0x002e */
+            "Backquote":"KEYCODE_GRAVE",              /* 0x0035 */
+            "Tab":"KEYCODE_TAB",                      /* 0x002b */
+        };
 
         const InternalUsage = [
             {name: "TOGGLE_MOUSE", USBHID: 0x0001},
