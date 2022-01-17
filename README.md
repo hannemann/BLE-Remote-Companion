@@ -1,13 +1,15 @@
 # Bluetooth LE Remote Companion
 
-Remotely control devices via Bluetooth with an IR remote, from a Browser, Homeassistant or Node-RED. 
+Remotely control devices via Bluetooth using an IR remote, from a Browser, Homeassistant or Node-RED.  
+(IR is available if a TSOP is soldered to PIN 23) 
 
 ## Features
 This software turns an ESP32 into a virtual keyboard and mouse running a websocket server and/or Home Assistant websocket API client.
 
-Button presses sent by an IR remote can also be broadcasted to Home Assistant or all connected websocket clients making it possible to start your favourite streaming app via adb or toggle lights or...
+The built in webserver offers a HTML page with a grapical remote, a simple keyboard and mouse functionality. All available buttons can be customized to send a keycode of your choice.
 
-A simple keyboard and mouse is available in the web frontend. Point your browser to the esp's IP and check out.
+Button presses sent by an IR remote can also be broadcasted to Home Assistant or all connected websocket clients making it possible to start your favourite streaming app via adb or toggle lights or...  
+The graphical remote frontend offers the F1-F12 buttons which AFAIK do nothing on Android TV devices but are especially useful in conjunction with apps like Key Mapper. Simply map F1 in Key Mapper to open Kodi than map F1 to a button on your remote and you are done!
 
 The web frontend offers an easy, self-explanatory way to configure your IR remote. It is also possible to change the default keycode that is sent by a button.
 
@@ -24,15 +26,20 @@ An easy to print housing for a d1 mini style esp32 can be found in the `case/D1-
 ### (Strongly) Recommended Peripherals
 * TSOP4838 on PIN 23 (pin can be configured in prod_env.ini see example)
 
+## Supported Browsers (recent versions only)
+* Firefox
+* Chrome
+* Gnome Web (not extensively tested but worked)
+At the moment i am confident but cannot tell if the frontend works on other platforms than Linux or Android.
 ## Installation
 ### PlatformIO
 * Checkout Project
 * Connect ESP32
-* Upload
+* Build and Upload
 
 ## Configuration
 ### WIFI
-Connect to the WIFI 'BLERC' with the password 0987654321 and enter your WIFI Credentials. Device reboots and than connects to the WIFI. Look up the IP in the router and than point a browser to it.
+Connect to the WIFI `BLERC` with the password `0987654321` and enter your WIFI Credentials. Device reboots and than connects to the WIFI. Look up the IP in the router and than point a browser to it.
 
 ### Bluetooth
 Bind the device to control to `BLE Remote Companion`.  
@@ -343,7 +350,6 @@ Remote Companion sends messages to all connected websocket clients if a button i
 * {String} data.code *one of the keycodes as shown in [tables below](#keycode-tables) or unknown*
 * {String} data.room *The configured room*
 * {Boolean} data.longpress *true if pressed for longer than 500ms*
-```
 
 As a starting point you can import the [Websocket example flow](/doc/node-red/example-flow.json)
 ![Screenshot](/doc/node-red/Node-RED%20Example%20Flow.png)

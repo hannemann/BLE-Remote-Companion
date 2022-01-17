@@ -119,16 +119,16 @@
             inset hsla(var(--hue-bg) var(--sat-bg) 32% / .7) 0 2px 1px 7px,
             hsla(var(--hue-bg) var(--sat-bg) 0% / .15) 0 -5px 6px 4px,
             hsla(var(--hue-bg) var(--sat-bg) 30% / .3) 0 5px 6px 4px;
-        --bs-mousepad: 
-            /* inset hsla(var(--hue-bg) var(--sat-bg) 15% / 1) 0 0px 0px 4px,
-            inset hsla(var(--hue-bg) var(--sat-bg) 15% / .8) 0 -1px 5px 4px,
-            inset hsla(var(--hue-bg) var(--sat-bg)  0% / .25) 0 -1px 0px 7px,
-            inset hsla(var(--hue-bg) var(--sat-bg) 32% / .7) 0 2px 1px 7px, */
+        --bs-directions-btn: 
+            inset hsla(var(--hue-bg) var(--sat-bg) 15% / 1) 0 0px 0px 4px,
+            inset hsla(var(--hue-bg) var(--sat-bg) 15% / .3) 0 -1px 5px 4px,
+            inset hsla(var(--hue-bg) var(--sat-bg)  0% / .15) 0 -1px 0px 7px,
+            inset hsla(var(--hue-bg) var(--sat-bg) 32% / .4) 0 2px 1px 7px,
             hsla(var(--hue-bg) var(--sat-bg) 0% / .15) 0 -5px 6px 4px,
             hsla(var(--hue-bg) var(--sat-bg) 30% / .3) 0 5px 6px 4px;
-        /* --ts-remote-btn: 
-            hsla(var(--hue-bg) var(--sat-bg) 40% / .5) 0 -1px 0,
-            hsla(var(--hue-bg) var(--sat-bg) 100% /.6) 0 2px 1px; */
+        --bs-mousepad: 
+            hsla(var(--hue-bg) var(--sat-bg) 0% / .15) 0 -5px 6px 4px,
+            hsla(var(--hue-bg) var(--sat-bg) 30% / .3) 0 5px 6px 4px;
         --ts-remote-btn: none;
         --brush-metal-dark: 
             repeating-linear-gradient(0deg,
@@ -166,7 +166,15 @@
             var(--gradient-btn);
         --bg-remote-dpad-btn:
             var(--brush-metal-dark),
-            var(--gradient-btn);
+            linear-gradient(
+                135deg,
+                hsl(var(--hue-bg) var(--sat-bg) 35%) 0%,
+                hsl(var(--hue-bg) var(--sat-bg) 15%) 46%,
+                hsl(var(--hue-bg) var(--sat-bg) 10%) 50%,
+                hsl(var(--hue-bg) var(--sat-bg) 14%) 53%,
+                hsl(var(--hue-bg) var(--sat-bg) 5%) 76%,
+                hsl(var(--hue-bg) var(--sat-bg) 14%) 87%,
+                hsl(var(--hue-bg) var(--sat-bg) 7%) 100%);
         --bg-black-metal: 
             var(--brush-metal-dark),
             linear-gradient(80deg,
@@ -338,6 +346,14 @@
     .col-5 {
         grid-template-columns: repeat(5, 1fr);
         padding-block: var(--gap);
+    }
+    .dpad .buttons button:nth-child(5),
+    .buttons.numbers button,
+    .buttons.custom button {
+        font-size: 1.2rem;
+        width: 2.8rem;
+        aspect-ratio: 1;
+        height: auto;
     }
     .p-block {
         padding-block: var(--gap);
@@ -612,6 +628,9 @@
         background: var(--bg-remote-dpad-btn);
         box-shadow: var(--bs-remote-btn);
         text-shadow: var(--ts-remote-btn);
+    }
+    .dpad .dir {
+        box-shadow: var(--bs-directions-btn);
     }
     .dpad .ok-outline {
         grid-area: dpad-background;
@@ -1591,7 +1610,8 @@
                 return {
                     functionalLower: {"classes":["col-3"],"buttons":[{"key":26,"type":2,"label":".mute"},{"key":0,"type":5,"label":".mouse"},{"key":7,"type":2,"label":".swap"}]},
                     media: {"classes":["col-4"],"buttons":[{"key":22,"type":2,"label":".skip-back"},{"key":20,"type":2,"label":".rew"},{"key":19,"type":2,"label":".ffwd"},{"key":21,"type":2,"label":".skip-next"},{"key":18,"type":2,"label":".record"},{"key":23,"type":2,"label":".stop"},{"key":25,"type":2,"label":".play-pause"}]},
-                    colors: {"classes":["col-4"],"buttons":[{"key":3,"type":2,"label":".red"},{"key":4,"type":2,"label":".green"},{"key":6,"type":2,"label":".yellow"},{"key":5,"type":2,"label":".blue"}]}
+                    colors: {"classes":["col-4"],"buttons":[{"key":3,"type":2,"label":".red"},{"key":4,"type":2,"label":".green"},{"key":6,"type":2,"label":".yellow"},{"key":5,"type":2,"label":".blue"}]},
+                    custom: {"classes":["col-4", "custom"],"buttons":[{"key":53,"type":1,"label":"F1"},{"key":54,"type":1,"label":"F2"},{"key":55,"type":1,"label":"F3"},{"key":56,"type":1,"label":"F4"},{"key":57,"type":1,"label":"F5"},{"key":58,"type":1,"label":"F6"},{"key":59,"type":1,"label":"F7"},{"key":60,"type":1,"label":"F8"},{"key":61,"type":1,"label":"F9"},{"key":62,"type":1,"label":"F10"},{"key":63,"type":1,"label":"F11"},{"key":64,"type":1,"label":"F12"}]}
                 }
             }
         }
