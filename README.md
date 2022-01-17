@@ -88,9 +88,18 @@ You find a configuration page in the menu of the frontend.
 * ### Reboot
 
 ## Home Assistant
-BLE Remote Companion utilizes the [Home Assistant Websocket API](https://developers.home-assistant.io/docs/api/websocket) if enabled. Simply add the IP address, port and a [Long-lived access token](https://developers.home-assistant.io/docs/auth_api/#long-lived-access-token) to be prepared.
+BLE Remote Companion utilizes the [Home Assistant Websocket API](https://developers.home-assistant.io/docs/api/websocket) if enabled. Simply add the IP address, port and a [Long-lived access token](https://developers.home-assistant.io/docs/auth_api/#long-lived-access-token) to be prepared. 
 
-The client calls the script `ble_rc_to_ha`. The parameters for the script contain all information needed to invoke an arbitrary action within your Home Assistant. I prefer a simple script that once invoked fires an event to trigger automations. Using it this way enables you to create automations like you would normally do for any other trigger.
+The client calls the script `ble_rc_to_ha` if a button on a remote or in the frontend is pressed. The parameters for the script contain all information needed to invoke an arbitrary action within your Home Assistant. I prefer a simple script that once invoked fires an event to trigger automations. Using it this way enables you to create automations like you would normally do for any other trigger. If the pressed button has an ir code assigned the message is omitted unless 'Send assigned IR codes' is enabled in the configuration.
+
+#### Parameters sent
+* {String} method *one of keyup|keydown*
+* {Number} ir_prototcol *The ir protocol id*
+* {Number} ir_code *The ir code*
+* {String} type *one of KEYBOARD|CONSUMER|APP_LAUNCHER|APP_CONTROL|unkown*
+* {String} code *one of the keycodes as shown in [tables below](#keycode-tables) or unknown*
+* {String} room *The configured room*
+* {Boolean} longpress *true if pressed for longer than 500ms*
 
 #### Script `ble_rc_to_ha` called by your Remote Companion
 ```yaml
@@ -290,11 +299,11 @@ Supported commands:
 * reboot
 ### keypress/keyup/keydown
 #### Parameters
-* {String} method <i>keypress|keyup|keydown</i>
+* {String} method *keypress|keyup|keydown*
 * {Object} params
-* {String} params.type <i>KEYBOARD|CONSUMER|APP_LAUNCHER|APP_CONTROL</i>
-* {String} params.code <i>one of the keycodes as shown in [tables below](#keycode-tables)</i>
-* {Boolean} (params.longpress) <i>true|false optional longpress (keypress method only)</i>
+* {String} params.type *one of KEYBOARD|CONSUMER|APP_LAUNCHER|APP_CONTROL*
+* {String} params.code *one of the keycodes as shown in [tables below](#keycode-tables)*
+* {Boolean} (params.longpress) *true|false optional longpress (keypress method only)*
 
 Keypress is a combination of `keydown` followed by `keyup`. The optional `longpress` parameter adds a delay of 500ms in between.
 
@@ -319,7 +328,24 @@ You could use it to have a remote in your home automation system or start Apps v
   * activate Send Heartbeat checkbox for automatic reconnect
 * add Websocket in to receive messages if a key is pressed
 
-As a starting point you can import the [Websocket example flow (with longpress)](/doc/node-red/example-flow.json)
+#### Send to Remote Companion
+Refer to Websocket documentation above.
+
+#### Receive messages from Remote Companion
+Remote Companion sends messages to all connected websocket clients if a button is pressed on a remote or in the frontend. If the pressed button has an ir code assigned the message is omitted unless 'Send assigned IR codes' is enabled in the configuration.  
+#### Message:
+* {String} event *ble_rc_to_ws*
+* {Object} data
+* {String} data.method *one of keyup|keydown*
+* {Number} data.ir_prototcol *The ir protocol id*
+* {Number} data.ir_code *The ir code*
+* {String} data.type *one of KEYBOARD|CONSUMER|APP_LAUNCHER|APP_CONTROL|unknown*
+* {String} data.code *one of the keycodes as shown in [tables below](#keycode-tables) or unknown*
+* {String} data.room *The configured room*
+* {Boolean} data.longpress *true if pressed for longer than 500ms*
+```
+
+As a starting point you can import the [Websocket example flow](/doc/node-red/example-flow.json)
 ![Screenshot](/doc/node-red/Node-RED%20Example%20Flow.png)
 
 ## Keycode Tables
