@@ -9,7 +9,7 @@ This software turns an ESP32 into a virtual keyboard and mouse running a websock
 The built in webserver offers a HTML page with a grapical remote, a simple keyboard and mouse functionality. All available buttons can be customized to send a keycode of your choice.
 
 Button presses sent by an IR remote can also be broadcasted to Home Assistant or all connected websocket clients making it possible to start your favourite streaming app via adb or toggle lights or...  
-The graphical remote frontend offers the F1-F12 buttons which AFAIK do nothing on Android TV devices but are especially useful in conjunction with apps like Key Mapper. Simply map F1 in Key Mapper to open Kodi than map F1 to a button on your remote and you are done!
+The graphical remote frontend offers the F1-F12 buttons which AFAIK do nothing on Android TV devices but are especially useful in conjunction with apps like Key Mapper. E.g.: map F1 in Key Mapper to open Kodi than map F1 to a button on your remote and you are done! No Home Assistant ADB involved.
 
 The web frontend offers an easy, self-explanatory way to configure your IR remote. It is also possible to change the default keycode that is sent by a button.
 
@@ -361,6 +361,7 @@ As a starting point you can import the [Websocket example flow](/doc/node-red/ex
 * [Consumer Codes 0x0c (Type: APP_CONTROL)](/doc/keycodes/app-control.md)
 * [Named and Decimal Keycodes from Android Open Source Project](/doc/keycodes/AOS-Project.md)
 ## TODO:
+* feedback on save config etc.
 * documentation -> wip
 * handle ir errors when learning
 * case for Node MCU style with TSOP (reset button)
