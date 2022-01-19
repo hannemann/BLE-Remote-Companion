@@ -303,7 +303,7 @@ void WSEvent::callMethod(uint8_t num, const char *method, JSONVar &params)
     if (strcmp(method, "config") == 0)
     {
         BLERC::instance().saveConfig(params);
-        resultOK(num);
+        resultOK(num, "{\"method\":\"config\",\"result\":\"OK\"}");
         sendTXT(num, BLERC::configJSON);
     }
 }

@@ -857,6 +857,33 @@
     }
     /* /Form */
 
+    .toast {
+        position: fixed;
+        inset: auto 0 2rem;
+        margin-inline: auto;
+        color: white;
+        border-radius: 1rem;
+        padding: var(--gap-small) var(--gap);
+        width: fit-content;
+        opacity: 1;
+        transition: opacity 500ms linear;
+    }
+    .toast.out {
+        opacity: 0;
+    }
+    .toast[data-type="success"] {
+        background-color: green;
+    }
+    .toast[data-type="error"] {
+        background-color: red;
+    }
+    .toast[data-type="info"] {
+        background-color: blue;
+    }
+    .toast[data-type="warning"] {
+        background-color: darkgoldenrod;
+    }
+
     @media (max-width: 30rem) {
         :root {
             --gap: .85rem;
@@ -1281,11 +1308,11 @@
                 this.send({ method: "reboot" });
             }
 
-            saveConfig(config) {
+            saveConfig(config, cb) {
                 this.send({
                     method: "config",
                     params: {config}
-                });
+                }, cb);
             }
 
             send(message, cb) {
@@ -2044,9 +2071,19 @@
             addListeners() {
                 this.form.addEventListener("submit", e => {
                     e.preventDefault();
-                    this.pageController.ws.saveConfig(this.json)
+                    this.pageController.ws.saveConfig(this.json, e => this.success = e.result === "OK");
+                    this.pageController.active = false;
                 });
                 return this;
+            }
+
+            set success(e) {
+                if (typeof e === "boolean" && e) {
+                    this.pageController.toast = {type: TOAST_TYPE.success, message: "Config saved"};
+                } else {
+                    this.pageController.toast = {type: TOAST_TYPE.error, message: "Error"};
+                }
+                this.pageController.active = true;
             }
 
             get json() {
@@ -2248,6 +2285,18 @@
                     : title;
             }
 
+            set toast(m) {
+                const toast = document.createElement('div');
+                toast.classList.add("toast");
+                toast.dataset.type = m.type
+                toast.innerHTML = m.message;
+                toast.addEventListener("transitionend", e => {
+                    document.body.removeChild(toast);
+                }, {once: true});
+                document.body.appendChild(toast);
+                setTimeout(() => toast.classList.add("out"), 2000);
+            }
+
             get page() {
                 return this.main.dataset.page;
             }
@@ -2276,6 +2325,13 @@
                     }, {once: true});
                 }
             }
+        }
+
+        const TOAST_TYPE = {
+            error: "error",
+            success: "success",
+            warning: "warning",
+            info: "info"
         }
 
         const HIDKeyboard = [
