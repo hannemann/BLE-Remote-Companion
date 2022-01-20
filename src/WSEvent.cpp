@@ -188,7 +188,7 @@ void WSEvent::callMethod(uint8_t num, const char *method)
     }
     if (strcmp(method, "reboot") == 0)
     {
-        resultOK(num);
+        resultOK(num, "{\"method\":\"reboot\",\"result\":\"OK\",\"message\":\"Rebooting...\"}");
         ESP.restart();
     }
     if (strcmp(method, "forget") == 0)
@@ -206,12 +206,12 @@ void WSEvent::callMethod(uint8_t num, const char *method)
     if (strcmp(method, "clear") == 0)
     {
         IRService::instance().clearConfig();
-        resultOK(num, "{\"method\":\"clear\",\"result\":\"OK\"}");
+        resultOK(num, "{\"method\":\"clear\",\"result\":\"OK\",\"message\":\"IR Config cleared\"}");
     }
     if (strcmp(method, "deleteMappings") == 0)
     {
         BLERC::deleteRemoteMappings();
-        resultOK(num, "{\"method\":\"deleteMappings\",\"result\":\"OK\"}");
+        resultOK(num, "{\"method\":\"deleteMappings\",\"result\":\"OK\",\"message\":\"Mappings deleted\"}");
     }
 }
 
@@ -251,7 +251,7 @@ void WSEvent::callMethod(uint8_t num, const char *method, JSONVar &params)
         if (result)
         {
             char buffer[127];
-            snprintf(buffer, 127, "{\"method\":\"resetBtn\",\"result\":\"OK\",\"btn\":\"%s\"}", (const char *)params["default"]);
+            snprintf(buffer, 127, "{\"method\":\"resetBtn\",\"result\":\"OK\",\"message\":\"Button resetted\",\"btn\":\"%s\"}", (const char *)params["default"]);
             resultOK(num, buffer);
         }
         else
@@ -303,7 +303,7 @@ void WSEvent::callMethod(uint8_t num, const char *method, JSONVar &params)
     if (strcmp(method, "config") == 0)
     {
         BLERC::instance().saveConfig(params);
-        resultOK(num, "{\"method\":\"config\",\"result\":\"OK\"}");
+        resultOK(num, "{\"method\":\"config\",\"result\":\"OK\",\"message\":\"Config saved\"}");
         sendTXT(num, BLERC::configJSON);
     }
 }

@@ -119,7 +119,7 @@ void IRService::deleteLearned()
     printConfig();
     uint8_t client = int(forgetRemoteBtn["client"]);
     endConfig();
-    WSEvent::instance().resultOK(client, "{\"method\":\"forget\",\"result\":\"OK\"}");
+    WSEvent::instance().resultOK(client, "{\"method\":\"forget\",\"result\":\"OK\",\"message\":\"IR button cleared\"}");
 }
 
 void IRService::endConfig()

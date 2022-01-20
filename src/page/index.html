@@ -907,7 +907,7 @@
     </nav>
     <main data-page="remote">
         <section class="learn-config p-inline">
-            <h1>Configure</h1>
+            <h1>Learn IR</h1>
             <p>Delete the entire configuration <button name="clear">&times;</button></p>
             <p>Forget a single button <button name="forget">&times;</button></p>
             <p>Hit the button you want learn and press the button on your IR remote.</p>
@@ -916,8 +916,8 @@
             <h1>Map Remote Buttons</h1>
             <p>Hit the button you want to map, then choose a function from the list.</p>
             <p>Note: Remapped/reset buttons also have to be re-learned.</p>
-            <p>Reset a single button <button name="reset">&times;</button></p>
             <p>Reset all mappings <button name="resetAll">&times;</button></p>
+            <p>Reset a single button <button name="reset">&times;</button></p>
             <p class="reset">Now hit the button you want to reset.</p>
         </section>
         <section class="remote">
@@ -1189,13 +1189,20 @@
                         clearTimeout(this.wsTimeout);
                         delete this.wsTimeout;
                     }
-                    if (data.result === "OK" || data.result?.result === "OK") {
+                    const success = data.result === "OK" || data.result?.result === "OK";
+                    if (success) {
                         if (data.result.method && "function" === typeof this._callbacks[data.id]) {
                             this._callbacks[data.id](data.result);
                             delete this._callbacks[data.id];
                         }
                         this.active = true;
                         console.debug("[Websocket] OK");
+                    }
+                    if (data.result?.message) {
+                        this.pageController.toast = {
+                            type: success ? TOAST_TYPE.success : TOAST_TYPE.error,
+                            message: data.result.message
+                        };
                     }
                 }
             };
@@ -1289,7 +1296,7 @@
             deleteMappings() {
                 this.send({
                     method: "deleteMappings"
-                }, () => location.reload())
+                }, () => setTimeout(() => location.reload(), 2000));
             }
 
             forget(cb) {
@@ -1842,8 +1849,8 @@
             submitHandler(e) {
                 e.preventDefault();
                 const file = this.inputFile.files[0];
-                this.disabled = true;
                 this.error = false;
+                this.resultText = "";
                 if (file.name.match(/.*\.bin/)) {
                     let data = new FormData();
                     data.append('file', file, file.name);
@@ -1852,7 +1859,7 @@
                         this.xhr.send(data);
                         this.showProgress = true;
                     } catch (error) {
-                        this.result.dataset.error = "true";
+                        this.error = true;
                         this.resultText = error.toString();
                         this.showProgress = false;
                     }
@@ -2071,19 +2078,10 @@
             addListeners() {
                 this.form.addEventListener("submit", e => {
                     e.preventDefault();
-                    this.pageController.ws.saveConfig(this.json, e => this.success = e.result === "OK");
+                    this.pageController.ws.saveConfig(this.json, () => this.pageController.active = true);
                     this.pageController.active = false;
                 });
                 return this;
-            }
-
-            set success(e) {
-                if (typeof e === "boolean" && e) {
-                    this.pageController.toast = {type: TOAST_TYPE.success, message: "Config saved"};
-                } else {
-                    this.pageController.toast = {type: TOAST_TYPE.error, message: "Error"};
-                }
-                this.pageController.active = true;
             }
 
             get json() {
