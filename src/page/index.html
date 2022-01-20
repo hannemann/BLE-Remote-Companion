@@ -1753,12 +1753,27 @@
                 this.btns.forEach((b) => {
                     b.addEventListener("click", this.handlePointerEvent.bind(this));
                 })
+                window.addEventListener('popstate', this.handlePointerEvent.bind(this));
+                history.replaceState({path: `/${this.pageController.main.dataset.page}`}, document.title);
             }
 
             handlePointerEvent(e) {
                 e.preventDefault();
-                e.currentTarget.pathname !== '/menu' && (this.pageController.menu.open = false);
-                switch (e.currentTarget.pathname) {
+                let path;
+                console.log(e);
+                if (e.type === 'click') {
+                    path = e.currentTarget.pathname;
+                    if (this.pageController.menu.open) {
+                        history.replaceState({path}, document.title);
+                    } else {
+                        history.pushState({path}, document.title);
+                    }
+                } else {
+                    path = e.state?.path || `/${this.pageController.main.dataset.page}`;
+                }
+                path !== '/menu' && (this.pageController.menu.open = false);
+                console.log(path, history.state);
+                switch (path) {
                     case "/remote":
                     case "/keyboard":
                     case "/learn":
@@ -1766,10 +1781,10 @@
                     case "/ota":
                     case "/config":
                     case "/remap":
-                        this.pageController.page = e.currentTarget.pathname.replace(/^\//, "");
+                        this.pageController.page = path.replace(/^\//, "");
                         break;
                     case "/mouse":
-                        this.pageController.page = e.currentTarget.pathname.replace(/^\//, "");
+                        this.pageController.page = path.replace(/^\//, "");
                         this.pageController.ws.mouseMove(1, 1);
                         break;
                     case "/menu":

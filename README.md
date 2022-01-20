@@ -361,9 +361,7 @@ As a starting point you can import the [Websocket example flow](/doc/node-red/ex
 * [Consumer Codes 0x0c (Type: APP_CONTROL)](/doc/keycodes/app-control.md)
 * [Named and Decimal Keycodes from Android Open Source Project](/doc/keycodes/AOS-Project.md)
 ## TODO:
-* feedback on save config etc.
 * documentation -> wip
 * handle ir errors when learning
 * case for Node MCU style with TSOP (reset button)
 * Basic Auth
-* navigate with history api
