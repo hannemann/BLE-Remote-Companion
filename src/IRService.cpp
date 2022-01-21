@@ -26,6 +26,11 @@ void IRService::run() {
 void IRService::loop() {
     if (irrecv.decode(&results)) {
         if (results.value > 0) {
+            protocol = results.decode_type;
+            if (BLERC::ir_ign_unknown && protocol == UNKNOWN)
+            {
+                return;
+            }
             start = millis();
             // ignore NEC repeats
             if (results.value != 0xFFFFFFFFFFFFFFFF) {
@@ -39,7 +44,6 @@ void IRService::loop() {
             if (results.decode_type == RC6) {
                 current &= 0xfeffff;
             }
-            protocol = results.decode_type;
             currentKey = getKeyId();
             currentType = getTypeId();
             currentHid = getHidUsageFromIr();

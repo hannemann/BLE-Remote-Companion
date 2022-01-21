@@ -8,6 +8,7 @@ uint8_t BLERC::kb_layout = 1;
 String BLERC::ha_ip = "";
 String BLERC::ha_token = "";
 uint16_t BLERC::ha_port = 8123;
+bool BLERC::ir_ign_unknown = true;
 bool BLERC::ha_api_enable = false;
 bool BLERC::ha_send_assigned = false;
 bool BLERC::ws_br_enable = false;
@@ -104,6 +105,14 @@ void BLERC::readConfig()
         {
             ws_br_send_assigned = bool(config["ws_br_send_assigned"]);
         }
+        if (config.hasOwnProperty("ir_ign_unknown"))
+        {
+            ir_ign_unknown = bool(config["ir_ign_unknown"]);
+        }
+        else
+        {
+            config["ir_ign_unknown"] = ir_ign_unknown;
+        }
 
         JSONVar tmp;
         tmp["config"] = config;
@@ -127,6 +136,7 @@ void BLERC::saveConfig(JSONVar &params)
         cfg["ha_send_assigned"] = bool(config.hasOwnProperty("ha_send_assigned"));
         cfg["ws_br_enable"] = bool(config.hasOwnProperty("ws_br_enable"));
         cfg["ws_br_send_assigned"] = bool(config.hasOwnProperty("ws_br_send_assigned"));
+        cfg["ir_ign_unknown"] = bool(config.hasOwnProperty("ir_ign_unknown"));
 
         cfg["room"] = undefined;
         cfg["kb_layout"] = 0;

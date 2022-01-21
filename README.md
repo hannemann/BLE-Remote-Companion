@@ -51,6 +51,8 @@ You find a configuration page in the menu of the frontend.
 -|-
 |General||
 |Room  |Give it a name (recommended to be able to differentiate between several devices when events are evaluated by HA)|
+|IR||
+|Ignore unknown protocol|Ignore IR signals that use an unknown protocol|
 |Keyboard||
 |Layout|Match the layout to the layout of the device|
 |Home Assistant API||
@@ -361,6 +363,10 @@ As a starting point you can import the [Websocket example flow](/doc/node-red/ex
 * [Consumer Codes 0x0c (Type: APP_CONTROL)](/doc/keycodes/app-control.md)
 * [Named and Decimal Keycodes from Android Open Source Project](/doc/keycodes/AOS-Project.md)
 ## TODO:
+* identify IR
+  * multiple remotes possible
+  * remember range of codes and protocols
+  * ignore others if active
 * documentation -> wip
 * handle ir errors when learning
 * case for Node MCU style with TSOP (reset button)
