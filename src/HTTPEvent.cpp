@@ -4,31 +4,31 @@
 #include "page/reboot.h"
 
 void HTTPEvent::init() {
-    Serial.println("Init HTTP server...");
+    Logger::instance().println("Init HTTP server...");
     WebServer server(HTTP_PORT);
-    Serial.println("HTTP Server initialized.");
+    Logger::instance().println("HTTP Server initialized.");
 }
 
 void HTTPEvent::run()
 {
     if (!WebService::captiveMode)
     {
-        Serial.println("Init routes...");
+        Logger::instance().println("Init routes...");
         server.on("/", HTTP_GET, home);
         server.on("/ota", HTTP_POST, ota, update);
     }
     else
     {
-        Serial.println("Init captive routes...");
+        Logger::instance().println("Init captive routes...");
         server.on("/", captivePortal);
         server.on("/generate_204", captivePortal); //Android captive portal. Maybe not needed. Might be handled by notFound handler.
         server.on("/fwlink", captivePortal);       //Microsoft captive portal. Maybe not needed. Might be handled by notFound handler.
         server.on("/wifi-setup", HTTP_POST, captiveSave);
     }
     server.onNotFound(fourOFour);
-    Serial.println("HTTP Routes added.");
+    Logger::instance().println("HTTP Routes added.");
     server.begin();
-    Serial.printf("Webserver started listening on port %d\n", port);
+    Logger::instance().printf("Webserver started listening on port %d\n", port);
 }
 
 void HTTPEvent::loop()
@@ -37,10 +37,10 @@ void HTTPEvent::loop()
 }
 
 void HTTPEvent::home() {
-    Serial.printf("GET /\n");
+    Logger::instance().printf("GET /\n");
     instance().server.sendHeader("Content-Encoding", "gzip");
     instance().server.send_P(200, "text/html", indexHTML, indexHTML_L);
-    Serial.println(ESP.getFreeHeap());
+    Logger::instance().println((const char *)ESP.getFreeHeap());
 }
 
 void HTTPEvent::ota()
@@ -67,7 +67,7 @@ void HTTPEvent::update()
     HTTPUpload &upload = instance().server.upload();
     if (upload.status == UPLOAD_FILE_START)
     {
-        Serial.printf("Update: %s\n", upload.filename.c_str());
+        Logger::instance().printf("Update: %s\n", upload.filename.c_str());
         if (!Update.begin(UPDATE_SIZE_UNKNOWN))
         { //start with max available size
             Update.printError(Serial);
@@ -85,7 +85,7 @@ void HTTPEvent::update()
     {
         if (Update.end(true))
         { //true to set the size to the current progress
-            Serial.printf("Update Success: %u\nRebooting...\n", upload.totalSize);
+            Logger::instance().printf("Update Success: %u\nRebooting...\n", upload.totalSize);
         }
         else
         {
@@ -100,7 +100,7 @@ void HTTPEvent::fourOFour() {
 
 void HTTPEvent::captivePortal()
 {
-    Serial.printf("GET / CaptivePortal\n");
+    Logger::instance().printf("GET / CaptivePortal\n");
     instance().server.sendHeader("Content-Encoding", "gzip");
     instance().server.send_P(200, "text/html", captiveHTML, captiveHTML_L);
 }

@@ -10,7 +10,7 @@ void HAClient::init()
 {
     if (BLERC::ha_api_enable && BLERC::ha_ip != "" && BLERC::ha_port > 0 && BLERC::ha_token != "")
     {
-        Serial.printf("[%s] initialized...\n", LOG_TAG);
+        Logger::instance().printf("[%s] initialized...\n", LOG_TAG);
     }
 }
 
@@ -21,7 +21,7 @@ void HAClient::run()
         onEvent(eventHandler);
         this->begin(BLERC::ha_ip, BLERC::ha_port, url, protocol);
         running = true;
-        Serial.printf("[%s] running...\n", LOG_TAG);
+        Logger::instance().printf("[%s] running...\n", LOG_TAG);
     }
 }
 
@@ -31,10 +31,10 @@ void HAClient::eventHandler(WStype_t type, uint8_t *payload, size_t length)
     {
     case WStype_DISCONNECTED:
         seq = 1;
-        Serial.printf("[%s] Disconnected!\n", LOG_TAG);
+        Logger::instance().printf("[%s] Disconnected!\n", LOG_TAG);
         break;
     case WStype_CONNECTED:
-        Serial.printf("[%s] Connected to url: ws://%s:%d%s\n", LOG_TAG, BLERC::ha_ip.c_str(), BLERC::ha_port, payload);
+        Logger::instance().printf("[%s] Connected to url: ws://%s:%d%s\n", LOG_TAG, BLERC::ha_ip.c_str(), BLERC::ha_port, payload);
         break;
     case WStype_TEXT:
         ESP_LOGD(LOG_TAG, "get text: %s\n", payload);
@@ -48,10 +48,10 @@ void HAClient::eventHandler(WStype_t type, uint8_t *payload, size_t length)
     case WStype_FRAGMENT_FIN:
         break;
     case WStype_PING:
-        // Serial.println("ping");
+        // Logger::instance().println("ping");
         break;
     case WStype_PONG:
-        // Serial.println("pong");
+        // Logger::instance().println("pong");
         break;
     }
 }
@@ -75,7 +75,7 @@ void HAClient::handlePayload(uint8_t *payload)
         if (strcmp(type, "auth_ok") == 0)
         {
             authenticated = true;
-            Serial.printf("[%s] authenticated\n", LOG_TAG);
+            Logger::instance().printf("[%s] authenticated\n", LOG_TAG);
             enableHeartbeat(10000, 1000, 30); // every 10 seconds with a timout of 1 second, diconnect after 5 Minutes
             subscribe();
         }
@@ -83,7 +83,7 @@ void HAClient::handlePayload(uint8_t *payload)
         {
             authenticated = false;
             attempt++;
-            Serial.printf("[%s] authentication failed", LOG_TAG);
+            Logger::instance().printf("[%s] authentication failed", LOG_TAG);
             disconnect();
             if (attempt >= maxAttempts)
             {
@@ -101,7 +101,7 @@ void HAClient::handlePayload(uint8_t *payload)
         {
             if (jsonBody.hasOwnProperty("success"))
             {
-                Serial.printf("[%s] %s\n", LOG_TAG, (const char *)(bool(jsonBody["success"]) ? "OK" : "Error"));
+                Logger::instance().printf("[%s] %s\n", LOG_TAG, (const char *)(bool(jsonBody["success"]) ? "OK" : "Error"));
             }
         }
         if (strcmp(type, "event") == 0)

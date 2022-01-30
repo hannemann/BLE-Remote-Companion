@@ -7,7 +7,7 @@ DNSServer WebService::dnsServer = DNSServer();
 
 void WebService::init() {
     WiFi.disconnect();
-    Serial.println("Init Webservices...");
+    Logger::instance().println("Init Webservices...");
 
 #if (DISABLE_BROWNOUT_DETECTION_DURING_WIFI_STARTUP > 0)
     uint32_t brown_reg_temp = READ_PERI_REG(RTC_CNTL_BROWN_OUT_REG);
@@ -15,40 +15,40 @@ void WebService::init() {
 #endif
     if (hasWifiCredentials())
     {
-        Serial.print("Connecting to WIFI");
+        Logger::instance().print("Connecting to WIFI");
 #if defined(WIFI_SSID) && defined(WIFI_PSK)
-        Serial.print(" using hardcoded credentials");
+        Logger::instance().print(" using hardcoded credentials");
         WiFi.begin(WIFI_SSID, WIFI_PSK);
 #else
         preferences.begin("wifi", true);
         String ssid = preferences.getString("ssid");
         String psk = preferences.getString("psk");
         preferences.end();
-        Serial.print(" using configured credentials");
+        Logger::instance().print(" using configured credentials");
         WiFi.mode(WIFI_MODE_STA);
         WiFi.begin(ssid.c_str(), psk.c_str());
 #endif
         while (WiFi.status() != WL_CONNECTED)
         {
-            Serial.print(".");
+            Logger::instance().print(".");
             delay(1000);
         }
-        Serial.printf("\nConnected! IP address: %s\n", WiFi.localIP().toString().c_str());
+        Logger::instance().printf("\nConnected! IP address: %s\n", WiFi.localIP().toString().c_str());
         WSEvent::instance().init();
         HAClient::instance().init();
     }
     else
     {
         captiveMode = true;
-        Serial.print("Configuring access point...");
+        Logger::instance().print("Configuring access point...");
         IPAddress apIP(192, 168, 4, 1);
         IPAddress netMsk(255, 255, 255, 0);
         WiFi.mode(WIFI_AP);
         WiFi.softAPConfig(apIP, apIP, netMsk);
         WiFi.softAP("BLERC", "0987654321");
         delay(500); // Without delay IsoftAP_ssid, softAP_password've seen the IP address blank
-        Serial.print("AP IP address: ");
-        Serial.println(WiFi.softAPIP());
+        Logger::instance().print("AP IP address: ");
+        Logger::instance().println(WiFi.softAPIP().toString().c_str());
         dnsServer.setErrorReplyCode(DNSReplyCode::NoError);
         dnsServer.start(DNS_PORT, "*", WiFi.softAPIP());
     }
@@ -60,7 +60,7 @@ void WebService::init() {
 }
 
 void WebService::run() {
-    Serial.println("Webservices startup...");
+    Logger::instance().println("Webservices startup...");
     if (!captiveMode)
     {
         WSEvent::instance().run();
@@ -100,7 +100,7 @@ void WebService::wifiHealth()
         uint64_t now = millis();
         if ((now - lastConnectTry) >= reconnectInterval)
         {
-            Serial.printf("Attempt WiFi reconnect... %d tries left.\n", reconnectTries);
+            Logger::instance().printf("Attempt WiFi reconnect... %d tries left.\n", reconnectTries);
             reconnectTries--;
             WiFi.disconnect();
             WiFi.reconnect();

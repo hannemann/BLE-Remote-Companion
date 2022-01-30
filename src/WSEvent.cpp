@@ -6,13 +6,13 @@ WSEvent::WSEvent(uint16_t port)
     : WebSocketsServer(port){};
 
 void WSEvent::init() {
-    Serial.println("Init Websocket server...");
+    Logger::instance().println("Init Websocket server...");
     onEvent(webSocketEvent);
 }
 
 void WSEvent::run() {
     begin();
-    Serial.printf("Websocket started listening on port %d\n", WS_PORT);
+    Logger::instance().printf("Websocket started listening on port %d\n", WS_PORT);
 }
 
 /**
@@ -28,7 +28,7 @@ void WSEvent::webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size
     switch (type)
     {
     case WStype_DISCONNECTED:
-        Serial.printf("WEBSOCKET: [%u] Disconnected!\n", num);
+        Logger::instance().printf("WEBSOCKET: [%u] Disconnected!\n", num);
         break;
     case WStype_CONNECTED:
     {
@@ -39,7 +39,7 @@ void WSEvent::webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size
             ESP_LOGE(LOG_TAG, "[%u] pathname does not match /jsonrpc", num);
             return;
         }
-        Serial.printf("WEBSOCKET: [%u] Connected from %d.%d.%d.%d url: %s\n", num, ip[0], ip[1], ip[2], ip[3], payload);
+        Logger::instance().printf("WEBSOCKET: [%u] Connected from %d.%d.%d.%d url: %s\n", num, ip[0], ip[1], ip[2], ip[3], payload);
         WSEvent::instance().sendTXT(num, BLERC::configJSON);
         char buffer[1024];
         snprintf(buffer, 1024, "{\"remote\":{\"mappings\":%s}}", BLERC::remoteMappingsJSON.c_str());
@@ -127,7 +127,7 @@ bool WSEvent::validatePayload(uint8_t num, JSONVar &payload)
         }
         ESP_LOGE(LOG_TAG, "[%u] %s params invalid", num, (const char *)payload["method"]);
     }
-    if (strcmp(payload["method"], "deleteMappings") == 0 || strcmp(payload["method"], "btDisconnect") == 0 || strcmp(payload["method"], "cancelIr") == 0 || strcmp(payload["method"], "forget") == 0 || strcmp(payload["method"], "clear") == 0 || strcmp(payload["method"], "reboot") == 0)
+    if (strcmp(payload["method"], "deleteMappings") == 0 || strcmp(payload["method"], "btDisconnect") == 0 || strcmp(payload["method"], "cancelIr") == 0 || strcmp(payload["method"], "forget") == 0 || strcmp(payload["method"], "clear") == 0 || strcmp(payload["method"], "reboot") == 0 || strcmp(payload["method"], "log") == 0)
     {
         return true;
     }
@@ -170,7 +170,7 @@ void WSEvent::handlePayload(uint8_t num, uint8_t *payload)
         JSONVar params = jsonBody["params"];
         callMethod(num, jsonBody["method"], params);
     }
-    Serial.printf("[%s] Function time was %d\n", LOG_TAG, (int)(millis() - startTime));
+    Logger::instance().printf("[%s] Function time was %d\n", LOG_TAG, (int)(millis() - startTime));
 }
 
 /**
@@ -212,6 +212,11 @@ void WSEvent::callMethod(uint8_t num, const char *method)
     {
         BLERC::deleteRemoteMappings();
         resultOK(num, "{\"method\":\"deleteMappings\",\"result\":\"OK\",\"message\":\"Mappings deleted\"}");
+    }
+    if (strcmp(method, "log") == 0)
+    {
+        Logger::instance().setClient(num);
+        resultOK(num, "{\"method\":\"log\",\"result\":\"OK\",\"message\":\"Logging toggled\"}");
     }
 }
 

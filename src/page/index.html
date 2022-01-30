@@ -570,12 +570,21 @@
         margin-block: var(--gap);
         display: block;
     }
+    section.live-log {
+        padding-inline: var(--gap);
+    }
+    section.live-log textarea {
+        white-space: pre-wrap;
+        width: calc(100vw - 2 * var(--gap));
+        height: calc(100vh - var(--nav-height) - 2 * var(--gap));
+    }
     /* Router */
     main:not([data-page="remote"]):not([data-page="learn"]):not([data-page="remap"]) section.remote > div,
     main:not([data-page="keyboard"]):not([data-page="learn"]):not([data-page="remap"]) section.keyboard,
     main:not([data-page="mouse"]) section.mouse,
     main:not([data-page="learn"]) section.learn-config,
     main:not([data-page="config"]) section.config,
+    main:not([data-page="live-log"]) section.live-log,
     main:not([data-page="all-buttons"]) section.all-buttons,
     main:not([data-page="ota"]) section.ota,
     main:not([data-page="remap"]) section.remap-config,
@@ -1039,12 +1048,16 @@
                 </p>
             </form>
         </section>
+        <section class="live-log">
+            <textarea></textarea>
+        </section>
     </main>
     <nav class="menu">
         <a href="/learn">Learn IR Codes</a>
         <a href="/remap">Map Remote Buttons</a>
         <a href="/all-buttons">All Buttons</a>
         <a href="/config" data-bottom="true">Configuration</a>
+        <a href="/live-log">Live Log</a>
         <a href="/ota">OTA Update</a>
         <a href="/reboot">Reboot</a>
     </nav>
@@ -1180,12 +1193,19 @@
             }
 
             handleMessage(result) {
-                const data = JSON.parse(result.data);
+                const data = JSON.parse(result.data.replace(/\n/g, '\\n'));
                 if (data.config) {
                     this.pageController.config.data = data.config;
                 }
                 if (data.remote?.mappings) {
                     this.pageController.remapButtons.applyMappings(data.remote.mappings)
+                }
+                if (data.log) {
+                    if (this.pageController.page !== 'live-log') {
+                        this.log();
+                    } else {
+                        document.querySelector('.live-log textarea').appendChild(document.createTextNode(data.log.replace(/\\n/g, "\n")));
+                    }
                 }
                 if (data.jsonrpc === "2.0") {
                     console.debug("[Websocket] incoming message", data);
@@ -1317,6 +1337,10 @@
 
             reboot() {
                 this.send({ method: "reboot" });
+            }
+
+            log() {
+                this.send({ method: "log"});
             }
 
             saveConfig(config, cb) {
@@ -1786,6 +1810,10 @@
                     case "/config":
                     case "/remap":
                         this.pageController.page = path.replace(/^\//, "");
+                        break;
+                    case "/live-log":
+                        this.pageController.page = path.replace(/^\//, "");
+                        this.pageController.ws.log();
                         break;
                     case "/mouse":
                         this.pageController.page = path.replace(/^\//, "");

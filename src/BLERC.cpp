@@ -15,20 +15,22 @@ bool BLERC::ws_br_enable = false;
 bool BLERC::ws_br_send_assigned = false;
 Preferences BLERC::preferences = Preferences();
 
+Logger logger = Logger::instance();
+
 BLERC::BLERC(){};
 
 void BLERC::setup()
 {
   delay(1000);
   Serial.begin(115200);
-  Serial.print("[SETUP] BOOT WAIT");
+  Logger::instance().print("[SETUP] BOOT WAIT");
   for (uint8_t t = 4; t > 0; t--)
   {
-    Serial.print(".");
-    Serial.flush();
-    delay(1000);
+      Logger::instance().print(".");
+      Serial.flush();
+      delay(1000);
   }
-  Serial.println("");
+  Logger::instance().println("");
   readConfig();
   readMappings();
   WebService::instance().init();
@@ -44,12 +46,12 @@ void BLERC::setup()
   const char *line1 = PSTR("**** BLE REMOTE COMPANION V1 ****");
   const uint8_t length = 40;
   uint8_t pre = (length - strlen_P(line1)) / 2;
-  Serial.printf("\n%*s%s\n\n", pre, "", line1);
+  Logger::instance().printf("\n%*s%s\n\n", pre, "", line1);
   uint8_t tmp = strlen_P(" RAM SYSTEM  BASIC BYTES FREE");
   char buffer[tmp + 10];
   snprintf(buffer, tmp + 10, "%dK RAM SYSTEM %d BASIC BYTES FREE", (uint8_t)(floor(ESP.getHeapSize() / 1024)), ESP.getFreeHeap());
   uint8_t pre2 = (length - strlen(buffer)) / 2;
-  Serial.printf("%*s%s\n\nReady.\n", pre2, "", buffer);
+  Logger::instance().printf("%*s%s\n\nReady.\n", pre2, "", buffer);
 }
 
 void BLERC::readConfig()

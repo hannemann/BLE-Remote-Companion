@@ -56,6 +56,7 @@
 #include <IRutils.h>
 #include <Preferences.h>
 
+#include "Logger.h"
 #include "Files.h"
 #include "Keys.h"
 
@@ -65,7 +66,6 @@
 #include "HTTPEvent.h"
 #include "IRService.h"
 #include "Bluetooth.h"
-
 class BLERC
 {
 public:

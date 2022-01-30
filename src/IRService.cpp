@@ -7,21 +7,21 @@ int8_t IRService::maxMouseStep = INT8_MAX;
 IRrecv IRService::irrecv = IRrecv(IR_PIN);
 
 IRService& IRService::init() {
-    Serial.println("Init IR Service...");
+    Logger::instance().println("Init IR Service...");
     BLERC::preferences.begin("ir", true);
-    Serial.println("Read IR configuration from flash...");
+    Logger::instance().println("Read IR configuration from flash...");
     long start = millis();
     String configJSON = BLERC::preferences.getString("config", "{}");
     config = JSON.parse(configJSON);
     BLERC::preferences.end();
     uint16_t dur = millis() - start;
-    Serial.printf("%d Configuration bytes parsed in %dms\n", configJSON.length(), dur);
+    Logger::instance().printf("%d Configuration bytes parsed in %dms\n", configJSON.length(), dur);
     return *this;
 }
 
 void IRService::run() {
     irrecv.enableIRIn();
-    Serial.printf("IRService waiting for input from pin %d\n", IR_PIN);
+    Logger::instance().printf("IRService waiting for input from pin %d\n", IR_PIN);
 }
 void IRService::loop() {
     if (irrecv.decode(&results)) {
@@ -52,8 +52,8 @@ void IRService::loop() {
             if (current != lastSteady && !isMouse && !isClick)
             {
                 lastSteady = current;
-                // Serial.print(resultToHumanReadableBasic(&results));
-                Serial.printf("IR Protocol: %d - %s, Button: %llu pressed\n", results.decode_type, typeToString(results.decode_type, results.repeat).c_str(), current);
+                // Logger::instance().print(resultToHumanReadableBasic(&results));
+                Logger::instance().printf("IR Protocol: %d - %s, Button: %llu pressed\n", results.decode_type, typeToString(results.decode_type, results.repeat).c_str(), current);
                 if (!learning.hasOwnProperty("client") && !forgetRemoteBtn.hasOwnProperty("client"))
                 {
                     press();
@@ -86,12 +86,12 @@ void IRService::loop() {
             lastSteady = current;
             if (start > 0)
             {
-                Serial.printf("Button released. Runtime: %lums\n", millis() - start);
+                Logger::instance().printf("Button released. Runtime: %lums\n", millis() - start);
                 start = 0;
             }
             else
             {
-                Serial.println("Button released");
+                Logger::instance().println("Button released");
             }
         }
     }
@@ -99,13 +99,13 @@ void IRService::loop() {
 
 void IRService::storeLearned()
 {
-    Serial.printf("Learning %s\n", JSON.stringify(learning).c_str());
+    Logger::instance().printf("Learning %s\n", JSON.stringify(learning).c_str());
     String key = getConfigKeyFromIr();
     String value = getConfigValue();
     config[key] = value;
     saveConfig();
     printConfig();
-    Serial.printf("Learned %s - %s\n", key.c_str(), value.c_str());
+    Logger::instance().printf("Learned %s - %s\n", key.c_str(), value.c_str());
     uint8_t client = int(learning["client"]);
     endConfig();
     WSEvent::instance().resultOK(client, "{\"method\":\"learn\",\"result\":\"OK\"}");
@@ -114,7 +114,7 @@ void IRService::storeLearned()
 void IRService::deleteLearned()
 {
     String key = getConfigKeyFromIr();
-    Serial.printf("Attempt to delete %s from IR config\n", key.c_str());
+    Logger::instance().printf("Attempt to delete %s from IR config\n", key.c_str());
     if (config.hasOwnProperty(key))
     {
         config[key] = undefined;
@@ -142,7 +142,7 @@ String IRService::getConfigKeyFromIr() {
 }
 
 String IRService::getConfigValue() {
-    Serial.printf("Obtain config from %s\n", JSON.stringify(learning).c_str());
+    Logger::instance().printf("Obtain config from %s\n", JSON.stringify(learning).c_str());
 
     uint8_t typeId = HIDUsageKeys::getKeyTypeId((const char *)learning["type"]);
     int16_t keyId = HIDUsageKeys::getKeyIndex(typeId, (const char *)learning["code"]);
@@ -164,7 +164,7 @@ void IRService::saveConfig()
 
 void IRService::printConfig()
 {
-    Serial.printf("Config %s\n", JSON.stringify(config).c_str());
+    Logger::instance().printf("Config %s\n", JSON.stringify(config).c_str());
 }
 
 void IRService::press() {
@@ -318,5 +318,5 @@ void IRService::clearConfig() {
     BLERC::preferences.clear();
     BLERC::preferences.end();
     config = JSON.parse("{}");
-    Serial.println("Configuration cleared...");
+    Logger::instance().println("Configuration cleared...");
 }

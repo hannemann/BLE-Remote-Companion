@@ -19,12 +19,12 @@ Bluetooth bluetooth;
 
 void Bluetooth::create()
 {
-  Serial.println("Creating Bluetooth instance...");
+  Logger::instance().println("Creating Bluetooth instance...");
   bluetooth = Bluetooth();
 }
 
 void Bluetooth::keydown(int16_t key, bool longpress) {
-  Serial.printf("Sending key code: %d %s\n", key, longpress ? "longpress" : "");
+  Logger::instance().printf("Sending key code: %d %s\n", key, longpress ? "longpress" : "");
   inputKeyboard_t keyboard{};
   // if (key.LeftCTRL) {
   //   keyboard.KB_KeyboardKeyboardLeftControl = 1;
@@ -44,15 +44,16 @@ void Bluetooth::keyup() {
 }
 
 void Bluetooth::mediadown(int16_t key, bool longpress) {
-    Serial.printf("Sending media code: %d %s\n", key, longpress ? "longpress" : "");
-    uint8_t value[2];
-    value[0] = key;
-    value[1] = key >> 8;
-    inputMedia->setValue(value, 2);
-    inputMedia->notify();
-    if (longpress) {
-      delay(500);
-    }
+  Logger::instance().printf("Sending media code: %d %s\n", key, longpress ? "longpress" : "");
+  uint8_t value[2];
+  value[0] = key;
+  value[1] = key >> 8;
+  inputMedia->setValue(value, 2);
+  inputMedia->notify();
+  if (longpress)
+  {
+    delay(500);
+  }
 }
 
 void Bluetooth::mediaup() {
@@ -157,7 +158,7 @@ void Bluetooth::disconnect()
 void BLECallback::onConnect(BLEServer *pServer, esp_ble_gatts_cb_param_t *param)
 {
     Bluetooth::BLEconnected = true;
-    Serial.println("Bluetooth Connected");
+    Logger::instance().println("Bluetooth Connected");
     BLE2902* desc = (BLE2902*)Bluetooth::input->getDescriptorByUUID(BLEUUID((uint16_t)0x2902));
     desc->setNotifications(true);
 
@@ -173,7 +174,7 @@ void BLECallback::onConnect(BLEServer *pServer, esp_ble_gatts_cb_param_t *param)
 
 void BLECallback::onDisconnect(BLEServer* pServer) {
     Bluetooth::BLEconnected = false;
-    Serial.println("Bluetooth Disonnected");
+    Logger::instance().println("Bluetooth Disonnected");
     BLE2902* desc = (BLE2902*)Bluetooth::input->getDescriptorByUUID(BLEUUID((uint16_t)0x2902));
     desc->setNotifications(false);
 
@@ -230,7 +231,7 @@ void keyTaskServer(void*) {
     Bluetooth::pAdvertising->addServiceUUID(Bluetooth::hid->hidService()->getUUID());
     Bluetooth::pAdvertising->start();
     Bluetooth::hid->setBatteryLevel(100);
-    Serial.println("Waiting for Bluetooth connection...");
+    Logger::instance().println("Waiting for Bluetooth connection...");
     yield();
     delay(portMAX_DELAY);
 }
