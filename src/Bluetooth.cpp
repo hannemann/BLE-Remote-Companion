@@ -16,6 +16,8 @@ BLESecurity *Bluetooth::pSecurity;
 uint16_t Bluetooth::connId = 0;
 esp_ble_gatts_cb_param_t *Bluetooth::bdParams;
 Bluetooth bluetooth;
+const char *Bluetooth::STATUS_CONNECTED = "connected";
+const char *Bluetooth::STATUS_DISCONNECTED = "disconnected";
 
 void Bluetooth::create()
 {
@@ -170,6 +172,9 @@ void BLECallback::onConnect(BLEServer *pServer, esp_ble_gatts_cb_param_t *param)
 
     Bluetooth::connId = pServer->getConnId();
     Bluetooth::bdParams = param;
+    JSONVar status;
+    status["bleStatus"] = Bluetooth::STATUS_CONNECTED;
+    WSEvent::instance().broadcastTXT(JSON.stringify(status).c_str());
 }
 
 void BLECallback::onDisconnect(BLEServer* pServer) {
@@ -186,6 +191,9 @@ void BLECallback::onDisconnect(BLEServer* pServer) {
 
     Bluetooth::pAdvertising->start();
     Bluetooth::connId = 0;
+    JSONVar status;
+    status["bleStatus"] = Bluetooth::STATUS_DISCONNECTED;
+    WSEvent::instance().broadcastTXT(JSON.stringify(status).c_str());
 }
 
 void keyTaskServer(void*) {

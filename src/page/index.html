@@ -101,6 +101,10 @@
         --clr-btn-bg: hsl(var(--hue-bg), var(--sat-bg), calc(var(--lit-bg) + 10%));
         --clr-btn-border: hsl(var(--hue-bg), var(--sat-bg), calc(var(--lit-bg) + 50%));
         --clr-alert: red;
+        --clr-success: limegreen;
+        --clr-warning: darkgoldenrod;
+        --clr-info: blue;
+        --clr-yellow: yellow;
         --gap: 1rem;
         --gap-small: calc(var(--gap) / 2);
         --gap-big: calc(var(--gap) + var(--gap) / 4);
@@ -253,7 +257,7 @@
     nav:not(.menu) span {
         opacity: .5;
     }
-    nav:not(.menu) a:last-of-type {
+    nav:not(.menu) .ble-status {
         margin-left: auto;
     }
     nav .room {
@@ -735,13 +739,13 @@
         color: var(--clr-alert);
     }
     button span.icon-green {
-        color: greenyellow;
+        color: var(--clr-success);
     }
     button span.icon-yellow {
-        color: yellow;
+        color: var(--clr-yellow);
     }
     button span.icon-blue {
-        color: blue;
+        color: var(--clr-info);
     }
     .dpad .buttons button > span {
         position: static;
@@ -883,16 +887,22 @@
         opacity: 0;
     }
     .toast[data-type="success"] {
-        background-color: green;
+        background-color: var(--clr-success);
     }
     .toast[data-type="error"] {
-        background-color: red;
+        background-color: var(--clr-alert);
     }
     .toast[data-type="info"] {
-        background-color: blue;
+        background-color: var(--clr-info);
     }
     .toast[data-type="warning"] {
-        background-color: darkgoldenrod;
+        background-color: var(--clr-warning);
+    }
+    .ble-status.icon-ble-connected {
+        color: var(--clr-success);
+    }
+    .ble-status.icon-ble-disconnected {
+        color: var(--clr-alert);
     }
 
     @media (max-width: 30rem) {
@@ -914,6 +924,7 @@
         <a href="/keyboard">&#xe818;</a>
         <a href="/mouse">&#xe819;</a>
         <span class="room"></span>
+        <span class="ble-status icon-ble-disconnected"></span>
         <a href="/menu">&#xe804;</a>
     </nav>
     <main data-page="remote">
@@ -1200,7 +1211,10 @@
                     this.pageController.config.data = data.config;
                 }
                 if (data.remote?.mappings) {
-                    this.pageController.remapButtons.applyMappings(data.remote.mappings)
+                    this.pageController.remapButtons.applyMappings(data.remote.mappings);
+                }
+                if (data.bleStatus) {
+                    this.pageController.bleConnected = data.bleStatus === "connected";
                 }
                 if (data.log) {
                     if (this.pageController.page !== 'live-log') {
@@ -2330,6 +2344,17 @@
                     this.config.data.room
                     ? `${this.config.data.room} - ${title}`
                     : title;
+            }
+
+            get bleConnected() {
+                this.nav.node.querySelector('.bleStatus').classList.contains("icon-ble-connected");
+            }
+
+            set bleConnected(b) {
+                const c = typeof b === "boolean" && b ? "icon-ble-connected" : "icon-ble-disconnected";
+                const icon = this.nav.node.querySelector('.ble-status');
+                icon.classList.remove("icon-ble-connected", "icon-ble-disconnected");
+                icon.classList.add(c);
             }
 
             set toast(m) {

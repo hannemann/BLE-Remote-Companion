@@ -44,6 +44,9 @@ void WSEvent::webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size
         char buffer[1024];
         snprintf(buffer, 1024, "{\"remote\":{\"mappings\":%s}}", BLERC::remoteMappingsJSON.c_str());
         WSEvent::instance().sendTXT(num, buffer);
+        JSONVar status;
+        status["bleStatus"] = Bluetooth::BLEconnected ? Bluetooth::STATUS_CONNECTED : Bluetooth::STATUS_DISCONNECTED;
+        WSEvent::instance().sendTXT(num, JSON.stringify(status).c_str());
         break;
     }
     case WStype_TEXT:

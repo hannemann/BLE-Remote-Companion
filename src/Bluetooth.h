@@ -112,6 +112,8 @@ public:
   void mouseClick(uint8_t b = MOUSE_LEFT);
   void mouseMove(signed char x, signed char y, signed char wheel = 0, signed char hWheel = 0);
   void disconnect();
+  static const char *STATUS_CONNECTED;
+  static const char *STATUS_DISCONNECTED;
 
 private:
   uint8_t _mouseButtons = 0;
