@@ -10,14 +10,7 @@ Logger *Logger::setBufferSize(uint16_t size)
 
 Logger *Logger::setClient(int8_t client)
 {
-    if (wsClient > -1)
-    {
-        wsClient = -1;
-    }
-    else
-    {
-        wsClient = client;
-    }
+    wsClient = client;
     return this;
 }
 
@@ -46,14 +39,14 @@ void Logger::printf(const char *format, ...)
     char buffer[bufferSize];
     va_list args;
     va_start(args, format);
-    vsprintf(buffer, format, args);
+    vsnprintf(buffer, bufferSize, format, args);
     print(buffer);
     va_end(args);
 }
 
 void Logger::wsSend(const char *message)
 {
-    char payload[bufferSize];
-    snprintf(payload, bufferSize, "{\"log\":\"%s\"}", message);
-    WSEvent::instance().sendTXT(wsClient, payload);
+    JSONVar payload;
+    payload["log"] = message;
+    WSEvent::instance().sendTXT(wsClient, JSON.stringify(payload).c_str());
 }

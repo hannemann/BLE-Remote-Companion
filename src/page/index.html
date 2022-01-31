@@ -1062,7 +1062,7 @@
             </form>
         </section>
         <section class="live-log">
-            <textarea></textarea>
+            <textarea readonly></textarea>
         </section>
     </main>
     <nav class="menu">
@@ -1206,7 +1206,7 @@
             }
 
             handleMessage(result) {
-                const data = JSON.parse(result.data.replace(/\n/g, '\\n'));
+                const data = JSON.parse(result.data);
                 if (data.config) {
                     this.pageController.config.data = data.config;
                 }
@@ -1218,9 +1218,9 @@
                 }
                 if (data.log) {
                     if (this.pageController.page !== 'live-log') {
-                        this.log();
+                        this.pageController.log.deactivate();
                     } else {
-                        document.querySelector('.live-log textarea').appendChild(document.createTextNode(data.log.replace(/\\n/g, "\n")));
+                        this.pageController.log.append(data.log);
                     }
                 }
                 if (data.jsonrpc === "2.0") {
@@ -1355,8 +1355,8 @@
                 this.send({ method: "reboot" });
             }
 
-            log() {
-                this.send({ method: "log"});
+            log(active) {
+                this.send({ method: active === true ? "logon" : "logoff"});
             }
 
             saveConfig(config, cb) {
@@ -1804,7 +1804,6 @@
             handlePointerEvent(e) {
                 e.preventDefault();
                 let path;
-                console.log(e);
                 if (e.type === 'click') {
                     path = e.currentTarget.pathname;
                     if (this.pageController.menu.open) {
@@ -1816,7 +1815,9 @@
                     path = e.state?.path || `/${this.pageController.main.dataset.page}`;
                 }
                 path !== '/menu' && (this.pageController.menu.open = false);
-                console.log(path, history.state);
+                if (this.pageController.page === 'live-log' && path !== '/live-log') {
+                    this.pageController.log.deactivate();
+                }
                 switch (path) {
                     case "/remote":
                     case "/keyboard":
@@ -1829,7 +1830,8 @@
                         break;
                     case "/live-log":
                         this.pageController.page = path.replace(/^\//, "");
-                        this.pageController.ws.log();
+                        this.pageController.log.activate();
+                        this.pageController.log.empty();
                         break;
                     case "/mouse":
                         this.pageController.page = path.replace(/^\//, "");
@@ -1848,6 +1850,29 @@
 
             set room(r) {
                 this.node.querySelector('.room').innerHTML = r;
+            }
+        }
+
+        class Log extends PageHandler {
+            constructor(pageController, node) {
+                super(pageController);
+                this.node = node;
+            }
+
+            activate() {
+                this.pageController.ws.log(true);
+            }
+
+            deactivate() {
+                this.pageController.ws.log(false);
+            }
+
+            empty() {
+                this.node.value = "";
+            }
+
+            append(log) {
+                this.node.value += log.replace(/\\n/g, "\n");
             }
         }
 
@@ -2258,6 +2283,7 @@
                 this.learnOverlay = new Overlay(this, document.querySelector(".overlay.learn"));
                 this.forgetOverlay = new Overlay(this, document.querySelector(".overlay.forget"));
                 this.remapOverlay = new Overlay(this, document.querySelector(".overlay.remap"));
+                this.log = new Log(this, document.querySelector(".live-log textarea"));
                 this.pages = {
                     'all-buttons': this.allButtons
                 };

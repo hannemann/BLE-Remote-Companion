@@ -130,7 +130,7 @@ bool WSEvent::validatePayload(uint8_t num, JSONVar &payload)
         }
         ESP_LOGE(LOG_TAG, "[%u] %s params invalid", num, (const char *)payload["method"]);
     }
-    if (strcmp(payload["method"], "deleteMappings") == 0 || strcmp(payload["method"], "btDisconnect") == 0 || strcmp(payload["method"], "cancelIr") == 0 || strcmp(payload["method"], "forget") == 0 || strcmp(payload["method"], "clear") == 0 || strcmp(payload["method"], "reboot") == 0 || strcmp(payload["method"], "log") == 0)
+    if (strcmp(payload["method"], "deleteMappings") == 0 || strcmp(payload["method"], "btDisconnect") == 0 || strcmp(payload["method"], "cancelIr") == 0 || strcmp(payload["method"], "forget") == 0 || strcmp(payload["method"], "clear") == 0 || strcmp(payload["method"], "reboot") == 0 || strcmp(payload["method"], "logon") == 0 || strcmp(payload["method"], "logoff") == 0)
     {
         return true;
     }
@@ -216,10 +216,15 @@ void WSEvent::callMethod(uint8_t num, const char *method)
         BLERC::deleteRemoteMappings();
         resultOK(num, "{\"method\":\"deleteMappings\",\"result\":\"OK\",\"message\":\"Mappings deleted\"}");
     }
-    if (strcmp(method, "log") == 0)
+    if (strcmp(method, "logon") == 0)
     {
         Logger::instance().setClient(num);
-        resultOK(num, "{\"method\":\"log\",\"result\":\"OK\",\"message\":\"Logging toggled\"}");
+        resultOK(num, "{\"method\":\"log\",\"result\":\"OK\",\"message\":\"Logging active\"}");
+    }
+    if (strcmp(method, "logoff") == 0)
+    {
+        Logger::instance().setClient(-1);
+        resultOK(num, "{\"method\":\"log\",\"result\":\"OK\",\"message\":\"Logging inactive\"}");
     }
 }
 
