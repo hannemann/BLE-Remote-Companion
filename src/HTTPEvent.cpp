@@ -40,7 +40,7 @@ void HTTPEvent::home() {
     Logger::instance().printf("GET /\n");
     instance().server.sendHeader("Content-Encoding", "gzip");
     instance().server.send_P(200, "text/html", indexHTML, indexHTML_L);
-    Logger::instance().println((const char *)ESP.getFreeHeap());
+    Logger::instance().printf("%d Bytes free\n", ESP.getFreeHeap());
 }
 
 void HTTPEvent::ota()
