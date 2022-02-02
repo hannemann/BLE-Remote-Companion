@@ -1223,6 +1223,12 @@
                         this.pageController.log.append(data.log);
                     }
                 }
+                if (data.notify?.type && data.notify?.message) {
+                    this.pageController.toast = {
+                        type: TOAST_TYPE[data.notify.type] || TOAST_TYPE.error,
+                        message: data.notify.message
+                    };
+                }
                 if (data.jsonrpc === "2.0") {
                     console.debug("[Websocket] incoming message", data);
                     if (this.wsTimeout) {

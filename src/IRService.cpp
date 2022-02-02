@@ -82,6 +82,12 @@ void IRService::loop() {
             {
                 release();
             }
+            if (millis() - keyStart >= 5000 && currentType == TYPE_KEYBOARD && currentHid == 0x0029) // Escape
+            {
+                WSEvent::instance().broadcastTXT("{\"notify\":{\"type\":\"info\",\"message\":\"Rebooting... Reload after 20 Seconds\"}}");
+                delay(1000);
+                ESP.restart();
+            }
             current = 0;
             lastSteady = current;
             if (start > 0)
