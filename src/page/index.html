@@ -1230,25 +1230,43 @@
                     };
                 }
                 if (data.jsonrpc === "2.0") {
-                    console.debug("[Websocket] incoming message", data);
-                    if (this.wsTimeout) {
-                        clearTimeout(this.wsTimeout);
-                        delete this.wsTimeout;
-                    }
-                    const success = data.result === "OK" || data.result?.result === "OK";
-                    if (success) {
-                        if (data.result.method && "function" === typeof this._callbacks[data.id]) {
-                            this._callbacks[data.id](data.result);
-                            delete this._callbacks[data.id];
+                    if (data.result) {
+                        console.debug("[Websocket] incoming message", data);
+                        if (this.wsTimeout) {
+                            clearTimeout(this.wsTimeout);
+                            delete this.wsTimeout;
                         }
-                        this.active = true;
-                        console.debug("[Websocket] OK");
-                    }
-                    if (data.result?.message) {
-                        this.pageController.toast = {
-                            type: success ? TOAST_TYPE.success : TOAST_TYPE.error,
-                            message: data.result.message
-                        };
+                        const success = data.result === "OK" || data.result?.result === "OK";
+                        if (success) {
+                            if (data.result.method && "function" === typeof this._callbacks[data.id]) {
+                                this._callbacks[data.id](data.result);
+                                delete this._callbacks[data.id];
+                            }
+                            this.active = true;
+                            console.debug("[Websocket] OK");
+                        }
+                        if (data.result?.message) {
+                            this.pageController.toast = {
+                                type: success ? TOAST_TYPE.success : TOAST_TYPE.error,
+                                message: data.result.message
+                            };
+                        }
+                    } else if (data.method) {
+
+                        if (typeof this.pageController[data.method] === "function") {
+                            try{
+                                const params = data.params || {};
+                                const result = this.pageController[data.method](params);
+                                if (data.id) {
+                                    this.send({result: result || "ok"}, undefined, data.id);
+                                }
+                            } catch (error) {
+                                console.error(error);
+                                if (data.id) {
+                                    this.send({error: error.message}, undefined, data.id);
+                                }
+                            }
+                        }
                     }
                 }
             };
@@ -1372,9 +1390,9 @@
                 }, cb);
             }
 
-            send(message, cb) {
+            send(message, cb, rpcId) {
                 if (this.pageController.active) {
-                    const id = this.requestId;
+                    const id = rpcId || this.requestId;
                     if ("function" === typeof cb) {
                         this._callbacks[id] = cb;
                     }
@@ -2376,6 +2394,25 @@
                     this.config.data.room
                     ? `${this.config.data.room} - ${title}`
                     : title;
+            }
+
+            reload(options) {
+                let timeout = parseInt(options?.timeout);
+                if (isNaN(timeout) || timeout <= 0) {
+                    timeout = 20000;
+                }
+                const interval = 1000;
+                let i = 1;
+                setInterval(() => {
+                    if ((timeout / interval) - i <= 0) {
+                        location.reload();
+                    } else {
+                        this.toast = {
+                            type: TOAST_TYPE.info,
+                            message: `Reload in ${(timeout / interval) - i++} Seconds`
+                        };
+                    }
+                }, interval);
             }
 
             get bleConnected() {
