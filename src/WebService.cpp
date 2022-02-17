@@ -5,7 +5,11 @@ bool WebService::captiveMode = false;
 Preferences WebService::preferences = Preferences();
 DNSServer WebService::dnsServer = DNSServer();
 
-void WebService::init() {
+void WebService::init()
+{
+#if defined(WEBSOCKETS_ETH)
+    ETH.begin(ETH_ADDR, ETH_POWER_PIN, ETH_MDC_PIN, ETH_MDIO_PIN, ETH_TYPE, ETH_CLK_MODE);
+#endif
     WiFi.disconnect();
     Logger::instance().println("Init Webservices...");
 
@@ -59,7 +63,8 @@ void WebService::init() {
     HTTPEvent::instance().init();
 }
 
-void WebService::run() {
+void WebService::run()
+{
     Logger::instance().println("Webservices startup...");
     if (!captiveMode)
     {
@@ -69,7 +74,8 @@ void WebService::run() {
     HTTPEvent::instance().run();
 }
 
-void WebService::loop() {
+void WebService::loop()
+{
     if (!captiveMode)
     {
         wifiHealth();
