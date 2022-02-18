@@ -169,6 +169,7 @@ void WebService::deleteCredentials()
 
 void WebService::WiFiEvent(WiFiEvent_t event)
 {
+#ifdef LAN_NETWORK
     String hostname = "blerc-eth-" + ETH.macAddress();
     hostname.replace(":", "");
     switch (event)
@@ -206,4 +207,5 @@ void WebService::WiFiEvent(WiFiEvent_t event)
     default:
         break;
     }
+#endif
 }
