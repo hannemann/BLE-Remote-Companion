@@ -4,19 +4,22 @@ WebService::WebService() {}
 bool WebService::captiveMode = false;
 Preferences WebService::preferences = Preferences();
 DNSServer WebService::dnsServer = DNSServer();
+bool WebService::eth_connected = false;
 
 void WebService::init()
 {
-#if defined(WEBSOCKETS_ETH)
+#ifdef LAN_NETWORK
+    WiFi.onEvent(WebService::WiFiEvent);
     ETH.begin(ETH_ADDR, ETH_POWER_PIN, ETH_MDC_PIN, ETH_MDIO_PIN, ETH_TYPE, ETH_CLK_MODE);
 #endif
-    WiFi.disconnect();
     Logger::instance().println("Init Webservices...");
 
+#ifndef LAN_NETWORK
 #if (DISABLE_BROWNOUT_DETECTION_DURING_WIFI_STARTUP > 0)
     uint32_t brown_reg_temp = READ_PERI_REG(RTC_CNTL_BROWN_OUT_REG);
     WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 0);
 #endif
+    WiFi.disconnect();
     if (hasWifiCredentials())
     {
         Logger::instance().print("Connecting to WIFI");
@@ -38,8 +41,19 @@ void WebService::init()
             delay(1000);
         }
         Logger::instance().printf("\nConnected! IP address: %s\n", WiFi.localIP().toString().c_str());
+#endif
+
+#ifdef LAN_NETWORK
+        while (eth_connected == false)
+        {
+            delay(1000);
+        }
+        Logger::instance().printf("\nConnected! IP address: %s\n", ETH.localIP().toString().c_str());
+#endif
         WSEvent::instance().init();
         HAClient::instance().init();
+
+#ifndef LAN_NETWORK
     }
     else
     {
@@ -60,6 +74,7 @@ void WebService::init()
 #if (DISABLE_BROWNOUT_DETECTION_DURING_WIFI_STARTUP > 0)
     WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, brown_reg_temp);
 #endif
+#endif
     HTTPEvent::instance().init();
 }
 
@@ -78,8 +93,10 @@ void WebService::loop()
 {
     if (!captiveMode)
     {
+#ifndef LAN_NETWORK
         wifiHealth();
-        if (WiFi.status() == WL_CONNECTED)
+#endif
+        if (WiFi.status() == WL_CONNECTED || eth_connected)
         {
             WSEvent::instance().loop();
             if (HAClient::running)
@@ -148,4 +165,45 @@ void WebService::deleteCredentials()
     preferences.remove("psk");
     preferences.putBool("has_wifi", false);
     preferences.end();
+}
+
+void WebService::WiFiEvent(WiFiEvent_t event)
+{
+    String hostname = "blerc-eth-" + ETH.macAddress();
+    hostname.replace(":", "");
+    switch (event)
+    {
+    case SYSTEM_EVENT_ETH_START:
+        Serial.println("ETH Started");
+        // set eth hostname here
+        ETH.setHostname(hostname.c_str());
+        break;
+    case SYSTEM_EVENT_ETH_CONNECTED:
+        Serial.println("ETH Connected");
+        break;
+    case SYSTEM_EVENT_ETH_GOT_IP:
+        Serial.print("ETH MAC: ");
+        Serial.print(ETH.macAddress());
+        Serial.print(", IPv4: ");
+        Serial.print(ETH.localIP());
+        if (ETH.fullDuplex())
+        {
+            Serial.print(", FULL_DUPLEX");
+        }
+        Serial.print(", ");
+        Serial.print(ETH.linkSpeed());
+        Serial.println("Mbps");
+        eth_connected = true;
+        break;
+    case SYSTEM_EVENT_ETH_DISCONNECTED:
+        Serial.println("ETH Disconnected");
+        eth_connected = false;
+        break;
+    case SYSTEM_EVENT_ETH_STOP:
+        Serial.println("ETH Stopped");
+        eth_connected = false;
+        break;
+    default:
+        break;
+    }
 }

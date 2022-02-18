@@ -37,9 +37,8 @@
 #include <Update.h>
 #include <iterator>
 
-#if WEBSOCKETS_NETWORK_TYPE == NETWORK_ESP32_ETH
+#ifdef LAN_NETWORK
 #include <ETH.h>
-#define WEBSOCKETS_ETH 1
 #define ETH_CLK_MODE ETH_CLOCK_GPIO0_IN //  ETH_CLOCK_GPIO17_OUT
 // Pin# of the enable signal for the external crystal oscillator (-1 to disable for internal APLL source)
 #define ETH_POWER_PIN 16
