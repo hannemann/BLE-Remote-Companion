@@ -255,6 +255,7 @@ Available methods are
 - keypress (recommended)
 - keydown (don't forget to send a keyup also...)
 - keyup
+- reboot
 
 Keypress is a combination of `keydown` followed by `keyup`. The optional `longpress` parameter adds a delay of 500ms in between.
 
@@ -422,3 +423,4 @@ As a starting point you can import the [Websocket example flow](/doc/node-red/ex
 - case for Node MCU style with TSOP (reset button)
 - case for WT32-ETH01
 - Basic Auth
+- uptime, revision, version...

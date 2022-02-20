@@ -190,6 +190,10 @@ void HAClient::handleHAEvent(JSONVar &params)
             bluetooth.keyup(params);
         }
     }
+    if (params.hasOwnProperty("method") && strcmp(params["method"], "reboot") == 0)
+    {
+        ESP.restart();
+    }
 }
 
 void HAClient::incrementSeq()
