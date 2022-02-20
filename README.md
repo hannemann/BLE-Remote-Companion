@@ -24,11 +24,13 @@ An easy to print housing for a d1 mini style esp32 can be found in the `case/D1-
     - Chipset: ESP32-D0WDQ6
     - 4MB Flash
     - 520KB RAM
+    - IR_PIN: 23
 - WT32-ETH01
+  - IR_PIN: 15
 
 ### (Strongly) Recommended Peripherals
 
-- TSOP4838 on PIN 23 (pin can be configured in prod_env.ini see example)
+- TSOP4838 on PIN according to hardware (pin can be configured in prod_env.ini see example)
 
 ## Supported Browsers (recent versions only)
 

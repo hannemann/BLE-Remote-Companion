@@ -14,7 +14,9 @@
 #endif
 
 #ifndef IR_PIN
+#ifndef LAN_NETWORK
 #define IR_PIN 23
+#endif
 #endif
 
 #ifndef HTTP_PORT
@@ -38,6 +40,9 @@
 #include <iterator>
 
 #ifdef LAN_NETWORK
+#ifndef IR_PIN
+#define IR_PIN 15
+#endif
 typedef enum
 {
     WT32_ETH01
