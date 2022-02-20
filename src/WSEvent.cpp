@@ -5,25 +5,28 @@ const char *WSEvent::LOG_TAG = "WebSocket";
 WSEvent::WSEvent(uint16_t port)
     : WebSocketsServer(port){};
 
-void WSEvent::init() {
+void WSEvent::init()
+{
     Logger::instance().println("Init Websocket server...");
     onEvent(webSocketEvent);
 }
 
-void WSEvent::run() {
+void WSEvent::run()
+{
     begin();
     Logger::instance().printf("Websocket started listening on port %d\n", WS_PORT);
 }
 
 /**
  * @brief websocket event handler
- * 
- * @param num 
- * @param type 
- * @param payload 
- * @param length 
+ *
+ * @param num
+ * @param type
+ * @param payload
+ * @param length
  */
-void WSEvent::webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length) {
+void WSEvent::webSocketEvent(uint8_t num, WStype_t type, uint8_t *payload, size_t length)
+{
 
     switch (type)
     {
@@ -69,11 +72,11 @@ void WSEvent::webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size
 
 /**
  * @brief validate payload
- * 
- * @param num 
- * @param payload 
- * @return true 
- * @return false 
+ *
+ * @param num
+ * @param payload
+ * @return true
+ * @return false
  */
 bool WSEvent::validatePayload(uint8_t num, JSONVar &payload)
 {
@@ -141,9 +144,9 @@ bool WSEvent::validatePayload(uint8_t num, JSONVar &payload)
 
 /**
  * @brief handle payload
- * 
- * @param num 
- * @param payload 
+ *
+ * @param num
+ * @param payload
  */
 void WSEvent::handlePayload(uint8_t num, uint8_t *payload)
 {
@@ -178,9 +181,9 @@ void WSEvent::handlePayload(uint8_t num, uint8_t *payload)
 
 /**
  * @brief call method
- * 
- * @param num 
- * @param method 
+ *
+ * @param num
+ * @param method
  */
 void WSEvent::callMethod(uint8_t num, const char *method)
 {
@@ -230,10 +233,10 @@ void WSEvent::callMethod(uint8_t num, const char *method)
 
 /**
  * @brief call method with params
- * 
- * @param num 
- * @param method 
- * @param params 
+ *
+ * @param num
+ * @param method
+ * @param params
  */
 void WSEvent::callMethod(uint8_t num, const char *method, JSONVar &params)
 {
@@ -323,10 +326,10 @@ void WSEvent::callMethod(uint8_t num, const char *method, JSONVar &params)
 
 /**
  * @brief notify clients if applicable
- * 
- * @param method 
- * @param type 
- * @param code 
+ *
+ * @param method
+ * @param type
+ * @param code
  */
 void WSEvent::notifyClients(const char *method, const char *type, const char *code, bool longpress)
 {
@@ -345,11 +348,11 @@ void WSEvent::notifyClients(const char *method, const char *type, const char *co
 
 /**
  * @brief send ws broadcast
- * 
- * @param type 
- * @param key  
- * @param irProtocol  
- * @param irKey 
+ *
+ * @param type
+ * @param key
+ * @param irProtocol
+ * @param irKey
  */
 void WSEvent::broadcastKey(const char *method, const char *type, const char *code, int irProtocol, uint64_t irKey, bool longpress)
 {
@@ -363,9 +366,9 @@ void WSEvent::broadcastKey(const char *method, const char *type, const char *cod
 
 /**
  * @brief send keypress to bluetooth client
- * 
- * @param num 
- * @param params 
+ *
+ * @param num
+ * @param params
  */
 void WSEvent::btKeypress(uint8_t num, JSONVar &params)
 {
@@ -386,9 +389,9 @@ void WSEvent::btKeypress(uint8_t num, JSONVar &params)
 
 /**
  * @brief send keydown to bluetooth client
- * 
- * @param num 
- * @param params 
+ *
+ * @param num
+ * @param params
  */
 void WSEvent::btKeydown(uint8_t num, JSONVar &params)
 {
@@ -405,9 +408,9 @@ void WSEvent::btKeydown(uint8_t num, JSONVar &params)
 
 /**
  * @brief send keyup to bluetooth client
- * 
- * @param num 
- * @param params 
+ *
+ * @param num
+ * @param params
  */
 void WSEvent::btKeyup(uint8_t num, JSONVar &params)
 {
@@ -424,7 +427,7 @@ void WSEvent::btKeyup(uint8_t num, JSONVar &params)
 
 /**
  * @brief send ok message to ws client
- * 
+ *
  * @param num
  * @param message
  */
@@ -445,7 +448,7 @@ void WSEvent::resultOK(uint8_t num, const char *message)
 
 /**
  * @brief send error message to ws client
- * 
+ *
  * @param num
  * @param error
  */
