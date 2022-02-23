@@ -1201,6 +1201,11 @@
           <p class="cta">
             <button type="submit">Save</button>
           </p>
+          <fieldset>
+            <legend>Status</legend>
+            <span>Uptime:</span>
+            <span class="uptime"></span>
+          </fieldset>
         </form>
       </section>
       <section class="live-log">
@@ -1574,6 +1579,14 @@
               this.wsTimeout = setTimeout(this.timeoutHandler, this._timeout);
             }
           }
+        }
+
+        get uptime() {
+          return new Promise((resolve, reject) => {
+            this.send({ method: "uptime" }, (result) => {
+              resolve(result.uptime);
+            });
+          });
         }
       }
 
@@ -2177,9 +2190,12 @@
             case "/learn":
             case "/all-buttons":
             case "/ota":
-            case "/config":
             case "/remap":
               this.pageController.page = path.replace(/^\//, "");
+              break;
+            case "/config":
+              this.pageController.page = path.replace(/^\//, "");
+              this.pageController.config.onShow();
               break;
             case "/live-log":
               this.pageController.page = path.replace(/^\//, "");
@@ -2576,6 +2592,12 @@
           return this;
         }
 
+        async onShow() {
+          try {
+            this.uptime = await this.pageController.uptime();
+          } catch (error) {}
+        }
+
         get json() {
           const object = {};
           new FormData(this.form).forEach((value, key) => {
@@ -2630,6 +2652,10 @@
 
         get data() {
           return this._data || {};
+        }
+
+        set uptime(value) {
+          this.form.querySelector(".uptime").innerText = value;
         }
       }
 
@@ -2845,6 +2871,22 @@
           const icon = this.nav.node.querySelector(".ble-status");
           icon.classList.remove("icon-ble-connected", "icon-ble-disconnected");
           icon.classList.add(c);
+        }
+
+        async uptime() {
+          try {
+            let up = parseInt(await this.ws.uptime);
+            const d = new Date(up / 1000);
+            const days = Math.round(up / 1000000 / 86400)
+              .toString()
+              .padStart(3, 0);
+            const hours = d.getUTCHours().toString().padStart(2, 0);
+            const minutes = d.getUTCMinutes().toString().padStart(2, 0);
+            const seconds = d.getUTCSeconds().toString().padStart(2, 0);
+            return `${days} days, ${hours}:${minutes}:${seconds}`;
+          } catch (error) {
+            return "n.a.";
+          }
         }
 
         set toast(m) {

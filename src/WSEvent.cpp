@@ -49,6 +49,7 @@ void WSEvent::webSocketEvent(uint8_t num, WStype_t type, uint8_t *payload, size_
         WSEvent::instance().sendTXT(num, buffer);
         JSONVar status;
         status["bleStatus"] = Bluetooth::BLEconnected ? Bluetooth::STATUS_CONNECTED : Bluetooth::STATUS_DISCONNECTED;
+        status["uptime"] = long(esp_timer_get_time());
         WSEvent::instance().sendTXT(num, JSON.stringify(status).c_str());
         break;
     }
@@ -133,7 +134,7 @@ bool WSEvent::validatePayload(uint8_t num, JSONVar &payload)
         }
         ESP_LOGE(LOG_TAG, "[%u] %s params invalid", num, (const char *)payload["method"]);
     }
-    if (strcmp(payload["method"], "deleteMappings") == 0 || strcmp(payload["method"], "btDisconnect") == 0 || strcmp(payload["method"], "cancelIr") == 0 || strcmp(payload["method"], "forget") == 0 || strcmp(payload["method"], "clear") == 0 || strcmp(payload["method"], "reboot") == 0 || strcmp(payload["method"], "logon") == 0 || strcmp(payload["method"], "logoff") == 0)
+    if (strcmp(payload["method"], "uptime") == 0 || strcmp(payload["method"], "deleteMappings") == 0 || strcmp(payload["method"], "btDisconnect") == 0 || strcmp(payload["method"], "cancelIr") == 0 || strcmp(payload["method"], "forget") == 0 || strcmp(payload["method"], "clear") == 0 || strcmp(payload["method"], "reboot") == 0 || strcmp(payload["method"], "logon") == 0 || strcmp(payload["method"], "logoff") == 0)
     {
         return true;
     }
@@ -228,6 +229,14 @@ void WSEvent::callMethod(uint8_t num, const char *method)
     {
         Logger::instance().setClient(-1);
         resultOK(num, "{\"method\":\"log\",\"result\":\"OK\",\"message\":\"Logging inactive\"}");
+    }
+    if (strcmp(method, "uptime") == 0)
+    {
+        JSONVar result;
+        result["method"] = "uptime";
+        result["result"] = "OK";
+        result["uptime"] = long(esp_timer_get_time());
+        resultOK(num, JSON.stringify(result).c_str());
     }
 }
 

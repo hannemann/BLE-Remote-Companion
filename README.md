@@ -421,6 +421,5 @@ As a starting point you can import the [Websocket example flow](/doc/node-red/ex
 - documentation -> wip
 - handle ir errors when learning
 - case for Node MCU style with TSOP (reset button)
-- case for WT32-ETH01
 - Basic Auth
 - uptime, revision, version...
