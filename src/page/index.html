@@ -1929,7 +1929,7 @@
                 { key: -1, type: 0, label: "" },
 
                 { key: 75, type: 1, label: ".left" },
-                { key: 36, type: 1, label: "OK" },
+                { key: 48, type: 2, label: "OK" },
                 { key: 74, type: 1, label: ".right" },
 
                 { key: -1, type: 0, label: "" },
@@ -2427,7 +2427,9 @@
           this.parent.appendChild(container);
           config.buttons.forEach((b, i) => {
             const wrapper = document.createElement("div");
-            wrapper.innerText = `${i} - ${b.name}`;
+            wrapper.innerText = `${i} - ${b.name} 0x${b.USBHID.toString(
+              16
+            ).padStart(4, 0)}`;
             container.appendChild(wrapper);
             const btn = document.createElement("button");
             btn.dataset.code = Object.values(USBHIDType).find(
@@ -3125,6 +3127,7 @@
         { name: "KEYCODE_BOOKMARK", USBHID: 0x022a },
         { name: "KEYCODE_PAGE_UP", USBHID: 0x0233 },
         { name: "KEYCODE_PAGE_DOWN", USBHID: 0x0234 },
+        { name: "KEYCODE_DPAD_CENTER", USBHID: 0x0041 },
       ];
 
       const HIDAppLauncher = [

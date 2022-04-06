@@ -6,7 +6,8 @@ int8_t IRService::maxMouseStep = INT8_MAX;
 
 IRrecv IRService::irrecv = IRrecv(IR_PIN);
 
-IRService& IRService::init() {
+IRService &IRService::init()
+{
     Logger::instance().println("Init IR Service...");
     BLERC::preferences.begin("ir", true);
     Logger::instance().println("Read IR configuration from flash...");
@@ -19,13 +20,17 @@ IRService& IRService::init() {
     return *this;
 }
 
-void IRService::run() {
+void IRService::run()
+{
     irrecv.enableIRIn();
     Logger::instance().printf("IRService waiting for input from pin %d\n", IR_PIN);
 }
-void IRService::loop() {
-    if (irrecv.decode(&results)) {
-        if (results.value > 0) {
+void IRService::loop()
+{
+    if (irrecv.decode(&results))
+    {
+        if (results.value > 0)
+        {
             protocol = results.decode_type;
             if (BLERC::ir_ign_unknown && protocol == UNKNOWN)
             {
@@ -33,22 +38,25 @@ void IRService::loop() {
             }
             start = millis();
             // ignore NEC repeats
-            if (results.value != 0xFFFFFFFFFFFFFFFF) {
+            if (results.value != 0xFFFFFFFFFFFFFFFF)
+            {
                 current = results.value;
             }
             // remove RC5 toggle bit
-            if (results.decode_type == RC5) {
+            if (results.decode_type == RC5)
+            {
                 current &= 0xf7ff;
             }
             // remove RC6 toggle bit
-            if (results.decode_type == RC6) {
+            if (results.decode_type == RC6)
+            {
                 current &= 0xfeffff;
             }
             currentKey = getKeyId();
             currentType = getTypeId();
             currentHid = getHidUsageFromIr();
             bool isMouse = (mouseMode && isDpad());
-            bool isClick = (mouseMode && currentHid == DPAD_OK);
+            bool isClick = (mouseMode && currentHid == DPAD_CENTER);
             if (current != lastSteady && !isMouse && !isClick)
             {
                 lastSteady = current;
@@ -66,7 +74,9 @@ void IRService::loop() {
             lastDebounceTime = millis();
         }
         irrecv.resume();
-    } else {
+    }
+    else
+    {
         if ((millis() - lastDebounceTime) > debounce && current > 0)
         {
             if (learning.hasOwnProperty("client"))
@@ -138,7 +148,8 @@ void IRService::endConfig()
     learning = JSON.parse("{}");
 }
 
-String IRService::getConfigKeyFromIr() {
+String IRService::getConfigKeyFromIr()
+{
     char pBuffer[3];
     itoa(protocol, pBuffer, 10);
     char buffer[20];
@@ -147,7 +158,8 @@ String IRService::getConfigKeyFromIr() {
     return (String)pBuffer + "-" + (String)buffer;
 }
 
-String IRService::getConfigValue() {
+String IRService::getConfigValue()
+{
     Logger::instance().printf("Obtain config from %s\n", JSON.stringify(learning).c_str());
 
     uint8_t typeId = HIDUsageKeys::getKeyTypeId((const char *)learning["type"]);
@@ -173,7 +185,8 @@ void IRService::printConfig()
     Logger::instance().printf("Config %s\n", JSON.stringify(config).c_str());
 }
 
-void IRService::press() {
+void IRService::press()
+{
     if (currentType != TYPE_INTERNAL)
     {
         keyStart = millis();
@@ -206,11 +219,12 @@ void IRService::mouseMove()
     }
 }
 
-void IRService::release() {
+void IRService::release()
+{
     mouseStep = 5;
     if (currentType != TYPE_INTERNAL)
     {
-        if (mouseMode && currentType == TYPE_KEYBOARD && currentHid == DPAD_OK)
+        if (mouseMode && currentType == TYPE_CONSUMER && currentHid == DPAD_CENTER)
         {
             bluetooth.mouseClick(1);
         }
@@ -253,11 +267,13 @@ void IRService::notifyClients(const int16_t key, const char *method, bool longpr
     }
 }
 
-int16_t IRService::getHidUsageFromIr() {
+int16_t IRService::getHidUsageFromIr()
+{
     return HIDUsageKeys::getKey(currentType, currentKey);
 }
 
-uint8_t IRService::getTypeId() {
+uint8_t IRService::getTypeId()
+{
     String configKey = getConfigKeyFromIr();
     if (config.hasOwnProperty(configKey))
     {
@@ -267,7 +283,8 @@ uint8_t IRService::getTypeId() {
     return 0;
 }
 
-uint16_t IRService::getKeyId() {
+uint16_t IRService::getKeyId()
+{
     String configKey = getConfigKeyFromIr();
     if (config.hasOwnProperty(configKey))
     {
@@ -319,7 +336,8 @@ uint64_t IRService::getIrCodeByKey(const char *type, const char *code)
     return irCode;
 }
 
-void IRService::clearConfig() {
+void IRService::clearConfig()
+{
     BLERC::preferences.begin("ir", false);
     BLERC::preferences.clear();
     BLERC::preferences.end();

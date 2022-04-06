@@ -3,7 +3,7 @@
 
 #include <Arduino.h>
 
-#define DPAD_OK 0x0028
+#define DPAD_CENTER 0x0041
 #define DPAD_RIGHT 0x004f
 #define DPAD_LEFT 0x0050
 #define DPAD_DOWN 0x0051
@@ -11,20 +11,20 @@
 #define TOGGLE_MOUSE 0x0001
 struct inputConsumer_t
 {
-  uint16_t ConsumerControl;                          // Value = 0 to 572
+  uint16_t ConsumerControl; // Value = 0 to 572
 };
 
 struct inputKeyboard_t
 {
-  uint8_t  KB_KeyboardKeyboardLeftControl   : 1;       // Usage 0x000700E0: Keyboard Left Control, Value = 0 to 1
-  uint8_t  KB_KeyboardKeyboardLeftShift     : 1;       // Usage 0x000700E1: Keyboard Left Shift, Value = 0 to 1
-  uint8_t  KB_KeyboardKeyboardLeftAlt       : 1;       // Usage 0x000700E2: Keyboard Left Alt, Value = 0 to 1
-  uint8_t  KB_KeyboardKeyboardLeftGui       : 1;       // Usage 0x000700E3: Keyboard Left GUI, Value = 0 to 1
-  uint8_t  KB_KeyboardKeyboardRightControl  : 1;       // Usage 0x000700E4: Keyboard Right Control, Value = 0 to 1
-  uint8_t  KB_KeyboardKeyboardRightShift    : 1;       // Usage 0x000700E5: Keyboard Right Shift, Value = 0 to 1
-  uint8_t  KB_KeyboardKeyboardRightAlt      : 1;       // Usage 0x000700E6: Keyboard Right Alt, Value = 0 to 1
-  uint8_t  KB_KeyboardKeyboardRightGui      : 1;       // Usage 0x000700E7: Keyboard Right GUI, Value = 0 to 1
-  uint8_t  Key;                                        // Value = 0 to 101
+  uint8_t KB_KeyboardKeyboardLeftControl : 1;  // Usage 0x000700E0: Keyboard Left Control, Value = 0 to 1
+  uint8_t KB_KeyboardKeyboardLeftShift : 1;    // Usage 0x000700E1: Keyboard Left Shift, Value = 0 to 1
+  uint8_t KB_KeyboardKeyboardLeftAlt : 1;      // Usage 0x000700E2: Keyboard Left Alt, Value = 0 to 1
+  uint8_t KB_KeyboardKeyboardLeftGui : 1;      // Usage 0x000700E3: Keyboard Left GUI, Value = 0 to 1
+  uint8_t KB_KeyboardKeyboardRightControl : 1; // Usage 0x000700E4: Keyboard Right Control, Value = 0 to 1
+  uint8_t KB_KeyboardKeyboardRightShift : 1;   // Usage 0x000700E5: Keyboard Right Shift, Value = 0 to 1
+  uint8_t KB_KeyboardKeyboardRightAlt : 1;     // Usage 0x000700E6: Keyboard Right Alt, Value = 0 to 1
+  uint8_t KB_KeyboardKeyboardRightGui : 1;     // Usage 0x000700E7: Keyboard Right GUI, Value = 0 to 1
+  uint8_t Key;                                 // Value = 0 to 101
 };
 
 enum USBHIDType
@@ -51,40 +51,41 @@ typedef struct
   uint8_t longpress : 1;
 } HID_USAGE_KEY;
 
-class HIDUsageKeys {
-  public:
-    HIDUsageKeys() {};
-    static HIDUsageKeys& instance()
-    {
-        static HIDUsageKeys instance;
-        return instance;
-    }
-    int16_t hidKeyboard(uint16_t id);
-    int16_t hidKeyboard(const char *code);
-    int16_t hidKeyboardIndex(const char *code);
-    const char *hidKeyboardName(uint16_t id);
-    int16_t hidAppLauncher(uint16_t id);
-    int16_t hidAppLauncher(const char *code);
-    int16_t hidAppLauncherIndex(const char *code);
-    const char *hidAppLauncherName(uint16_t id);
-    int16_t hidConsumer(uint16_t id);
-    int16_t hidConsumer(const char *code);
-    int16_t hidConsumerIndex(const char *code);
-    const char *hidConsumerName(uint16_t id);
-    int16_t hidAppControl(uint16_t id);
-    int16_t hidAppControl(const char *code);
-    int16_t hidAppControlIndex(const char *code);
-    const char *hidAppControlName(uint16_t id);
-    int16_t hidInternal(uint16_t id);
-    int16_t hidInternal(const char *code);
-    int16_t hidInternalIndex(const char *code);
-    const char *hidInternalName(uint16_t id);
-    static int16_t getKey(uint8_t type, uint16_t id);
-    static int16_t getKey(const char *type, const char *code);
-    static int16_t getKeyIndex(uint8_t type, const char *code);
-    static const char *getKeyName(uint8_t type, int16_t id);
-    static const char *getKeyType(uint8_t type);
-    static const uint8_t getKeyTypeId(const char *type);
+class HIDUsageKeys
+{
+public:
+  HIDUsageKeys(){};
+  static HIDUsageKeys &instance()
+  {
+    static HIDUsageKeys instance;
+    return instance;
+  }
+  int16_t hidKeyboard(uint16_t id);
+  int16_t hidKeyboard(const char *code);
+  int16_t hidKeyboardIndex(const char *code);
+  const char *hidKeyboardName(uint16_t id);
+  int16_t hidAppLauncher(uint16_t id);
+  int16_t hidAppLauncher(const char *code);
+  int16_t hidAppLauncherIndex(const char *code);
+  const char *hidAppLauncherName(uint16_t id);
+  int16_t hidConsumer(uint16_t id);
+  int16_t hidConsumer(const char *code);
+  int16_t hidConsumerIndex(const char *code);
+  const char *hidConsumerName(uint16_t id);
+  int16_t hidAppControl(uint16_t id);
+  int16_t hidAppControl(const char *code);
+  int16_t hidAppControlIndex(const char *code);
+  const char *hidAppControlName(uint16_t id);
+  int16_t hidInternal(uint16_t id);
+  int16_t hidInternal(const char *code);
+  int16_t hidInternalIndex(const char *code);
+  const char *hidInternalName(uint16_t id);
+  static int16_t getKey(uint8_t type, uint16_t id);
+  static int16_t getKey(const char *type, const char *code);
+  static int16_t getKeyIndex(uint8_t type, const char *code);
+  static const char *getKeyName(uint8_t type, int16_t id);
+  static const char *getKeyType(uint8_t type);
+  static const uint8_t getKeyTypeId(const char *type);
 };
 
 const HID_USAGE InternalUsage[1] = {
@@ -215,7 +216,7 @@ const HID_USAGE HIDKeyboard[122] = {
     /* New */
     {"KEYCODE_INTL_BACKSLASH", 0x0032}};
 
-const HID_USAGE HIDConsumer[48] = {
+const HID_USAGE HIDConsumer[49] = {
     {"KEYCODE_POWER", 0x0034},
     {"KEYCODE_MENU", 0x0040},
     {"KEYCODE_WINDOW", 0x0067},
@@ -263,7 +264,8 @@ const HID_USAGE HIDConsumer[48] = {
     {"KEYCODE_MEDIA_STOP", 0x0226},
     {"KEYCODE_BOOKMARK", 0x022a}, // 45
     {"KEYCODE_PAGE_UP", 0x0233},
-    {"KEYCODE_PAGE_DOWN", 0x0234}};
+    {"KEYCODE_PAGE_DOWN", 0x0234},
+    {"KEYCODE_DPAD_CENTER", 0x0041}};
 
 const HID_USAGE HIDAppLauncher[70] = {
     "AL Launch Button Config. Tool", 0x0181,
