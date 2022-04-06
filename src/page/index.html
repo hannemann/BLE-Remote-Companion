@@ -626,12 +626,15 @@
       section.all-buttons .sticky-filter:focus-within {
         border-color: var(--accent-color);
       }
+      section.all-buttons .sticky-filter input {
+        width: calc(100% - 2rem);
+      }
       section.all-buttons .sticky-filter input:focus-within {
         outline: none;
       }
       section.all-buttons h2 {
         position: sticky;
-        top: calc(var(--nav-height) + 1.5em + 2px);
+        top: calc(var(--nav-height) + 1.5em + 3px);
         background: var(--clr-bg);
         padding-block: 0.25em;
         z-index: 1;
