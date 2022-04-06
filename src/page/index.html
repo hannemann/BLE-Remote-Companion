@@ -1282,7 +1282,7 @@
           this.url = `ws://${location.host}:[%WS_PORT%]/jsonrpc`;
           if (this.url.includes("WS_PORT")) {
             /* we assume dev env */
-            this.url = `ws://192.168.178.218:81/jsonrpc`;
+            this.url = `ws://192.168.178.130:81/jsonrpc`;
             document.querySelector("title").dataset.default = "IDE BLE-RC";
           }
           this.initHandler().initWebsocket();
