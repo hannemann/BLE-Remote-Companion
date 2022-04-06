@@ -185,6 +185,11 @@ void IRService::printConfig()
     Logger::instance().printf("Config %s\n", JSON.stringify(config).c_str());
 }
 
+JSONVar IRService::getConfig()
+{
+    return config;
+}
+
 void IRService::press()
 {
     if (currentType != TYPE_INTERNAL)

@@ -44,12 +44,14 @@ void WSEvent::webSocketEvent(uint8_t num, WStype_t type, uint8_t *payload, size_
         }
         Logger::instance().printf("WEBSOCKET: [%u] Connected from %d.%d.%d.%d url: %s\n", num, ip[0], ip[1], ip[2], ip[3], payload);
         WSEvent::instance().sendTXT(num, BLERC::configJSON);
-        char buffer[1024];
-        snprintf(buffer, 1024, "{\"remote\":{\"mappings\":%s}}", BLERC::remoteMappingsJSON.c_str());
-        WSEvent::instance().sendTXT(num, buffer);
         JSONVar status;
         status["bleStatus"] = Bluetooth::BLEconnected ? Bluetooth::STATUS_CONNECTED : Bluetooth::STATUS_DISCONNECTED;
         WSEvent::instance().sendTXT(num, JSON.stringify(status).c_str());
+
+        JSONVar remote;
+        remote["remote"]["mappings"] = (const JSONVar)BLERC::remoteMappings;
+        remote["remote"]["ir"] = (const JSONVar)IRService::instance().getConfig();
+        WSEvent::instance().sendTXT(num, JSON.stringify(remote).c_str());
         break;
     }
     case WStype_TEXT:
