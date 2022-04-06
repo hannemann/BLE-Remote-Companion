@@ -49,7 +49,6 @@ void WSEvent::webSocketEvent(uint8_t num, WStype_t type, uint8_t *payload, size_
         WSEvent::instance().sendTXT(num, buffer);
         JSONVar status;
         status["bleStatus"] = Bluetooth::BLEconnected ? Bluetooth::STATUS_CONNECTED : Bluetooth::STATUS_DISCONNECTED;
-        status["uptime"] = long(esp_timer_get_time());
         WSEvent::instance().sendTXT(num, JSON.stringify(status).c_str());
         break;
     }
@@ -235,7 +234,7 @@ void WSEvent::callMethod(uint8_t num, const char *method)
         JSONVar result;
         result["method"] = "uptime";
         result["result"] = "OK";
-        result["uptime"] = long(esp_timer_get_time());
+        result["uptime"] = long(esp_timer_get_time() / 1000);
         resultOK(num, JSON.stringify(result).c_str());
     }
 }

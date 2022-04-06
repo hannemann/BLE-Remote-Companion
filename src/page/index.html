@@ -2875,15 +2875,21 @@
 
         async uptime() {
           try {
-            let up = parseInt(await this.ws.uptime);
-            const d = new Date(up / 1000);
-            const days = Math.round(up / 1000000 / 86400)
+            let up = Math.abs(parseInt(await this.ws.uptime));
+            const cm = 60 * 1000;
+            const ch = 60 * cm;
+            const cd = 24 * ch;
+            const d = Math.floor(up / cd).toString();
+            const h = Math.floor((up % cd) / ch)
               .toString()
-              .padStart(3, 0);
-            const hours = d.getUTCHours().toString().padStart(2, 0);
-            const minutes = d.getUTCMinutes().toString().padStart(2, 0);
-            const seconds = d.getUTCSeconds().toString().padStart(2, 0);
-            return `${days} days, ${hours}:${minutes}:${seconds}`;
+              .padStart(2, "0");
+            const m = Math.floor((up % ch) / cm)
+              .toString()
+              .padStart(2, "0");
+            const s = Math.floor((up % cm) / 1000)
+              .toString()
+              .padStart(2, "0");
+            return `${d} days, ${h}:${m}:${s}`;
           } catch (error) {
             return "n.a.";
           }
