@@ -696,10 +696,14 @@
         height: calc(100vh - var(--nav-height) - 2 * var(--gap));
       }
       /* Router */
-      main:not([data-page="remote"]):not([data-page="learn"]):not([data-page="remap"])
+      main:not([data-page="remote"]):not([data-page="learn"]):not(
+          [data-page="remap"]
+        )
         section.remote
         > div,
-      main:not([data-page="keyboard"]):not([data-page="learn"]):not([data-page="remap"])
+      main:not([data-page="keyboard"]):not([data-page="learn"]):not(
+          [data-page="remap"]
+        )
         section.keyboard,
       main:not([data-page="mouse"]) section.mouse,
       main:not([data-page="learn"]) section.learn-config,
@@ -1155,6 +1159,10 @@
             <label>Room<input type="text" name="room" /></label>
           </fieldset>
           <fieldset>
+            <legend>Wifi</legend>
+            <label>Credentials<button class="reset-wifi">Reset</button></label>
+          </fieldset>
+          <fieldset>
             <legend>IR</legend>
             <label
               >Ignore unknown protocol<input
@@ -1549,6 +1557,10 @@
 
         reboot() {
           this.send({ method: "reboot" });
+        }
+
+        resetWifi() {
+          this.send({ method: "resetWifi" });
         }
 
         log(active) {
@@ -2582,10 +2594,17 @@
 
         initElements() {
           this.form = this.node.querySelector("form");
+          this.resetWifi = this.form.querySelector("button.reset-wifi");
           return this;
         }
 
         addListeners() {
+          this.resetWifi.addEventListener("click", (e) => {
+            e.preventDefault();
+            if (confirm("Reset Wifi Configuration?")) {
+              this.pageController.ws.resetWifi();
+            }
+          });
           this.form.addEventListener("submit", (e) => {
             e.preventDefault();
             this.pageController.ws.saveConfig(

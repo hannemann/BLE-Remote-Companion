@@ -35,10 +35,20 @@ void WebService::init()
         WiFi.mode(WIFI_MODE_STA);
         WiFi.begin(ssid.c_str(), psk.c_str());
 #endif
+        uint8_t maxWait = 61;
         while (WiFi.status() != WL_CONNECTED)
         {
-            Logger::instance().print(".");
-            delay(1000);
+            if (maxWait > 0)
+            {
+                Logger::instance().print(".");
+                maxWait -= 1;
+                delay(1000);
+            }
+            else
+            {
+                deleteCredentials();
+                ESP.restart();
+            }
         }
         Logger::instance().printf("\nConnected! IP address: %s\n", WiFi.localIP().toString().c_str());
 #endif

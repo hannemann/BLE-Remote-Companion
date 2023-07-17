@@ -135,7 +135,7 @@ bool WSEvent::validatePayload(uint8_t num, JSONVar &payload)
         }
         ESP_LOGE(LOG_TAG, "[%u] %s params invalid", num, (const char *)payload["method"]);
     }
-    if (strcmp(payload["method"], "uptime") == 0 || strcmp(payload["method"], "deleteMappings") == 0 || strcmp(payload["method"], "btDisconnect") == 0 || strcmp(payload["method"], "cancelIr") == 0 || strcmp(payload["method"], "forget") == 0 || strcmp(payload["method"], "clear") == 0 || strcmp(payload["method"], "reboot") == 0 || strcmp(payload["method"], "logon") == 0 || strcmp(payload["method"], "logoff") == 0)
+    if (strcmp(payload["method"], "uptime") == 0 || strcmp(payload["method"], "deleteMappings") == 0 || strcmp(payload["method"], "btDisconnect") == 0 || strcmp(payload["method"], "cancelIr") == 0 || strcmp(payload["method"], "forget") == 0 || strcmp(payload["method"], "clear") == 0 || strcmp(payload["method"], "reboot") == 0 || strcmp(payload["method"], "logon") == 0 || strcmp(payload["method"], "logoff") == 0 || strcmp(payload["method"], "resetWifi") == 0)
     {
         return true;
     }
@@ -230,6 +230,15 @@ void WSEvent::callMethod(uint8_t num, const char *method)
     {
         Logger::instance().setClient(-1);
         resultOK(num, "{\"method\":\"log\",\"result\":\"OK\",\"message\":\"Logging inactive\"}");
+    }
+    if (strcmp(method, "resetWifi") == 0)
+    {
+#ifndef LAN_NETWORK
+        WebService::instance().deleteCredentials();
+        resultOK(num, "{\"method\":\"log\",\"result\":\"OK\",\"message\":\"Wifi credentials cleared\"}");
+#else
+        resultError(num, METHOD_NOT_FOUND);
+#endif
     }
     if (strcmp(method, "uptime") == 0)
     {
